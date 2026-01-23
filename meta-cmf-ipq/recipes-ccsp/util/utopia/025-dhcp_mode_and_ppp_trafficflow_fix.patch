@@ -1,0 +1,22 @@
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Wed Jan 22 12:27:34 2025 +0530
+Subject: [recipes-ccsp] Added support needed to add/modify firewall rules on runtime via omci scripts handled via firewall_log_handle.sh.
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/scripts/init/service.d/service_firewall/firewall_log_handle.sh b/source/scripts/init/service.d/service_firewall/firewall_log_handle.sh
+index 67856a5..c527a1b 100755
+--- a/source/scripts/init/service.d/service_firewall/firewall_log_handle.sh
++++ b/source/scripts/init/service.d/service_firewall/firewall_log_handle.sh
+@@ -46,5 +46,9 @@ then
+     conntrack_flush
+ fi
+
+-
+-
++#
++# this will handle firewall rules for GPON and GPON on PPPoE
++#
++if [ -f /nvram/iptables_custom.sh ]; then
++    . /nvram/iptables_custom.sh
++fi

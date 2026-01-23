@@ -1,0 +1,61 @@
+Commit ID: 3c5c0ef301f931fd68f21b0e530d827377541d1e
+From: krisa <krisa@qti.qualcomm.com>
+Date: Thu Aug 24 18:50:33 2023 +0530
+Subject: Fix for HK Power save issue
+Signed-off-by: krisa <krisa@qti.qualcomm.com>
+
+---
+
+diff --git a/source/scripts/init/system/utopia_init.sh b/source/scripts/init/system/utopia_init.sh
+index f3eeea9..e65f5a0 100755
+--- a/source/scripts/init/system/utopia_init.sh
++++ b/source/scripts/init/system/utopia_init.sh
+@@ -522,15 +522,18 @@ fi
+ ifconfig l2sd0.1060 up
+ ip rule add from all iif l2sd0.1060 lookup erouter
+ 
+-# Add QinQ for pod ethernet backhaul traffic
+-brctl addbr br403
+-ifconfig br403 192.168.245.1 netmask 255.255.255.0 up
+-brctl addif br403 l2sd0.1060
+-ip rule add from all iif br403 lookup erouter
++BOARD_NAME=`cat /tmp/sysinfo/board_name`
++if [ "qcom,ipq8074-ap-hk09" != "$BOARD_NAME" && "qcom,ipq8074-ap-hk14" != "$BOARD_NAME" && "qcom,ipq9574-ap-al02-c4" != "$BOARD_NAME" && "qcom,ipq9574-ap-al02-c1" != "$BOARD_NAME" ];then
++        # Add QinQ for pod ethernet backhaul traffic
++        brctl addbr br403
++        ifconfig br403 192.168.245.1 netmask 255.255.255.0 up
++        brctl addif br403 l2sd0.1060
++        ip rule add from all iif br403 lookup erouter
+ 
+-# Add a new bridge for ethernet bhaul delivery
+-brctl addbr brebhaul
+-ifconfig brebhaul 169.254.85.1 netmask 255.255.255.0 up
++        # Add a new bridge for ethernet bhaul delivery
++        brctl addbr brebhaul
++        ifconfig brebhaul 169.254.85.1 netmask 255.255.255.0 up
++fi
+ 
+ #--------Marvell LAN-side egress flood mitigation----------------
+ echo_t "88E6172: Do not egress flood unicast with unknown DA"
+@@ -540,12 +543,15 @@ swctl -c 11 -p 5 -r 4 -b 0x007b
+ swctl -c 16 -p 0 -v 106 -m 2 -q 1
+ swctl -c 16 -p 7 -v 106 -m 2 -q 1
+ vconfig add l2sd0 106
+-brctl addbr br106
+-ifconfig l2sd0.106 up
+-ifconfig br106 192.168.106.1 netmask 255.255.255.0 up
+-brctl addif br106 l2sd0.106
+-ip rule add from all iif l2sd0.106 lookup erouter
+-ip rule add from all iif br106 lookup erouter
++
++if [ "qcom,ipq8074-ap-hk09" != "$BOARD_NAME" && "qcom,ipq8074-ap-hk14" != "$BOARD_NAME" && "qcom,ipq9574-ap-al02-c4" != "$BOARD_NAME" && "qcom,ipq9574-ap-al02-c1" != "$BOARD_NAME" ];then
++        brctl addbr br106
++        ifconfig l2sd0.106 up
++        ifconfig br106 192.168.106.1 netmask 255.255.255.0 up
++        brctl addif br106 l2sd0.106
++        ip rule add from all iif l2sd0.106 lookup erouter
++        ip rule add from all iif br106 lookup erouter
++fi
+ 
+ # Check and set factory-reset as reboot reason 
+ if [ "$FACTORY_RESET_REASON" = "true" ]; then

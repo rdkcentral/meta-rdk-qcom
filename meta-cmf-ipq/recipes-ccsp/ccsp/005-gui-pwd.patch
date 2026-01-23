@@ -1,0 +1,34 @@
+Commit ID: 143aeb0fbac6dd617a3ea94e878d061f7e7ca4ec
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Mon Mar 25 22:08:43 2024 +0530
+Subject: [recipes-ccsp] changes to migrate to 2023q4-dunfell branch
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source-arm/TR-181/board_sbapi/cosa_users_apis.c b/source-arm/TR-181/board_sbapi/cosa_users_apis.c
+index 58fc20d..9f244c1 100644
+--- a/source-arm/TR-181/board_sbapi/cosa_users_apis.c
++++ b/source-arm/TR-181/board_sbapi/cosa_users_apis.c
+@@ -570,7 +570,7 @@ user_validatepwd
+ 
+    if(fromDB[0] == '\0')
+    {
+-#if defined(_HUB4_PRODUCT_REQ_) || defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_BANANAPI_R4_)
++#if defined(_HUB4_PRODUCT_REQ_) || defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_BANANAPI_R4_) || defined(_PLATFORM_IPQ_)
+          user_hashandsavepwd(hContext,pEntry->Password,pEntry);
+ #else
+          FILE *fptr;
+diff --git a/source/TR-181/middle_layer_src/cosa_users_internal.c b/source/TR-181/middle_layer_src/cosa_users_internal.c
+index 4a62d9b..4b8e8e5 100644
+--- a/source/TR-181/middle_layer_src/cosa_users_internal.c
++++ b/source/TR-181/middle_layer_src/cosa_users_internal.c
+@@ -171,7 +171,7 @@ CosaUsersInitialize
+     errno_t safec_rc = -1;
+     int res;
+     
+-    #if defined(_HUB4_PRODUCT_REQ_) || defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_BANANAPI_R4_)
++    #if defined(_HUB4_PRODUCT_REQ_) || defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_BANANAPI_R4_) || defined(_PLATFORM_IPQ_)
+         //No need to remove any hardcoded passwords
+     #else
+         /* Remove hardcoded passwords*/

@@ -1,0 +1,87 @@
+Commit ID: 2f4c8f61b739c5ff60e03cf68a4d6113f3a5c63b
+From: Kalag <kalag@qti.qualcomm.com>
+Date: Sun May 19 21:21:14 2024 +0530
+Subject: [recipes-ccsp] Enable Vanilla controller on 12.5 Miami RDK
+Signed-off-by: Kalag <kalag@qti.qualcomm.com>
+
+---
+
+diff --git a/scripts/RdkEasyMeshController.service b/scripts/RdkEasyMeshController.service
+index 42a6261..733007c 100644
+--- a/scripts/RdkEasyMeshController.service
++++ b/scripts/RdkEasyMeshController.service
+@@ -4,7 +4,7 @@ Description=RdkEasyMeshController service
+ After=ccspwifiagent.service
+ 
+ [Service]
+-Type=simple
++Type=forking
+ WorkingDirectory=/usr/ccsp/easymesh
+ Environment="Subsys=eRT."
+ Environment="LOG4C_RCPATH=/etc"
+@@ -14,10 +14,10 @@ Environment="MAP_IEEE1905_LOG_LEVEL=error"
+ Environment="MAP_SSP_LOG_LEVEL=error"
+ Environment="MAP_LOG_OUTPUT=fileonly"
+ EnvironmentFile=/etc/device.properties
+-ExecStart=/usr/bin/em_ctl -subsys eRT. -e
++ExecStart=/usr/bin/em_ctl -subsys eRT. 
+ Restart=always
+ 
+ StandardOutput=syslog+console
+ 
+ [Install]
+-WantedBy=default.target
++WantedBy=multi-user.target
+diff --git a/source/libplatform/src/map_config.c b/source/libplatform/src/map_config.c
+index 7d98bda..0d65d4c 100644
+--- a/source/libplatform/src/map_config.c
++++ b/source/libplatform/src/map_config.c
+@@ -803,7 +803,7 @@ static int get_mac_addresses(map_controller_cfg_t *cfg)
+     mac_addr mac;
+     int rc;
+ 
+-    rc = getparam_val("Device.Ethernet.Interface.1.MACAddress", value, sizeof(value));
++    rc = getparam_val("Device.WiFi.SSID.3.MACAddress", value, sizeof(value));
+     if (rc != 0) {
+         log_lib_e("Failed to get MACAddress");
+         return -1;
+@@ -1593,7 +1593,9 @@ static int cfg_load(map_cfg_t *cfg, bool init)
+ 
+     /* LOAD ONCE */
+     if (init) {
+-        cfg->interfaces = strdup("^lo$|^eth.*|^wl.*|^sw_.*|^n[rs]gmii.*");
++	value = getenv("MAP_INTERFACE");
++	cfg->interfaces = (value == NULL) ? strdup("brlan0") : strdup(value);
++        //cfg->interfaces = strdup("^lo$|^eth.*|^wl.*|^sw_.*|^n[rs]gmii.*");
+         cfg->primary_vlan_pattern = strdup("${ifname}.${pvid}");
+         cfg->primary_vlan_id = -1;
+         cfg->default_pcp = 0;
+diff --git a/source/libplatform/src/map_data_model_dumper.c b/source/libplatform/src/map_data_model_dumper.c
+index 31459c7..4a60c01 100644
+--- a/source/libplatform/src/map_data_model_dumper.c
++++ b/source/libplatform/src/map_data_model_dumper.c
+@@ -399,6 +399,7 @@ static void print_local_interfaces(map_ale_info_t *ale, map_printf_cb_t print_cb
+ 
+ }
+ 
++#if 0
+ static void print_backhaul_sta_interfaces(map_ale_info_t *ale, map_printf_cb_t print_cb)
+ {
+     uint8_t i;
+@@ -421,6 +422,7 @@ static void print_backhaul_sta_interfaces(map_ale_info_t *ale, map_printf_cb_t p
+     print_cb("----------------------------------------------\n");
+ }
+ 
++#endif
+ static void print_eth_devices(map_ale_info_t *ale, map_printf_cb_t print_cb)
+ {
+     size_t i;
+@@ -490,7 +492,7 @@ static void print_agent_info(map_ale_info_t *ale, map_printf_cb_t print_cb)
+ 
+     print_local_interfaces(ale, print_cb);
+ 
+-    print_backhaul_sta_interfaces(ale, print_cb);
++    //print_backhaul_sta_interfaces(ale, print_cb);
+ 
+     print_eth_devices(ale, print_cb);
+ 

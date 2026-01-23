@@ -1,0 +1,1858 @@
+Commit ID: 143aeb0fbac6dd617a3ea94e878d061f7e7ca4ec
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Mon Mar 25 22:08:43 2024 +0530
+Subject: [recipes-ccsp] changes to migrate to 2023q4-dunfell branch
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/config-atom/TR181-WiFi-USGv2.XML b/config-atom/TR181-WiFi-USGv2.XML
+index e74451b..9e5a1d2 100644
+--- a/config-atom/TR181-WiFi-USGv2.XML
++++ b/config-atom/TR181-WiFi-USGv2.XML
+@@ -2011,6 +2005,50 @@ INSTMSMT_PH2 -->
+                             </parameters>
+                         </object>
+                     </objects>
++	    	</object>
++		<object>
++                    <name>CreateVAP</name>
++                    <objectType>writableTable</objectType>
++                    <maxInstance>128</maxInstance>
++                    <functions>
++			<func_GetEntryCount>CreateVAP_GetEntryCount</func_GetEntryCount>
++                        <func_GetEntry>CreateVAP_GetEntry</func_GetEntry>
++			<func_GetParamStringValue>CreateVAP_GetParamStringValue</func_GetParamStringValue>
++                        <func_SetParamStringValue>CreateVAP_SetParamStringValue</func_SetParamStringValue>
++                        <func_Validate>CreateVAP_Validate</func_Validate>
++                        <func_Commit>CreateVAP_Commit</func_Commit>
++                        <func_Rollback>CreateVAP_Rollback</func_Rollback>
++                    </functions>
++                    <parameters>
++                        <parameter>
++                            <name>VAP_Id</name>
++                            <type>string</type>
++                            <syntax>string</syntax>
++                            <writable>true</writable>
++                        </parameter>
++		    </parameters>
++	    	</object>
++	    	<object>
++                    <name>DeleteVAP</name>
++                    <objectType>writableTable</objectType>
++                    <maxInstance>128</maxInstance>
++                    <functions>
++                        <func_GetEntryCount>DeleteVAP_GetEntryCount</func_GetEntryCount>
++                        <func_GetEntry>DeleteVAP_GetEntry</func_GetEntry>
++                        <func_GetParamStringValue>DeleteVAP_GetParamStringValue</func_GetParamStringValue>
++                        <func_SetParamStringValue>DeleteVAP_SetParamStringValue</func_SetParamStringValue>
++                        <func_Validate>DeleteVAP_Validate</func_Validate>
++                        <func_Commit>DeleteVAP_Commit</func_Commit>
++                        <func_Rollback>DeleteVAP_Rollback</func_Rollback>
++                    </functions>
++                    <parameters>
++                        <parameter>
++                            <name>VAP_Id</name>
++                            <type>string</type>
++                            <syntax>string</syntax>
++                            <writable>true</writable>
++                        </parameter>
++                    </parameters>
+                 </object>
+                 <object>
+                     <name>AccessPoint</name>
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 0759e02..c3ab8e7 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -7765,6 +7765,7 @@ SSID_SetParamStringValue
+ #ifdef WIFI_HAL_VERSION_3
+         rc = STRCPY_S_NOCLOBBER( vapInfo->vap_name, sizeof(vapInfo->vap_name), pString );
+         ERR_CHK(rc);
++	pWifiSsid->SSID.Cfg.isSsidChanged = TRUE;
+ #else
+         rc = STRCPY_S_NOCLOBBER( pWifiSsid->SSID.Cfg.Alias, sizeof(pWifiSsid->SSID.Cfg.Alias), pString );
+         ERR_CHK(rc);
+@@ -8545,6 +8546,676 @@ Stats4_GetParamStringValue
+     return -1;
+ }
+ 
++/***********************************************************************
++
++ APIs for Object:
++
++     CreateVAP.
++     *  CreateVAP_GetEntryCount
++     *  CreateVAP_GetEntry
++     *  CreateVAP_GetParamStringValue
++     *  CreateVAP_SetParamStringValue
++     *  CreateVAP_Validate
++     *  CreateVAP_Commit
++
++***********************************************************************/ 
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ULONG
++        CreateVAP_GetEntryCount
++            (
++                ANSC_HANDLE                 hInsContext
++            );
++
++    description:
++
++        This function is called to retrieve the count of the table.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++    return:     The count of the table
++
++**********************************************************************/
++ULONG
++CreateVAP_GetEntryCount
++    (
++        ANSC_HANDLE                 hInsContext
++    )
++{
++	CcspTraceInfo(("\n Inside CreateVAP_GetEntryCount"));
++	return 1;
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ANSC_HANDLE
++        CreateVAP_GetEntry
++            (
++                ANSC_HANDLE                 hInsContext,
++                ULONG                       nIndex,
++                ULONG*                      pInsNumber
++            );
++
++    description:
++
++        This function is called to retrieve the entry specified by the index.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                ULONG                       nIndex,
++                The index of this entry;
++
++                ULONG*                      pInsNumber
++                The output instance number;
++
++    return:     The handle to identify the entry
++
++**********************************************************************/
++
++COSA_DML_WIFI_CREATE_VAP_CFG g_createvap_cfg;
++
++ANSC_HANDLE
++CreateVAP_GetEntry
++    (
++        ANSC_HANDLE                 hInsContext,
++        ULONG                       nIndex,
++        ULONG*                      pInsNumber
++    )
++{
++	CcspTraceInfo(("\n CreateVAP_GetEntry nIndex: %lu, pInsNumber: %lu ", nIndex, *pInsNumber));
++	UNREFERENCED_PARAMETER(hInsContext);
++	*pInsNumber = 1;
++	return &g_createvap_cfg; /* return the handle */
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ULONG
++        CreateVAP_GetParamStringValue
++            (
++                ANSC_HANDLE                 hInsContext,
++                char*                       ParamName,
++                char*                       pValue,
++                ULONG*                      pUlSize
++            );
++
++    description:
++
++        This function is called to retrieve string parameter value; 
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                char*                       ParamName,
++                The parameter name;
++
++                char*                       pValue,
++                The string value buffer;
++
++                ULONG*                      pUlSize
++                The buffer of length of string value;
++                Usually size of 1023 will be used.
++                If it's not big enough, put required size here and return 1;
++
++    return:     0 if succeeded;
++                1 if short of buffer size; (*pUlSize = required size)
++                -1 if not supported.
++
++**********************************************************************/
++ULONG
++CreateVAP_GetParamStringValue
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       ParamName,
++        char*                       pValue,
++        ULONG*                      pUlSize
++    )
++{
++	CcspTraceInfo(("\nCreateVAP_GetParamStringValue"));
++	PCOSA_DML_WIFI_CREATE_VAP_CFG   pCreateVap   = (PCOSA_DML_WIFI_CREATE_VAP_CFG)hInsContext;
++	errno_t                         rc           = -1;
++
++	if( AnscEqualString(ParamName, "VAP_Id", TRUE))
++	{
++		/* collect value */
++		if ( AnscSizeOfString(pCreateVap->VAP_Ids) < *pUlSize)
++		{
++			rc = strcpy_s(pValue, *pUlSize, pCreateVap->VAP_Ids);
++			ERR_CHK(rc);
++			return 0;
++		}
++		else
++		{
++			*pUlSize = AnscSizeOfString(pCreateVap->VAP_Ids);
++			return 1;
++		}
++		return 0;
++	}
++	CcspTraceInfo(("Unsupported parameter '%s'\n", ParamName));
++	return -1;
++}
++
++/***********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        BOOL
++        CreateVAP_SetParamStringValue
++            (
++                ANSC_HANDLE                 hInsContext,
++                char*                       ParamName,
++                char*                       pString
++            );
++
++    description:
++
++        This function is called to set string parameter value; 
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                char*                       ParamName,
++                The parameter name;
++
++                char*                       pString
++                The updated string value;
++
++    return:     TRUE if succeeded.
++
++**********************************************************************/
++BOOL
++CreateVAP_SetParamStringValue
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       ParamName,
++        char*                       pString
++    )
++{    
++	CcspTraceInfo(("\n CreateVAP_SetParamStringValue inside"));
++	PCOSA_DML_WIFI_CREATE_VAP_CFG   pCreateVap   = (PCOSA_DML_WIFI_CREATE_VAP_CFG)hInsContext;
++	errno_t                         rc           = -1;
++
++	// check the parameter name and return the corresponding value 
++	if( AnscEqualString(ParamName, "VAP_Id", TRUE))
++	{
++		//collect value
++		rc = strcpy_s(pCreateVap->VAP_Ids, sizeof(pCreateVap->VAP_Ids), pString);
++		ERR_CHK(rc);
++		if(rc != EOK)
++		{
++			ERR_CHK(rc);
++			CcspTraceInfo(("\n CreateVAP_SetParamStringValue failed set"));
++			return FALSE;
++		}
++		CcspTraceInfo(("\n CreateVAP_SetParamStringValue sucessfull value : %s ", pCreateVap->VAP_Ids));
++		return TRUE;
++	}
++
++	CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName));
++	return FALSE;
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        BOOL
++        CreateVAP_Validate
++            (
++                ANSC_HANDLE                 hInsContext,
++                char*                       pReturnParamName,
++                ULONG*                      puLength
++            );
++
++    description:
++
++        This function is called to finally commit all the update.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                char*                       pReturnParamName,
++                The buffer (128 bytes) of parameter name if there's a validation. 
++
++                ULONG*                      puLength
++                The output length of the param name. 
++
++    return:     TRUE if there's no validation.
++
++**********************************************************************/
++BOOL
++CreateVAP_Validate
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       pReturnParamName,
++        ULONG*                      puLength
++    )
++{
++	PCOSA_DML_WIFI_CREATE_VAP_CFG   pCreateVap    = (PCOSA_DML_WIFI_CREATE_VAP_CFG)hInsContext;
++	errno_t                         rc            = -1;
++	CcspTraceInfo(("\n CreateVAP_Validate Value received: %s", pCreateVap->VAP_Ids));
++	/*VAP_Id should be non-empty*/
++	if (AnscSizeOfString(pCreateVap->VAP_Ids) == 0)
++	{
++		rc = strcpy_s(pReturnParamName, *puLength, "VAP_Id");
++		ERR_CHK(rc);
++		*puLength = AnscSizeOfString("VAP_Id");
++		CcspTraceInfo(("\n CreateVAP_Validate Failed %d ", __LINE__));
++		return FALSE;
++	}
++	char VAP[128];
++	char *saveptr;
++	memset(VAP, 0, sizeof(VAP));
++	strcpy_s(VAP, sizeof(VAP), pCreateVap->VAP_Ids);    
++	char *pt = strtok_r(VAP, ",", &saveptr);
++	while (pt != NULL)
++	{
++		int apIndex = atoi(pt)-1;
++		CcspTraceInfo(("\n split values %d ", apIndex));
++		if (apIndex < MIN_ADDITIONAL_VAP_IDX || apIndex > MAX_ADDITIONAL_VAP_IDX)
++		{
++			CcspTraceInfo(("\n CreateVAP_Validate Failed %d ", __LINE__));
++			return FALSE;
++		}
++		CcspTraceInfo(("\n CreateVAP_Validate Success"));
++		pt = strtok_r(NULL, ",", &saveptr);
++	}
++	CcspTraceInfo(("\n CreateVAP_Validate Value sent: %s", pCreateVap->VAP_Ids));
++	return TRUE;
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ULONG
++        CreateVAP_Commit
++			ANSC_HANDLE                 hInsContext
++           );
++
++    description:
++
++        This function is called to finally commit all the update.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++    return:     The status of the operation.
++
++**********************************************************************/
++ULONG
++CreateVAP_Commit
++    (
++        ANSC_HANDLE                 hInsContext
++    )
++{
++	CcspTraceInfo(("\n inside CreateVAP_Commit"));
++	PCOSA_DML_WIFI_CREATE_VAP_CFG       pCreateVap  = (PCOSA_DML_WIFI_CREATE_VAP_CFG)hInsContext;
++	CcspTraceInfo(("\n value sent: %s", pCreateVap->VAP_Ids));
++	if (CosaDmlWiFi_setCreateVAP(pCreateVap) == ANSC_STATUS_SUCCESS)
++	{
++		return ANSC_STATUS_SUCCESS;
++	}
++
++	return ANSC_STATUS_FAILURE;
++}
++
++/***********************************************************************
++
++ APIs for Object:
++
++     DeleteVAP.
++     *  DeleteVAP_GetEntryCount
++     *  DeleteVAP_GetEntry
++     *  DeleteVAP_GetParamStringValue
++     *  DeleteVAP_SetParamStringValue
++     *  DeleteVAP_Validate
++     *  DeleteVAP_Commit
++
++***********************************************************************/ 
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ULONG
++        DeleteVAP_GetEntryCount
++            (
++                ANSC_HANDLE                 hInsContext
++            );
++
++    description:
++
++        This function is called to retrieve the count of the table.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++    return:     The count of the table
++
++**********************************************************************/
++ULONG
++DeleteVAP_GetEntryCount
++    (
++        ANSC_HANDLE                 hInsContext
++    )
++{
++	CcspTraceInfo(("\n Inside DeleteVAP_GetEntryCount"));
++	return 1;
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ANSC_HANDLE
++        DeleteVAP_GetEntry
++            (
++                ANSC_HANDLE                 hInsContext,
++                ULONG                       nIndex,
++                ULONG*                      pInsNumber
++            );
++
++    description:
++
++        This function is called to retrieve the entry specified by the index.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                ULONG                       nIndex,
++                The index of this entry;
++
++                ULONG*                      pInsNumber
++                The output instance number;
++
++    return:     The handle to identify the entry
++
++**********************************************************************/
++
++COSA_DML_WIFI_DELETE_VAP_CFG g_deletevap_cfg;
++
++ANSC_HANDLE
++DeleteVAP_GetEntry
++    (
++        ANSC_HANDLE                 hInsContext,
++        ULONG                       nIndex,
++        ULONG*                      pInsNumber
++    )
++{
++	CcspTraceInfo(("\n DeleteVAP_GetEntry nIndex: %lu, pInsNumber: %lu ", nIndex, *pInsNumber));
++	UNREFERENCED_PARAMETER(hInsContext);
++	*pInsNumber = 1;
++	return &g_deletevap_cfg; /* return the handle */
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ULONG
++        DeleteVAP_GetParamStringValue
++            (
++                ANSC_HANDLE                 hInsContext,
++                char*                       ParamName,
++                char*                       pValue,
++                ULONG*                      pUlSize
++            );
++
++    description:
++
++        This function is called to retrieve string parameter value; 
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                char*                       ParamName,
++                The parameter name;
++
++                char*                       pValue,
++                The string value buffer;
++
++                ULONG*                      pUlSize
++                The buffer of length of string value;
++                Usually size of 1023 will be used.
++                If it's not big enough, put required size here and return 1;
++
++    return:     0 if succeeded;
++                1 if short of buffer size; (*pUlSize = required size)
++                -1 if not supported.
++
++**********************************************************************/
++ULONG
++DeleteVAP_GetParamStringValue
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       ParamName,
++        char*                       pValue,
++        ULONG*                      pUlSize
++    )
++{
++	CcspTraceInfo(("\nDeleteVAP_GetParamStringValue"));
++	PCOSA_DML_WIFI_DELETE_VAP_CFG   pDeleteVap   = (PCOSA_DML_WIFI_DELETE_VAP_CFG)hInsContext;
++	errno_t                         rc           = -1;
++
++	if( AnscEqualString(ParamName, "VAP_Id", TRUE))
++	{
++		/* collect value */
++		if ( AnscSizeOfString(pDeleteVap->VAP_Ids) < *pUlSize)
++		{
++			rc = strcpy_s(pValue, *pUlSize, pDeleteVap->VAP_Ids);
++			ERR_CHK(rc);
++			return 0;
++		}
++		else
++		{
++			*pUlSize = AnscSizeOfString(pDeleteVap->VAP_Ids);
++			return 1;
++		}
++		return 0;
++	}
++	CcspTraceInfo(("Unsupported parameter '%s'\n", ParamName));
++	return -1;
++
++}
++
++/***********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        BOOL
++        DeleteVAP_SetParamStringValue
++            (
++                ANSC_HANDLE                 hInsContext,
++                char*                       ParamName,
++                char*                       pString
++            );
++
++    description:
++
++        This function is called to set string parameter value; 
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                char*                       ParamName,
++                The parameter name;
++
++                char*                       pString
++                The updated string value;
++
++    return:     TRUE if succeeded.
++
++**********************************************************************/
++BOOL
++DeleteVAP_SetParamStringValue
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       ParamName,
++        char*                       pString
++    )
++{    
++	CcspTraceInfo(("\n DeleteVAP_SetParamStringValue inside"));
++	PCOSA_DML_WIFI_DELETE_VAP_CFG   pDeleteVap   = (PCOSA_DML_WIFI_DELETE_VAP_CFG)hInsContext;
++	errno_t                         rc           = -1;
++
++	// check the parameter name and return the corresponding value 
++	if( AnscEqualString(ParamName, "VAP_Id", TRUE))
++	{
++		//collect value
++		rc = strcpy_s(pDeleteVap->VAP_Ids, sizeof(pDeleteVap->VAP_Ids), pString);
++		ERR_CHK(rc);
++		if(rc != EOK)
++		{
++			ERR_CHK(rc);
++			CcspTraceInfo(("\n DeleteVAP_SetParamStringValue failed set"));
++			return FALSE;
++		}
++		CcspTraceInfo(("\n DeleteVAP_SetParamStringValue sucessfull value : %s ", pDeleteVap->VAP_Ids));
++		return TRUE;
++	}
++
++	CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName));
++	return FALSE;
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        BOOL
++        DeleteVAP_Validate
++            (
++                ANSC_HANDLE                 hInsContext,
++                char*                       pReturnParamName,
++                ULONG*                      puLength
++            );
++
++    description:
++
++        This function is called to finally commit all the update.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++                char*                       pReturnParamName,
++                The buffer (128 bytes) of parameter name if there's a validation. 
++
++                ULONG*                      puLength
++                The output length of the param name. 
++
++    return:     TRUE if there's no validation.
++
++**********************************************************************/
++BOOL
++DeleteVAP_Validate
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       pReturnParamName,
++        ULONG*                      puLength
++    )
++{
++	PCOSA_DML_WIFI_DELETE_VAP_CFG   pDeleteVap    = (PCOSA_DML_WIFI_DELETE_VAP_CFG)hInsContext;
++	errno_t                         rc            = -1;
++	CcspTraceInfo(("\n DeleteVAP_Validate Value received: %s", pDeleteVap->VAP_Ids));
++	/*VAP_Id should be non-empty*/
++	if (AnscSizeOfString(pDeleteVap->VAP_Ids) == 0)
++	{
++		rc = strcpy_s(pReturnParamName, *puLength, "VAP_Id");
++		ERR_CHK(rc);
++		*puLength = AnscSizeOfString("VAP_Id");
++		CcspTraceInfo(("\n DeleteVAP_Validate Failed %d ", __LINE__));
++		return FALSE;
++	}
++	char VAP[128];
++	char *saveptr;
++	memset(VAP, 0, sizeof(VAP));
++	strcpy_s(VAP, sizeof(VAP), pDeleteVap->VAP_Ids);    
++	char *pt = strtok_r(VAP, ",", &saveptr);
++	while (pt != NULL)
++	{
++		int apIndex = atoi(pt)-1;
++		CcspTraceInfo(("\n split values %d ", apIndex));
++		if (apIndex < MIN_ADDITIONAL_VAP_IDX || apIndex > MAX_ADDITIONAL_VAP_IDX)
++		{
++			CcspTraceInfo(("\n DeleteVAP_Validate Failed %d ", __LINE__));
++			return FALSE;
++		}
++		CcspTraceInfo(("\n DeleteVAP_Validate Success"));
++		pt = strtok_r(NULL, ",", &saveptr);
++	}
++	CcspTraceInfo(("\nDeleteVAP_Validate Value sent: %s", pDeleteVap->VAP_Ids));
++	return TRUE;
++}
++
++/**********************************************************************  
++
++    caller:     owner of this object 
++
++    prototype: 
++
++        ULONG
++        DeleteVAP_Commit
++			ANSC_HANDLE                 hInsContext
++           );
++
++    description:
++
++        This function is called to finally commit all the update.
++
++    argument:   ANSC_HANDLE                 hInsContext,
++                The instance handle;
++
++    return:     The status of the operation.
++
++**********************************************************************/
++ULONG
++DeleteVAP_Commit
++    (
++        ANSC_HANDLE                 hInsContext
++    )
++{
++	CcspTraceInfo(("\ninside DeleteVAP_Commit"));
++	PCOSA_DML_WIFI_DELETE_VAP_CFG       pDeleteVap  = (PCOSA_DML_WIFI_DELETE_VAP_CFG)hInsContext;
++	CcspTraceInfo(("\nvalue sent: %s", pDeleteVap->VAP_Ids));
++	if (CosaDmlWiFi_setDeleteVAP(pDeleteVap) == ANSC_STATUS_SUCCESS)
++	{
++		return ANSC_STATUS_SUCCESS;
++	}
++
++	return ANSC_STATUS_FAILURE;
++}
++
++
+ /***********************************************************************
+ 
+  APIs for Object:
+@@ -12021,6 +12714,7 @@ Security_SetParamBoolValue
+ 		if ( TRUE == pWifiApSec->Cfg.bReset )
+ 		{
+ 			pWifiAp->bSecChanged	 = TRUE;
++			pWifiApSec->isSecChanged = TRUE;
+ 
+ 		}
+ 		return TRUE;		
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index c5f2f08..ede52e8 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -165,8 +165,11 @@ ANSC_STATUS CosaDmlWiFi_setInterworkingElement(PCOSA_DML_WIFI_AP_CFG pCfg);
+ ANSC_STATUS CosaDmlWiFi_getInterworkingElement(PCOSA_DML_WIFI_AP_CFG pCfg, ULONG apIns);
+ void CosaDmlWiFiPsmDelInterworkingEntry();
+ #endif
++ANSC_STATUS CosaDmlWiFi_setCreateVAP(PCOSA_DML_WIFI_CREATE_VAP_CFG pCfg);
++ANSC_STATUS CosaDmlWiFi_setDeleteVAP(PCOSA_DML_WIFI_DELETE_VAP_CFG pCfg);
+ ANSC_STATUS CosaDmlWiFi_ApplyRoamingConsortiumElement(PCOSA_DML_WIFI_AP_CFG pCfg);
+ ANSC_STATUS CosaDmlWifi_setBSSTransitionActivated(PCOSA_DML_WIFI_AP_CFG pCfg, ULONG apIns);
++ANSC_STATUS getApPSMValues(UINT apIndex, bool *isChanged);
+ #ifdef WIFI_HAL_VERSION_3
+ UINT gRadioRestartRequest = 0; //bitmask radio index to identify which radio should restart
+ #else
+@@ -1641,9 +1644,9 @@ static int gRadioCount = 2;
+ #if defined (MULTILAN_FEATURE)
+ static int gSsidCount = 0;
+ #else
+-static int gSsidCount = 16;
++static int gSsidCount = 51;
+ #endif
+-static int gApCount = 16;
++static int gApCount = 51;
+ #endif //WIFI_HAL_VERSION_3
+ 
+ #ifdef WIFI_HAL_VERSION_3
+@@ -6778,7 +6781,7 @@ CosaDmlWiFi_setStatus(ULONG status, PANSC_HANDLE phContext)
+ #ifdef WIFI_HAL_VERSION_3
+             for (vapIndex = 0; vapIndex < (int)getTotalNumberVAPs(); vapIndex++) 
+ #else
+-               for (vapIndex = 0; vapIndex < 16; vapIndex++)
++               for (vapIndex = 0; vapIndex < WIFI_INDEX_MAX; vapIndex++)
+ #endif
+                {
+                     wifi_getApEnable(vapIndex, &apEnabled);
+@@ -8299,7 +8302,7 @@ printf("%s \n",__FUNCTION__);
+ #ifdef WIFI_HAL_VERSION_3
+         for (i =0; i < (int)getTotalNumberVAPs(); i++) {
+ #else
+-        for (i =0; i < 16; i++) {
++        for (i =0; i < WIFI_INDEX_MAX; i++) {
+ #endif
+             memset(recName, 0, sizeof(recName));
+             snprintf(recName, sizeof(recName), WmmEnable, i+1);
+@@ -10649,7 +10652,7 @@ BOOL CosaDmlWiFiSetHostapdAuthenticatorEnable(PANSC_HANDLE phContext, BOOLEAN bV
+ #ifdef WIFI_HAL_VERSION_3
+         for (vapIndex =0; vapIndex < (int)getTotalNumberVAPs(); vapIndex++)
+ #else
+-        for (vapIndex = 0; vapIndex < 16; vapIndex++)
++        for (vapIndex = 0; vapIndex < WIFI_INDEX_MAX; vapIndex++)
+ #endif
+         {
+             wifi_getApWpsEnable(vapIndex, (BOOL *)&wpsCfg);
+@@ -10752,7 +10755,7 @@ BOOL mCosaDmlWiFiSetHostapdAuthenticatorEnable(PANSC_HANDLE phContext, BOOLEAN b
+     else
+     {
+         libhostap_eloop_deinit();
+-        for (vapIndex = 0; vapIndex < 16; vapIndex++)
++        for (vapIndex = 0; vapIndex < WIFI_INDEX_MAX; vapIndex++)
+         {
+             wifi_getApEnable(vapIndex, &apEnabled);
+             if (apEnabled)
+@@ -11507,7 +11510,7 @@ static void * CosaDmlWifi_RadioPowerThread(void *arg)
+ #ifdef WIFI_HAL_VERSION_3
+                 for (vapIndex = 0; vapIndex < (int)getTotalNumberVAPs(); vapIndex++)
+ #else
+-                for (vapIndex = 0; vapIndex < 16; vapIndex++)
++                for (vapIndex = 0; vapIndex < WIFI_INDEX_MAX; vapIndex++)
+ #endif
+                 {
+                      wifi_getApEnable(vapIndex, &apEnabled);
+@@ -12600,6 +12603,8 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+             //Update the DML cache from VAP structure
+             vapIndex = tmpWifiVapInfoMap.vap_array[vapCount].vap_index;
+             vapArrayInstance = vapIndex+1;
++	    wifi_vap_info_t *tempVapInfo = getVapInfo(vapIndex);
++            CcspWifiTrace(("RDK_LOG_INFO, %s:%d Security: %d SecurityKey: %s vapIndex : %d \n", __FUNCTION__, __LINE__,tmpWifiVapInfoMap.vap_array[vapCount].u.bss_info.security.mode, tmpWifiVapInfoMap.vap_array[vapCount].u.bss_info.security.u.key.key, vapIndex));
+             CcspWifiTrace(("RDK_LOG_INFO, %s Updating VAP DML Structure for vapIndex : %d \n", __FUNCTION__, vapIndex));
+ 
+             pMyObject = (PCOSA_DATAMODEL_WIFI)g_pCosaBEManager->hWifi;
+@@ -12785,12 +12790,21 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+                 memset(multinet_instance, '\0', sizeof(multinet_instance));
+                 snprintf(multinet_instance, sizeof(multinet_instance), "RDK|%d|%s|%s|%s",
+                         vapIndex, tmpWifiVapInfoMap.vap_array[vapCount].u.bss_info.security.u.key.key, secMode, encryptMode);
+-                if ( (gWrite_sysevent_fd || !initGSyseventVar()) &&
++		if ( (gWrite_sysevent_fd || !initGSyseventVar()) &&
+                     (sysevent_set(gWrite_sysevent_fd, gWrite_sysEtoken, "wifi_ApSecurity", multinet_instance, 0)) )
+                 {
+                     CcspWifiTrace(("RDK_LOG_ERROR, %s-%d Error in setting sysevent\n", __FUNCTION__, __LINE__));
+                 }
+ #endif
++		if( pWifiAp->SEC.Cfg.bReset == TRUE )
++		{
++			//Reset the value after do the operation
++			wifi_setApSecurityReset( vapIndex );
++			wifi_getApSecurity (vapIndex, &tempVapInfo->u.bss_info.security);
++			pWifiAp->SEC.Cfg.bReset  = FALSE;
++			memcpy(&tmpWifiVapInfoMap.vap_array[vapCount].u.bss_info.security, &tempVapInfo->u.bss_info.security, sizeof(wifi_vap_security_t));
++			CcspWifiTrace(("RDK_LOG_WARN,%s WiFi security settings are reset to their factory default values \n ",__FUNCTION__));
++		}
+             }
+ 
+             CosaDmlWiFiApSecGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.StaticInfo.Name, &pWifiAp->SEC);
+@@ -12999,7 +13015,7 @@ fprintf(stderr, "----# %s %d 	wifi_setApEnable %d false\n", __func__, __LINE__,
+             wifi_getRadioStatus(wlanIndex, &activeVaps);
+             wifiDbgPrintf("%s Config changes   %dApplySettingSSID = %d\n",__FUNCTION__, __LINE__, pCfg->ApplySettingSSID);
+ 
+-            for (i=wlanIndex; i < 16; i += 2)
++            for (i=wlanIndex; i < WIFI_INDEX_MAX; i += 2)
+             {
+                 // if ApplySettingSSID has been set, only apply changes to the specified SSIDs
+                 if ( (pCfg->ApplySettingSSID != 0) && !((1<<i) & pCfg->ApplySettingSSID ))
+@@ -13260,7 +13276,7 @@ fprintf(stderr, "----# %s %d 	wifi_setApEnable %d true\n", __func__, __LINE__, i
+ 
+             /* if any of the user-controlled SSID is up, turn on the WiFi LED */
+             int  MbssEnable = 0;
+-            for (i=wlanIndex; i < 16; i += 2)
++            for (i=wlanIndex; i < WIFI_INDEX_MAX; i += 2)
+             {
+                 if (sWiFiDmlSsidStoredCfg[i].bEnabled == TRUE)
+                     MbssEnable += 1<<((i-wlanIndex)/2);
+@@ -13432,7 +13448,7 @@ fprintf(stderr, "----# %s %d 	wifi_setApEnable %d true\n", __func__, __LINE__, i
+ #endif
+                 wifiDbgPrintf("%s Pushing Radio Config changes  %d\n",__FUNCTION__, __LINE__);
+                 // Find the first ath that is up on the given radio
+-                for (athIndex = wlanIndex; athIndex < 16; athIndex+=2) {
++                for (athIndex = wlanIndex; athIndex < WIFI_INDEX_MAX; athIndex+=2) {
+                     BOOL enabled;
+                     wifi_getApEnable(athIndex, &enabled);
+                     wifiDbgPrintf("%s Pushing Radio Config changes %d %d\n",__FUNCTION__, athIndex, __LINE__);
+@@ -13486,7 +13502,7 @@ fprintf(stderr, "----# %s %d 	wifi_setApEnable %d true\n", __func__, __LINE__, i
+                 }
+             }
+ 
+-            for (i=wlanIndex; i < 16; i += 2) { 
++            for (i=wlanIndex; i < WIFI_INDEX_MAX; i += 2) { 
+                 if (sWiFiDmlAffectedVap[i] == TRUE)
+                 {
+ #if defined(_INTEL_WAV_)
+@@ -15067,7 +15083,7 @@ CosaDmlWiFiRadioGetCfg
+     /* if any of the user-controlled SSID is up, turn on the WiFi LED */
+     int i, MbssEnable = 0;
+     BOOL vapEnabled = FALSE;
+-    for (i=wlanIndex; i < 16; i += 2)
++    for (i=wlanIndex; i < WIFI_INDEX_MAX; i += 2)
+     {
+         wifi_getApEnable(i, &vapEnabled);
+         if (vapEnabled == TRUE)
+@@ -18003,6 +18019,221 @@ wifiDbgPrintf("%s pSsid = %s\n",__FUNCTION__, pSsid);
+     return ANSC_STATUS_SUCCESS;
+ }
+ 
++ANSC_STATUS CosaDmlWiFi_SetSsidApAdditionalVap(int apIndex)
++{
++	CcspTraceInfo(("\nCosaDmlWiFi_SetSsidAdditionalVap Inside"));
++	ULONG                           nIndex        = apIndex;
++
++	//SSID
++	PCOSA_DATAMODEL_WIFI            pMyObject     = (PCOSA_DATAMODEL_WIFI     )g_pCosaBEManager->hWifi;
++	PCOSA_CONTEXT_LINK_OBJECT       pLinkObj      = (PCOSA_CONTEXT_LINK_OBJECT)NULL;
++	PSINGLE_LINK_ENTRY              pSLinkEntry   = (PSINGLE_LINK_ENTRY       )NULL;
++	PCOSA_DML_WIFI_SSID             pWifiSsid     = (PCOSA_DML_WIFI_SSID      )NULL;
++
++	CcspTraceInfo(("\nCosaDmlWiFi_SetSsidApAdditionalVap SSID start index: %lu", nIndex));
++	pSLinkEntry = AnscQueueGetEntryByIndex(&pMyObject->SsidQueue, nIndex);
++
++	if (pSLinkEntry)
++	{
++		pLinkObj = ACCESS_COSA_CONTEXT_LINK_OBJECT(pSLinkEntry);
++	}
++
++	pWifiSsid   = (PCOSA_DML_WIFI_SSID)pLinkObj->hContext;
++
++	CosaDmlWiFiSsidGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, nIndex, &pWifiSsid->SSID);
++	CcspTraceInfo(("\nCosaDmlWiFi_SetSsidApAdditionalVap SSID end index: %lu", nIndex));
++
++	//AP
++	PCOSA_CONTEXT_LINK_OBJECT       pLinkObjAp      = (PCOSA_CONTEXT_LINK_OBJECT)NULL;
++	PSINGLE_LINK_ENTRY              pSLinkEntryAp   = (PSINGLE_LINK_ENTRY       )NULL;
++	PCOSA_DML_WIFI_AP               pWifiAp         = (PCOSA_DML_WIFI_AP        )NULL;
++	pSLinkEntryAp = AnscQueueGetEntryByIndex(&pMyObject->AccessPointQueue, nIndex);
++	void*               pWifiApRapidReconnectMaxTime  = NULL;
++	CcspTraceInfo(("\nCosaDmlWiFi_SetSsidApAdditionalVap AP start index: %lu", nIndex));
++	if ( pSLinkEntryAp )
++	{
++		pLinkObjAp  = ACCESS_COSA_CONTEXT_LINK_OBJECT(pSLinkEntryAp);
++	}
++
++	pWifiAp  = (PCOSA_DML_WIFI_AP)pLinkObjAp->hContext;
++
++#if !defined(_COSA_INTEL_USG_ATOM_) && !defined(_COSA_BCM_MIPS_) && !defined(_COSA_BCM_ARM_) && !defined(_PLATFORM_TURRIS_)
++	CosaDmlWiFiApGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.Cfg.SSID, &pWifiAp->AP);
++	CosaDmlWiFiApSecGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.Cfg.SSID, &pWifiAp->SEC);
++	CosaDmlWiFiApWpsGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.Cfg.SSID, &pWifiAp->WPS);
++	CosaDmlWiFiApMfGetCfg((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.Cfg.SSID, &pWifiAp->MF);
++#else
++	CosaDmlWiFiApGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.StaticInfo.Name, &pWifiAp->AP);
++	CosaDmlWiFiApSecGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.StaticInfo.Name, &pWifiAp->SEC);
++	CosaDmlWiFiApWpsGetEntry((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.StaticInfo.Name, &pWifiAp->WPS);
++	CosaDmlWiFiApMfGetCfg((ANSC_HANDLE)pMyObject->hPoamWiFiDm, pWifiSsid->SSID.StaticInfo.Name, &pWifiAp->MF);
++#endif
++	CcspTraceInfo(("\nCosaDmlWiFi_SetSsidApAdditionalVap AP  end index: %lu", nIndex));
++
++	return ANSC_STATUS_SUCCESS;
++
++}
++
++ANSC_STATUS CosaDmlWiFi_setCreateVAP(PCOSA_DML_WIFI_CREATE_VAP_CFG pCfg)
++{
++	CcspTraceInfo(("\nCosaDmlWiFi_setCreateVAP value : %s ", pCfg->VAP_Ids));
++	char VAP[128];
++	int ret;
++	int radioIndex = 0;
++	char *saveptr;
++	wifi_vap_info_t *vapInfo = (wifi_vap_info_t *) malloc(sizeof(wifi_vap_info_t));
++	wifi_vap_info_map_t tmpWifiVapInfoMap;
++	bool isVapChanged = FALSE;
++	int vapArrayIndex = 0;
++	int tempArrayIndex = 0;
++	memset(&tmpWifiVapInfoMap, 0, sizeof(wifi_vap_info_map_t));
++	memset(VAP, 0, sizeof(VAP));
++	strcpy_s(VAP, sizeof(VAP), pCfg->VAP_Ids);
++	char *pt = strtok_r(VAP, ",", &saveptr);
++	while (pt != NULL)
++	{
++		UINT apIndex = atoi(pt)-1;
++		CcspTraceInfo(("\nsplit values %d ", apIndex));
++		ret = wifi_createDynamicVAP(apIndex);
++		if(ret == RETURN_ERR)
++		{
++			return ANSC_STATUS_FAILURE;
++		}
++		vapInfo = getVapInfo(apIndex);
++		if(!vapInfo)
++		{
++			CcspTraceInfo(("\n%s :getvapInfo Failed\n", __func__));
++			return ANSC_STATUS_FAILURE;
++		}
++		ret = qca_additionalVapInfoMap(apIndex, vapInfo);
++		if(ret == RETURN_ERR)
++		{
++			CcspTraceInfo(("\n%s : wifi_additionalVapInfoMap Failed\n", __func__));
++			return ANSC_STATUS_FAILURE;
++		}
++		radioIndex = vapInfo->radio_index;
++		vapArrayIndex = getVapArrayIndex(apIndex, radioIndex);
++		memcpy(&gRadioCfg[radioIndex].vaps.vap_array[vapArrayIndex], vapInfo, sizeof(wifi_vap_info_t));
++
++		getApPSMValues(apIndex, &isVapChanged);
++
++		memcpy(&tmpWifiVapInfoMap.vap_array[tempArrayIndex], vapInfo, sizeof(wifi_vap_info_t));
++
++		CcspTraceInfo((" %s %d vapIndex : %d is placed at vapArrayIndex : %d\n", __FUNCTION__, __LINE__, apIndex, tempArrayIndex));
++		tempArrayIndex++;
++		tmpWifiVapInfoMap.num_vaps = tempArrayIndex;
++
++		CcspTraceInfo(("\nCosaDmlWiFi_setCreateVAP : CosaDmlWiFi_SetSsidAdditionalVap Calling"));
++		//Setting AP and SSID configurations for the additional VAP apIndex
++		if (CosaDmlWiFi_SetSsidApAdditionalVap(apIndex) == ANSC_STATUS_FAILURE)
++		{
++			CcspTraceInfo(("\nCosaDmlWiFi_setCreateVAP : CosaDmlWiFi_SetSsidApAdditionalVap Error"));
++			return ANSC_STATUS_FAILURE;
++		}
++		CcspTraceInfo(("\nCosaDmlWiFi_setCreateVAP : CosaDmlWiFi_SetSsidAdditionalVap success"));
++		pt = strtok_r(NULL, ",", &saveptr);
++	}
++
++	if (isVapChanged == TRUE)
++	{
++		ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s wifi_createVAP for radioIndex:%d \n", __FUNCTION__, radioIndex);
++		ret =  wifi_createVAP(radioIndex, &tmpWifiVapInfoMap);
++		if (ret != ANSC_STATUS_SUCCESS)
++		{
++			CcspWifiTrace(("RDK_LOG_ERROR, %s wifi_createVAP returned with error %d\n", __FUNCTION__, ret));
++		}
++
++		isVapChanged = FALSE;
++		CcspWifiTrace(("RDK_LOG_INFO, %s wifi_createVAP Succesful for radioIndex:%d \n", __FUNCTION__, radioIndex));
++	}
++
++	CcspTraceInfo(("\nCosaDmlWiFi_setCreateVAP returns success %d ", __LINE__));
++	return ANSC_STATUS_SUCCESS;
++}
++
++ANSC_STATUS CosaDmlWiFi_DelSsidApAdditionalVap(int apIndex)
++{
++	CcspTraceInfo(("\nCosaDmlWiFi_DelSsidAdditionalVap Inside"));
++	ULONG                           nIndex        = apIndex;
++
++	//SSID
++	PCOSA_DATAMODEL_WIFI            pMyObject     = (PCOSA_DATAMODEL_WIFI     )g_pCosaBEManager->hWifi;
++	PCOSA_CONTEXT_LINK_OBJECT       pLinkObj      = (PCOSA_CONTEXT_LINK_OBJECT)NULL;
++	PSINGLE_LINK_ENTRY              pSLinkEntry   = (PSINGLE_LINK_ENTRY       )NULL;
++	PCOSA_DML_WIFI_SSID             pWifiSsid     = (PCOSA_DML_WIFI_SSID      )NULL;
++
++	CcspTraceInfo(("\nCosaDmlWiFi_DelSsidApAdditionalVap SSID start index: %lu", nIndex));
++	pSLinkEntry = AnscQueueGetEntryByIndex(&pMyObject->SsidQueue, nIndex);
++
++	if (pSLinkEntry)
++	{
++		pLinkObj = ACCESS_COSA_CONTEXT_LINK_OBJECT(pSLinkEntry);
++	}
++
++	pWifiSsid   = (PCOSA_DML_WIFI_SSID)pLinkObj->hContext;
++
++	memset(pWifiSsid, 0, sizeof(COSA_DML_WIFI_SSID));
++
++	CcspTraceInfo(("\nCosaDmlWiFi DelSsidApAdditionalVap sizeof pWifiSsid: %d sizeOf PCOSA_DML_WIFI_SSID : %d ",
++				sizeof(pWifiSsid), sizeof(COSA_DML_WIFI_SSID)));
++
++	CcspTraceInfo(("\nCosaDmlWiFi DelSsidApAdditionalVap SSID end index: %lu", nIndex));
++
++	//AP
++	PCOSA_CONTEXT_LINK_OBJECT       pLinkObjAp      = (PCOSA_CONTEXT_LINK_OBJECT)NULL;
++	PSINGLE_LINK_ENTRY              pSLinkEntryAp   = (PSINGLE_LINK_ENTRY       )NULL;
++	PCOSA_DML_WIFI_AP               pWifiAp         = (PCOSA_DML_WIFI_AP        )NULL;
++	pSLinkEntryAp = AnscQueueGetEntryByIndex(&pMyObject->AccessPointQueue, nIndex);
++	void*               pWifiApRapidReconnectMaxTime  = NULL;
++
++	CcspTraceInfo(("\nCosaDmlWiFi_DelSsidApAdditionalVap AP start index: %lu", nIndex));
++	if ( pSLinkEntryAp )
++	{
++		pLinkObjAp  = ACCESS_COSA_CONTEXT_LINK_OBJECT(pSLinkEntryAp);
++	}
++
++	pWifiAp  = (PCOSA_DML_WIFI_AP)pLinkObjAp->hContext;
++
++	memset(pWifiAp, 0, sizeof(COSA_DML_WIFI_AP));
++
++	CcspTraceInfo(("\nCosaDmlWiFi DelSsidApAdditionalVap sizeof pWifiAp: %d sizeOf PCOSA_DML_WIFI_AP : %d ",
++				sizeof(pWifiAp), sizeof(COSA_DML_WIFI_AP)));
++
++	CcspTraceInfo(("\nCosaDmlWiFi_DelSsidApAdditionalVap AP  end index: %lu", nIndex));
++	return ANSC_STATUS_SUCCESS;
++}
++
++ANSC_STATUS CosaDmlWiFi_setDeleteVAP(PCOSA_DML_WIFI_DELETE_VAP_CFG pCfg)
++{
++	CcspTraceInfo(("\nCosaDmlWiFi_setDeleteVAP value : %s ", pCfg->VAP_Ids));
++	char VAP[128];
++	char *saveptr;
++	int ret;
++	memset(VAP, 0, sizeof(VAP));
++	strcpy_s(VAP, sizeof(VAP), pCfg->VAP_Ids);
++	char *pt = strtok_r(VAP, ",", &saveptr);
++	while (pt != NULL) 
++	{
++		int apIndex = atoi(pt)-1;
++		CcspTraceInfo(("\nsplit values %d ", apIndex));
++		ret = wifi_deleteDynamicVAP(apIndex);
++		if(ret == RETURN_ERR)
++		{
++			return ANSC_STATUS_FAILURE;
++		}
++		if(CosaDmlWiFi_DelSsidApAdditionalVap(apIndex) == ANSC_STATUS_FAILURE)
++		{
++			CcspTraceInfo(("\nCosaDmlWiFi_setDeleteVAP : CosaDmlWiFi_DelSsidApAdditionalVap Error"));
++			return ANSC_STATUS_FAILURE;
++		}
++		CcspTraceInfo(("\nCosaDmlWiFi_setDeleteVAP : CosaDmlWiFi_DelSsidAdditionalVap success"));
++		pt = strtok_r(NULL, ",", &saveptr);
++	}
++
++	CcspTraceInfo(("\nCosaDmlWiFi_setDeleteVAP returns success %d ", __LINE__));
++	return ANSC_STATUS_SUCCESS;
++}
++
+ /* CosaDmlWiFiApIsSecmodeOpenForPrivateAP() */
+ BOOL CosaDmlWiFiApIsSecmodeOpenForPrivateAP( void )
+ {
+@@ -26471,6 +26702,34 @@ ANSC_STATUS rdkGetIndexFromName(char *pIfaceName, UINT *pWlanIndex)
+     return ANSC_STATUS_FAILURE;
+ }
+ 
++//Returns the array Index of the Vap, here apIndex starts with 0 i.e., (dmlInstanceNumber-1)
++int getVapArrayIndex(UINT apIndex, UINT radioIndex)
++{
++	UINT vapArrayIndex = 0;
++
++	if (apIndex >= getTotalNumberVAPs())
++	{
++		CcspWifiTrace(("RDK_LOG_ERROR, %s Input apIndex = %d not found, Out of range\n", __FUNCTION__, apIndex));
++		return NULL;
++	}
++
++	for (vapArrayIndex = 0; vapArrayIndex < getNumberofVAPsPerRadio(radioIndex); vapArrayIndex++)
++	{
++		if (apIndex == gRadioCfg[radioIndex].vaps.vap_array[vapArrayIndex].vap_index)
++		{
++			CcspTraceInfo(("%s Input apIndex = %d  found at radioIndex = %d vapArrayIndex = %d\n ", __FUNCTION__, apIndex, radioIndex, vapArrayIndex));
++			return vapArrayIndex;
++		}
++		else
++		{
++			continue;
++		}
++	}
++
++	CcspWifiTrace(("RDK_LOG_ERROR, %s Input apIndex = %d not found \n", __FUNCTION__, apIndex));
++	return NULL;
++}
++
+ ANSC_STATUS getApPSMValues(UINT vapIndex, bool *isChanged)
+ {
+     char *strValue = NULL;
+@@ -26820,6 +27079,42 @@ static ANSC_STATUS ccspWifiRdkVapInit(void)
+         ERR_CHK(rc);
+ 
+         gRadioCfg[0].vaps.rdk_vap_array[7].vap_index = 14;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[8].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[8].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[8].vap_index = 24;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[9].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[9].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[9].vap_index = 26;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[10].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[10].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[10].vap_index = 28;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[11].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[11].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[11].vap_index = 30;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[12].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[12].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[12].vap_index = 32;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[13].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[13].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[13].vap_index = 34;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[14].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[14].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[14].vap_index = 36;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[15].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[15].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[15].vap_index = 38;
++	rc = strcpy_s((CHAR* )gRadioCfg[0].vaps.rdk_vap_array[16].vap_name, sizeof(gRadioCfg[0].vaps.rdk_vap_array[16].vap_name) , "unused_2g");
++        ERR_CHK(rc);
++
++        gRadioCfg[0].vaps.rdk_vap_array[16].vap_index = 48;
+     }
+     if(numRadios > 1)
+     {
+@@ -26855,6 +27150,42 @@ static ANSC_STATUS ccspWifiRdkVapInit(void)
+         ERR_CHK(rc);
+ 
+         gRadioCfg[1].vaps.rdk_vap_array[7].vap_index = 15;
++	rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[8].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[8].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[8].vap_index = 25;
++	rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[9].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[9].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[9].vap_index = 27;
++        rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[10].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[10].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[10].vap_index = 29;
++        rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[11].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[11].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[11].vap_index = 31;
++        rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[12].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[12].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[12].vap_index = 33;
++        rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[13].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[13].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[13].vap_index = 35;
++        rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[14].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[14].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[14].vap_index = 37;
++        rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[15].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[15].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[15].vap_index = 39;
++        rc = strcpy_s((CHAR* )gRadioCfg[1].vaps.rdk_vap_array[16].vap_name, sizeof(gRadioCfg[1].vaps.rdk_vap_array[16].vap_name) , "unused_5g");
++        ERR_CHK(rc);
++
++        gRadioCfg[1].vaps.rdk_vap_array[16].vap_index = 49;
+     }
+     if(numRadios > 2)
+     {
+@@ -26891,6 +27222,42 @@ static ANSC_STATUS ccspWifiRdkVapInit(void)
+ 
+ 
+         gRadioCfg[2].vaps.rdk_vap_array[7].vap_index = 23;
++	rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[8].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[8].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[8].vap_index = 40;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[9].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[9].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[9].vap_index = 41;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[10].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[10].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[10].vap_index = 42;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[11].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[11].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[11].vap_index = 43;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[12].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[12].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[12].vap_index = 44;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[13].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[13].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[13].vap_index = 45;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[14].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[14].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[14].vap_index = 46;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[15].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[15].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[15].vap_index = 47;
++        rc = strcpy_s((CHAR* )gRadioCfg[2].vaps.rdk_vap_array[16].vap_name, sizeof(gRadioCfg[2].vaps.rdk_vap_array[16].vap_name) , "unused_6g");
++        ERR_CHK(rc);
++
++        gRadioCfg[2].vaps.rdk_vap_array[16].vap_index = 50;
+     }
+     return ANSC_STATUS_SUCCESS;
+ }
+@@ -27064,7 +27431,10 @@ ANSC_STATUS rdkWifiConfigInit()
+             gRadioCfg[radioIndex].vaps.rdk_vap_array[vapCount].vap_index = vapIndex;
+ 
+             //Update the PSM values for a vapIndex
+-            getApPSMValues(vapIndex, &isVapChanged);
++	    if(gRadioCfg[radioIndex].vaps.vap_array[vapCount].u.bss_info.enabled)
++	    {
++		    getApPSMValues(vapIndex, &isVapChanged);
++	    }
+         }
+ 
+         //Note : If one Vap changed, apply changes to all the vaps present in that radio
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.h b/source/TR-181/sbapi/cosa_wifi_apis.h
+index 8cd90fd..2c96589 100755
+--- a/source/TR-181/sbapi/cosa_wifi_apis.h
++++ b/source/TR-181/sbapi/cosa_wifi_apis.h
+@@ -99,7 +99,7 @@
+ #define WIFI_INDEX_MAX MAX_VAP
+ #define MAX_NUM_PRIVATE_VAP MAX_NUM_RADIOS
+ #else
+-#define WIFI_INDEX_MAX 16
++#define WIFI_INDEX_MAX 51
+ #endif
+ 
+ #if defined (MULTILAN_FEATURE)
+@@ -829,6 +829,24 @@ _COSA_DML_WIFI_80211U_CFG
+ 
+ typedef  struct _COSA_DML_WIFI_80211U_CFG COSA_DML_WIFI_80211U_CFG,  *PCOSA_DML_WIFI_80211U_CFG;
+ 
++struct
++_COSA_DML_WIFI_CREATE_VAP_CFG
++{
++ char             VAP_Ids[128];
++}_struct_pack_;
++
++typedef struct _COSA_DML_WIFI_CREATE_VAP_CFG COSA_DML_WIFI_CREATE_VAP_CFG, *PCOSA_DML_WIFI_CREATE_VAP_CFG;
++
++
++struct
++_COSA_DML_WIFI_DELETE_VAP_CFG
++{
++ char             VAP_Ids[128];
++}_struct_pack_;
++
++typedef struct _COSA_DML_WIFI_DELETE_VAP_CFG COSA_DML_WIFI_DELETE_VAP_CFG, *PCOSA_DML_WIFI_DELETE_VAP_CFG;
++
++
+ /*
+  *  Structure definitions for WiFi AP
+  *  WiFi AP is always associated with a SSID in the system, thus,
+@@ -1948,6 +1966,9 @@ CosaDmlWiFiApSecGetCfg
+         PCOSA_DML_WIFI_APSEC_CFG    pCfg
+     );
+ 
++ANSC_STATUS CosaDmlWiFi_setCreateVAP(PCOSA_DML_WIFI_CREATE_VAP_CFG pCfg);
++ANSC_STATUS CosaDmlWiFi_setDeleteVAP(PCOSA_DML_WIFI_DELETE_VAP_CFG pCfg);
++
+ ANSC_STATUS
+ CosaDmlWiFiApSecPushCfg
+     (
+diff --git a/source/TR-181/sbapi/wifi_monitor.c b/source/TR-181/sbapi/wifi_monitor.c
+index f3dc7d0..35aae7f 100644
+--- a/source/TR-181/sbapi/wifi_monitor.c
++++ b/source/TR-181/sbapi/wifi_monitor.c
+@@ -857,6 +857,7 @@ int upload_client_telemetry_data(void *arg)
+         // see if list has changed
+ #ifdef WIFI_HAL_VERSION_3
+         BOOL enableRadioDetailStats[MAX_NUM_RADIOS] = {FALSE};
++	unsigned int itr = 0;
+ #else
+         bool enable24detailstats = false;
+         bool enable5detailstats = false;
+diff --git a/source/TR-181/sbapi/wifi_ovsdb.c b/source/TR-181/sbapi/wifi_ovsdb.c
+index b196d39..4b55764 100644
+--- a/source/TR-181/sbapi/wifi_ovsdb.c
++++ b/source/TR-181/sbapi/wifi_ovsdb.c
+@@ -63,7 +63,7 @@ int wifidb_update_wifi_macfilter_config(unsigned int apIndex);
+ 
+ int wifidb_wfd = 0;
+ 
+-#define WIFI_MAX_VAP 16
++#define WIFI_MAX_VAP 51
+ extern ANSC_HANDLE bus_handle;
+ extern char   g_Subsystem[32];
+ extern PCOSA_BACKEND_MANAGER_OBJECT g_pCosaBEManager;
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index a94ddef..e638567 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -9093,7 +9138,7 @@ printf("%s: Reset FactoryReset to 0 \n",__FUNCTION__);
+             fprintf(stderr, "-- wifi_setLED off\n");
+ 			wifi_setLFSecurityKeyPassphrase();
+ 			//CosaDmlWiFi_SetRegionCode(NULL);
+-            m_wifi_init();
++            //m_wifi_init();
+ #if !defined(_COSA_BCM_MIPS_)&& !defined(_COSA_BCM_ARM_) && !defined(_PLATFORM_TURRIS_) && !defined(_INTEL_WAV_)
+             wifi_pushSsidAdvertisementEnable(0, false);
+             wifi_pushSsidAdvertisementEnable(1, false);
+@@ -11956,6 +12001,16 @@ CosaDmlWiFiRadioGetSinfo
+     /*Update AutoChannelSupported per radio*/
+     pInfo->AutoChannelSupported = wifiRadioCap->autoChannelSupported;
+ 
++
++    char txpow_supported[64];
++    CcspWifiTrace(("RDK_LOG_INFO, %s For radioIndex:%d going to getTxpower returned Success\n", __FUNCTION__, wlanIndex));
++    wifi_getRadioTransmitPowerSupported(wlanIndex, txpow_supported);
++
++    qca_str2uintArray(txpow_supported, ", ", &(wifiRadioCap->transmitPowerSupported_list[wlanIndex].numberOfElements),
++		    wifiRadioCap->transmitPowerSupported_list[wlanIndex].transmitPowerSupported,
++		    MAXNUMBEROFTRANSMIPOWERSUPPORTED);
++
++
+     /*update TransmitPowerSupported per radio*/
+     strLoc   = 0;
+     strCount = 0;
+@@ -12488,6 +12543,150 @@ static int SendConfigChangeNotification(const char *type, int index, const char
+ }
+ #endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ 
++void CosaDmlSetRadioMode(PCOSA_DML_WIFI_RADIO_CFG pCfg, int wlanIndex)
++{
++	char *chnMode = NULL;
++	BOOL gOnlyFlag = FALSE;
++	BOOL nOnlyFlag = FALSE;
++	BOOL acOnlyFlag = FALSE;
++	if (pCfg->OperatingStandards == COSA_DML_WIFI_STD_a)
++	{
++		chnMode = "11A";
++	} else if (pCfg->OperatingStandards == COSA_DML_WIFI_STD_b)
++	{
++		chnMode = "11B";
++	} else if (pCfg->OperatingStandards == COSA_DML_WIFI_STD_g)
++	{
++		chnMode = "11G";
++	} else if (pCfg->OperatingStandards == ( COSA_DML_WIFI_STD_b | COSA_DML_WIFI_STD_g ) )
++	{
++		chnMode = "11G";
++		// all below are n with a possible combination of a, b and g
++	} else if ( !(pCfg->OperatingStandards&COSA_DML_WIFI_STD_ac)
++			&& !(pCfg->OperatingStandards&COSA_DML_WIFI_STD_ax)
++		  )
++	{
++		// n but not ac modes
++		if ( pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_20M)
++		{
++
++			if (pCfg->OperatingFrequencyBand == COSA_DML_WIFI_FREQ_BAND_2_4G)
++			{
++				chnMode = "11NGHT20";
++			}
++			else // COSA_DML_WIFI_FREQ_BAND_5G
++			{
++				chnMode = "11NAHT20";
++			}
++		} else if (pCfg->OperatingChannelBandwidth & COSA_DML_WIFI_CHAN_BW_40M)
++		{
++			// treat 40 and Auto as 40MHz, the driver does not have an 'Auto setting' that can be toggled
++			if (pCfg->OperatingFrequencyBand == COSA_DML_WIFI_FREQ_BAND_2_4G)
++			{
++
++				if (pCfg->ExtensionChannel == COSA_DML_WIFI_EXT_CHAN_Above )
++				{
++					chnMode = "11NGHT40PLUS";
++				} else
++				{
++					chnMode = "11NGHT40MINUS";
++				}
++			} else // else 5GHz
++			{
++				if (pCfg->ExtensionChannel == COSA_DML_WIFI_EXT_CHAN_Above )
++				{
++					chnMode = "11NAHT40PLUS";
++				} else
++				{
++					chnMode = "11NAHT40MINUS";
++				}
++			}
++		}
++	} else if (pCfg->OperatingStandards&COSA_DML_WIFI_STD_ac
++			&& !(pCfg->OperatingStandards&COSA_DML_WIFI_STD_ax)
++		  )
++	{
++		if ( pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_20M)
++		{
++			chnMode = "11ACVHT20";
++		} else if (pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_40M)
++		{
++			if (pCfg->ExtensionChannel == COSA_DML_WIFI_EXT_CHAN_Above )
++			{
++				chnMode = "11ACVHT40PLUS";
++			} else
++			{
++				chnMode = "11ACVHT40MINUS";
++			}
++		} else if (pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_80M)
++		{
++			chnMode = "11ACVHT80";
++		}else if (pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_160M)
++		{
++			chnMode = "11ACVHT160";
++		}
++	}
++	else if (pCfg->OperatingStandards&COSA_DML_WIFI_STD_ax)
++	{
++		if ( pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_20M)
++		{
++			chnMode = "11AXHE20";
++		}
++		else if (pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_40M)
++		{
++			if (pCfg->ExtensionChannel == COSA_DML_WIFI_EXT_CHAN_Above )
++			{
++				chnMode = "11AXHE40PLUS";
++			}
++			else
++			{
++				chnMode = "11AXHE40MINUS";
++			}
++		}
++		else if (pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_80M)
++		{
++			chnMode = "11AXHE80";
++		}
++		else if (pCfg->OperatingChannelBandwidth == COSA_DML_WIFI_CHAN_BW_160M)
++		{
++			chnMode = "11AXHE160";
++		}
++
++	}
++	// if OperatingStandards is set to only g or only n, set only flag to TRUE.
++	// wifi_setRadioChannelMode will set PUREG=1/PUREN=1 in the config
++	if ( (pCfg->OperatingStandards == COSA_DML_WIFI_STD_g) ||
++			(pCfg->OperatingStandards == (COSA_DML_WIFI_STD_g | COSA_DML_WIFI_STD_n) ) )
++	{
++		gOnlyFlag = TRUE;
++	}
++
++	if ( ( pCfg->OperatingStandards == COSA_DML_WIFI_STD_n ) ||
++			( pCfg->OperatingStandards == (COSA_DML_WIFI_STD_n | COSA_DML_WIFI_STD_ac) )
++			|| ( pCfg->OperatingStandards == (COSA_DML_WIFI_STD_n | COSA_DML_WIFI_STD_ax) )
++	   )
++	{
++		nOnlyFlag = TRUE;
++	}
++	if (pCfg->OperatingStandards == COSA_DML_WIFI_STD_ac )
++	{
++		acOnlyFlag = TRUE;
++	}
++	UINT pureMode = 0;
++	if (gOnlyFlag)
++		pureMode = COSA_DML_WIFI_STD_g;
++	if (nOnlyFlag)
++		pureMode = COSA_DML_WIFI_STD_n;
++	if(acOnlyFlag)
++		pureMode = COSA_DML_WIFI_STD_ac;
++	if(pCfg->OperatingStandards == COSA_DML_WIFI_STD_ax)
++		pureMode = COSA_DML_WIFI_STD_ax;
++
++	CcspWifiTrace(("RDK_LOG_WARN, RDKB_WIFI_CONFIG_CHANGED : %s: wifi_setRadioMode= Wlan%d, Mode: %s, pureMode =: %d\n",__FUNCTION__,wlanIndex,chnMode,pureMode))
++	wifi_setRadioMode(wlanIndex, chnMode, pureMode);
++
++}
++
+ ANSC_STATUS
+ CosaDmlWiFiRadioApplyCfg
+ (
+@@ -12518,6 +12717,7 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+     PCOSA_DML_WIFI_SSID             pWifiSsid           = (PCOSA_DML_WIFI_SSID      )NULL;
+     PCOSA_DML_WIFI_AP               pWifiAp             = (PCOSA_DML_WIFI_AP        )NULL;
+     PCOSA_CONTEXT_LINK_OBJECT       pLinkObj            = (PCOSA_CONTEXT_LINK_OBJECT)NULL;
++    PCOSA_DML_WIFI_RADIO_CFG        pStoredCfg  = &sWiFiDmlRadioStoredCfg[pCfg->InstanceNumber-1];
+ 
+     UNREFERENCED_PARAMETER(sWiFiDmlRadioRunningCfg);
+     UNREFERENCED_PARAMETER(sWiFiDmlWepChg);
+@@ -12636,7 +12836,23 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+         getOperatingStandardString(pCfg, oldStandard, sizeof(oldStandard));
+         CcspWifiTrace(("RDK_LOG_DEBUG, %s For radioIndex:%d old operating standard is %s\n",
+                      __FUNCTION__, radioIndex, oldStandard));
+-        CcspWifiTrace(("RDK_LOG_INFO, %s Calling wifi_setRadioOperatingParameters radioIndex=%d enable=%d\n", __FUNCTION__, radioIndex, tmpWifiRadioOperParam.enable));
++        wifi_radio_capabilities_t *wifiRadioCap = NULL;
++        char txpow_supported[64];
++        wifiRadioCap = getRadioCapability(radioIndex);
++        if (wifiRadioCap == NULL)
++	{
++		CcspWifiTrace(("RDK_LOG_ERROR, %s Input radioIndex = %d not found for getRadioCapability\n", __FUNCTION__, radioIndex));
++		return ANSC_STATUS_FAILURE;
++	}
++        CcspWifiTrace(("RDK_LOG_INFO, %s For radioIndex:%d going to getTxpower returned Success\n", __FUNCTION__, radioIndex));
++        wifi_getRadioTransmitPowerSupported(radioIndex, txpow_supported);
++
++        qca_str2uintArray(txpow_supported, ", ", &(wifiRadioCap->transmitPowerSupported_list[radioIndex].numberOfElements),
++                       wifiRadioCap->transmitPowerSupported_list[radioIndex].transmitPowerSupported,
++                       MAXNUMBEROFTRANSMIPOWERSUPPORTED);
++        CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, radioIndex);
++
++	CcspWifiTrace(("RDK_LOG_INFO, %s Calling wifi_setRadioOperatingParameters radioIndex=%d enable=%d\n", __FUNCTION__, radioIndex, tmpWifiRadioOperParam.enable));
+         ret = wifi_setRadioOperatingParameters(radioIndex, &tmpWifiRadioOperParam);
+         if (ret != ANSC_STATUS_SUCCESS)
+         {
+@@ -12644,9 +12860,18 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+             goto ValidationFailed;
+         }
+         CcspWifiTrace(("RDK_LOG_INFO, %s For radioIndex:%d wifi_setRadioOperatingParameters returned Success\n", __FUNCTION__, radioIndex));
+-
++        
++	system("sleep 1");
+         radioGetCfgUpdateFromHalToDml(radioIndex, pCfg, &tmpWifiRadioOperParam);
+-        ccspWifiDbgPrint(CCSP_WIFI_TRACE, " %s For Index %d Dml update done\n", __FUNCTION__, radioIndex);
++	if(pCfg->OperatingChannelBandwidth != pStoredCfg->OperatingChannelBandwidth || pCfg->OperatingStandards != pStoredCfg->OperatingStandards)
++	{
++		CosaDmlSetRadioMode(pCfg, radioIndex);
++		pStoredCfg->OperatingChannelBandwidth = pCfg->OperatingChannelBandwidth;
++		pStoredCfg->OperatingStandards = pCfg->OperatingStandards;
++	}
++        CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, radioIndex);
++
++	ccspWifiDbgPrint(CCSP_WIFI_TRACE, " %s For Index %d Dml update done\n", __FUNCTION__, radioIndex);
+ 
+         getOperatingStandardString(pCfg, newStandard, sizeof(newStandard));
+         CcspWifiTrace(("RDK_LOG_DEBUG, %s For radioIndex:%d new operating standard is %s\n",
+@@ -12711,6 +12936,134 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+     }
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s Number of vaps to be configured : %d  for radioIndex %d\n", __FUNCTION__, tmpWifiVapInfoMap.num_vaps, radioIndex);
+ 
++    char strValue[256];
++    char recName[256];
++    int retPsmSet = CCSP_SUCCESS;
++    int athIndex;
++
++    //In HAL these functions has to be handled fo reach VAP for the given radio index
++    if (pStoredCfg->X_COMCAST_COM_IGMPSnoopingEnable != pCfg->X_COMCAST_COM_IGMPSnoopingEnable )
++    {
++	    wifi_setRadioIGMPSnoopingEnable(radioIndex,pCfg->X_COMCAST_COM_IGMPSnoopingEnable);
++	    pStoredCfg->X_COMCAST_COM_IGMPSnoopingEnable = pCfg->X_COMCAST_COM_IGMPSnoopingEnable;
++    }
++
++    if (pCfg->MCS != pStoredCfg->MCS)
++    {
++	    wifi_setRadioMCS(radioIndex, pCfg->MCS);
++	    pStoredCfg->MCS = pCfg->MCS;
++    }
++
++    if (pCfg->X_CISCO_COM_AggregationMSDU != pStoredCfg->X_CISCO_COM_AggregationMSDU)
++    {
++	    wifi_setRadioAMSDUEnable(radioIndex, pCfg->X_CISCO_COM_AggregationMSDU);
++	    pStoredCfg->X_CISCO_COM_AggregationMSDU = pCfg->X_CISCO_COM_AggregationMSDU;
++    }
++
++    if (pCfg->X_CISCO_COM_AutoBlockAck != pStoredCfg->X_CISCO_COM_AutoBlockAck)
++    {
++	    wifi_setRadioAutoBlockAckEnable(radioIndex, pCfg->X_CISCO_COM_AutoBlockAck);
++	    pStoredCfg->X_CISCO_COM_AutoBlockAck = pCfg->X_CISCO_COM_AutoBlockAck;
++    }
++    
++    if (pCfg->X_CISCO_COM_STBCEnable != pStoredCfg->X_CISCO_COM_STBCEnable) {
++	    wifi_setRadioSTBCEnable(radioIndex, pCfg->X_CISCO_COM_STBCEnable);
++	    memset(recName, '\0', sizeof(recName));
++	    memset(strValue, '\0', sizeof(strValue));
++	    snprintf(recName, sizeof(recName), STBCEnable, instanceNumber);
++	    snprintf(strValue, sizeof(strValue),"%d",pCfg->X_CISCO_COM_STBCEnable);
++	    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++	    if (retPsmSet != CCSP_SUCCESS) {
++		    wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting STBC \n",__FUNCTION__, retPsmSet);
++	    }
++	    pStoredCfg->X_CISCO_COM_STBCEnable = pCfg->X_CISCO_COM_STBCEnable;
++    }
++
++    if (pCfg->X_CISCO_COM_11nGreenfieldEnabled != pStoredCfg->X_CISCO_COM_11nGreenfieldEnabled) {
++	    wifi_setRadio11nGreenfieldEnable(radioIndex, pCfg->X_CISCO_COM_11nGreenfieldEnabled);
++	    memset(recName, '\0', sizeof(recName));
++	    memset(strValue, '\0', sizeof(strValue));
++	    snprintf(recName, sizeof(recName), GreenField, instanceNumber);
++	    snprintf(strValue, sizeof(strValue),"%d",pCfg->X_CISCO_COM_11nGreenfieldEnabled);
++	    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++	    if (retPsmSet != CCSP_SUCCESS) {
++		    wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting GreenfieldEnabled  \n",__FUNCTION__, retPsmSet);
++	    }
++	    pStoredCfg->X_CISCO_COM_11nGreenfieldEnabled = pCfg->X_CISCO_COM_11nGreenfieldEnabled;
++    }
++
++    for (vapCount = 0; vapCount < rdkWifiVap->num_vaps; vapCount++)
++    {
++	    BOOL enabled = FALSE;
++	    athIndex = rdkWifiVap->vap_array[vapCount].vap_index;
++	    CcspTraceInfo(("\n%s Pushing Radio Config changes %d %d\n",__FUNCTION__, athIndex, __LINE__));
++	    wifi_getApEnable(athIndex, &enabled);
++	    wifiDbgPrintf("%s Pushing Radio Config changes %d %d\n",__FUNCTION__, athIndex, __LINE__);
++
++	    if (enabled == TRUE) {
++		    if (pCfg->CTSProtectionMode != pStoredCfg->CTSProtectionMode)
++		    {
++			    wifi_setRadioCtsProtectionEnable(athIndex, pCfg->CTSProtectionMode);
++		    }
++		    if (pCfg->ObssCoex != pStoredCfg->ObssCoex)
++		    {
++			    wifi_setRadioObssCoexistenceEnable(athIndex, pCfg->ObssCoex);
++		    }
++	    }
++    }
++
++#if ((!(defined (INTEL_PUMA7) && defined (_XB7_PRODUCT_REQ_))) && (!(defined (DUAL_CORE_XB3))))
++    if (pCfg->AutoChannelRefreshPeriod != pStoredCfg->AutoChannelRefreshPeriod)
++    {
++	    CcspTraceInfo(("\n%s Calling wifi_setRadioAutoChannelRefreshPeriod Oldvalue: %lu", __FUNCTION__, pStoredCfg->AutoChannelRefreshPeriod));
++	    CcspTraceInfo(("%s: added new value %lu for RefreshPeriod for %d \n", __FUNCTION__, pCfg->AutoChannelRefreshPeriod, athIndex));
++	    wifi_setRadioAutoChannelRefreshPeriod(athIndex, pCfg->AutoChannelRefreshPeriod);
++    }
++#endif
++    if (pCfg->CTSProtectionMode != pStoredCfg->CTSProtectionMode)
++    {
++	    memset(recName, '\0', sizeof(recName));
++	    memset(strValue, '\0', sizeof(strValue));
++	    snprintf(recName, sizeof(recName), CTSProtection, instanceNumber);
++	    snprintf(strValue, sizeof(strValue), "%d",pCfg->CTSProtectionMode);
++	    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++	    if (retPsmSet != CCSP_SUCCESS) {
++		    wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting CTSProtectionMode\n",__FUNCTION__, retPsmSet);
++	    }
++	    pStoredCfg->CTSProtectionMode = pCfg->CTSProtectionMode;
++    }
++    if (pCfg->ObssCoex != pStoredCfg->ObssCoex) {
++	    memset(recName, '\0', sizeof(recName));
++	    memset(strValue, '\0', sizeof(strValue));
++	    snprintf(recName, sizeof(recName), ObssCoex, instanceNumber);
++	    snprintf(strValue, sizeof(strValue),"%d",pCfg->ObssCoex);
++	    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++	    if (retPsmSet != CCSP_SUCCESS) {
++		    wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting ObssCoex\n",__FUNCTION__, retPsmSet);
++	    }
++	    pStoredCfg->ObssCoex = pCfg->ObssCoex;
++    }
++    if (pCfg->MbssUserControl != pStoredCfg->MbssUserControl) {
++	    memset(recName, '\0', sizeof(recName));
++	    memset(strValue, '\0', sizeof(strValue));
++	    snprintf(recName, sizeof(recName), UserControl, instanceNumber);
++	    snprintf(strValue, sizeof(strValue),"%d",pCfg->MbssUserControl);
++	    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++	    if (retPsmSet != CCSP_SUCCESS) {
++		    wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting UserControl \n",__FUNCTION__, retPsmSet);
++	    }
++	    pStoredCfg->MbssUserControl = pCfg->MbssUserControl;
++    }
++    if (pCfg->AdminControl != pStoredCfg->AdminControl) {
++	    snprintf(recName, sizeof(recName), AdminControl, instanceNumber);
++	    snprintf(strValue, sizeof(strValue), "%d",pCfg->AdminControl);
++	    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++	    if (retPsmSet != CCSP_SUCCESS) {
++		    wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting AdminControl  \n",__FUNCTION__, retPsmSet);
++	    }
++	    pStoredCfg->AdminControl = pCfg->AdminControl;
++    }
++
+     if (tmpWifiVapInfoMap.num_vaps)
+     {
+ #if defined(_XB8_PRODUCT_REQ_)
+@@ -14949,9 +15302,12 @@ CosaDmlWiFiRadioGetCfg
+     wifi_getRadioAutoChannelRefreshPeriod(wlanIndex, pCfgAutoChannelRefreshPeriod);
+     pCfg->TxRate                         = COSA_DML_WIFI_TXRATE_Auto;
+ 
++    pCfg->X_CISCO_COM_STBCEnable = wifiRadioOperParam->stbcEnable;
++    pCfg->ObssCoex = wifiRadioOperParam->obssCoex;
++    pCfg->CTSProtectionMode = wifiRadioOperParam->ctsProtection;
+     pCfg->ApplySetting  = FALSE;
+     pCfg->ApplySettingSSID = 0;
+-
++    memcpy(&sWiFiDmlRadioStoredCfg[pCfg->InstanceNumber-1], pCfg, sizeof(COSA_DML_WIFI_RADIO_CFG));
+     return ANSC_STATUS_SUCCESS;
+ #else //WIFI_HAL_VERSION_3
+     int                             wlanIndex;
+@@ -17863,6 +18219,7 @@ CosaDmlWiFiApSecGetCfg
+         }
+     }
+ 
++    pCfg->RekeyingInterval = wifiVapInfo->u.bss_info.security.rekey_interval;
+     /* Get the Transition Disable Flag */
+     pCfg->WPA3TransitionDisable = wifiVapInfo->u.bss_info.security.wpa3_transition_disable;
+ 
+@@ -26246,7 +26603,7 @@ ANSC_STATUS wifiRadioOperParamValidation(UINT radioIndex, wifi_radio_operationPa
+             break;
+         }
+     }
+-    if (isValueFound == FALSE)
++    if (isValueFound == FALSE && pWifiRadioOperParam->transmitPower > 100)
+     {
+         CcspWifiTrace(("RDK_LOG_ERROR, %s Failed for TransmitPower : %d for RadioIndex %d\n", __FUNCTION__, pWifiRadioOperParam->transmitPower, radioIndex));
+         return ANSC_STATUS_FAILURE;
+@@ -26357,7 +26714,22 @@ ANSC_STATUS radioGetCfgUpdateFromHalToDml(UINT wlanIndex, PCOSA_DML_WIFI_RADIO_C
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s bEnabled : %d X_COMCAST_COM_DCSEnable : %d\n", __FUNCTION__, pCfg->bEnabled, pCfg->X_COMCAST_COM_DCSEnable);
+     pCfg->AutoChannelEnable = pWifiRadioOperParam->autoChannelEnabled;
+ 
+-    ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s OperatingChannelBandwidth : ", __FUNCTION__);
++    wifi_radio_capabilities_t *wifiRadioCap = NULL;
++    char txpow_supported[64];
++    wifiRadioCap = getRadioCapability(wlanIndex);
++    if (wifiRadioCap == NULL)
++    {
++	    CcspWifiTrace(("RDK_LOG_ERROR, %s Input radioIndex = %d not found for getRadioCapability\n", __FUNCTION__, wlanIndex));
++	    return ANSC_STATUS_FAILURE;
++    }
++    CcspWifiTrace(("RDK_LOG_INFO, %s For radioIndex:%d going to getTxpower returned Success\n", __FUNCTION__, wlanIndex));
++    wifi_getRadioTransmitPowerSupported(wlanIndex, txpow_supported);
++
++    qca_str2uintArray(txpow_supported, ", ", &(wifiRadioCap->transmitPowerSupported_list[wlanIndex].numberOfElements),
++		    wifiRadioCap->transmitPowerSupported_list[wlanIndex].transmitPowerSupported,
++		    MAXNUMBEROFTRANSMIPOWERSUPPORTED);
++    CcspWifiTrace(("RDK_LOG_INFO, %s For radioIndex:%d getTxpower returned Success\n", __FUNCTION__, wlanIndex));
++
+     if (pCfg->AutoChannelEnable == TRUE)
+     {
+         wifi_getRadioOperatingChannelBandwidth(wlanIndex, channelBW);
+@@ -27176,6 +27548,51 @@ ANSC_STATUS getRadioPSMValues(UINT radioIndex, bool *isChanged)
+           ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
+     }
+ 
++    /*CtsProtectionMode*/
++    rc = sprintf_s(recName, sizeof(recName), CTSProtection, psmIndex);
++    if(rc < EOK)
++    {
++        ERR_CHK(rc);
++    }
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &strValue);
++    if (retPsmGet == CCSP_SUCCESS) {
++        BOOL enable = _ansc_atoi(strValue);
++        gRadioCfg[radioIndex].oper.ctsProtection = (enable == TRUE) ? TRUE : FALSE;
++
++        wifi_setRadioCtsProtectionEnable(radioIndex, enable);
++        ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
++    }
++
++    /*ObssCoex*/
++    rc = sprintf_s(recName, sizeof(recName), ObssCoex, psmIndex);
++    if(rc < EOK)
++    {
++        ERR_CHK(rc);
++    }
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &strValue);
++    if (retPsmGet == CCSP_SUCCESS) {
++        BOOL enable = _ansc_atoi(strValue);
++        gRadioCfg[radioIndex].oper.obssCoex = (enable == TRUE) ? TRUE : FALSE;
++
++	CcspTraceInfo(("\n%s:%d Calling wifi_setRadioObssCoexistenceEnable: %d", __FUNCTION__, __LINE__, enable));
++        wifi_setRadioObssCoexistenceEnable(radioIndex, enable);
++        ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
++    }
++
++    /*STBCEnable*/
++    rc = sprintf_s(recName, sizeof(recName), STBCEnable, psmIndex);
++    if(rc < EOK)
++    {
++        ERR_CHK(rc);
++    }
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &strValue);
++    if (retPsmGet == CCSP_SUCCESS) {
++        BOOL enable = _ansc_atoi(strValue);
++        gRadioCfg[radioIndex].oper.stbcEnable = (enable == TRUE) ? TRUE : FALSE;
++        wifi_setRadioSTBCEnable(radioIndex, enable);
++        ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
++    }
++
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s beaconInterval : %d dtimPeriod : %d fragmentationThreshold : %d \n", __FUNCTION__, gRadioCfg[radioIndex].oper.beaconInterval, gRadioCfg[radioIndex].oper.dtimPeriod, gRadioCfg[radioIndex].oper.fragmentationThreshold);
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s guardInterval : %d transmitPower : %d rtsThreshold : %d\n", __FUNCTION__, gRadioCfg[radioIndex].oper.guardInterval, gRadioCfg[radioIndex].oper.transmitPower, gRadioCfg[radioIndex].oper.rtsThreshold);
+ 

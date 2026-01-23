@@ -1,0 +1,209 @@
+Commit ID: 61e364d3b01d42e5bd0de02febf3cf509e0a7435
+From: Sandhya KS <sandhyks@qti.qualcomm.com>
+Date: Thu Apr 13 16:42:01 2023 +0530
+Subject: crashupload : Fix patch failures
+Signed-off-by: Sandhya KS <sandhyks@qti.qualcomm.com>
+
+---
+
+diff --git a/coredump-upload.path b/coredump-upload.path
+index ccb8492..a977e8f 100644
+--- a/coredump-upload.path
++++ b/coredump-upload.path
+@@ -21,8 +21,7 @@ Description=Path Exists
+ OnFailure=path-fail-notifier@%n.service
+ 
+ [Path]
+-PathExistsGlob=/tmp/*core.prog*
+-PathChanged=/tmp/
++PathExistsGlob=/tmp/[0-9]*_core.prog_*.signal_[0-9]*.[0-9]*
+ 
+ [Install]
+ WantedBy=multi-user.target
+diff --git a/coredump-upload.service b/coredump-upload.service
+index 8bc3ee9..5c8ef4b 100644
+--- a/coredump-upload.service
++++ b/coredump-upload.service
+@@ -23,7 +23,4 @@ After=network-online.target
+ Requires=network-online.target
+ 
+ [Service]
+-#Environment="TS="
+-#Type=oneshot
+-#RemainAfterExit=yes
+-ExecStart=/bin/busybox sh -c '/lib/rdk/uploadDumps.sh  1 '
++ExecStart=/bin/busybox sh -c '/lib/rdk/uploadDumps.sh 1'
+diff --git a/uploadDumps.sh b/uploadDumps.sh
+index 38ecf1b..65255c3 100755
+--- a/uploadDumps.sh
++++ b/uploadDumps.sh
+@@ -128,14 +128,15 @@ else
+ fi
+ 
+ if [ "$DEVICE_TYPE" = "broadband" ];then
+-        CORE_PATH="/minidumps"
+-        LOG_PATH="/rdklogs/logs"
+-        if [ ! -d $LOG_PATH ];then mkdir -p $LOG_PATH; fi
+-        if [ "$MULTI_CORE" = "yes" ] ;then
+-             COMM_INTERFACE=`get_interface_value`
+-        else
+-             COMM_INTERFACE=$INTERFACE
+-        fi
++	echo "coredump dump flag"
++	CORE_PATH="/tmp"
++	LOG_PATH="/rdklogs/logs"
++	if [ ! -d $LOG_PATH ];then mkdir -p $LOG_PATH; fi
++	if [ "$MULTI_CORE" = "yes" ] ;then
++		COMM_INTERFACE=`get_interface_value`
++	else
++		COMM_INTERFACE=$INTERFACE
++	fi
+ fi
+ 
+ # Log file setup
+@@ -793,7 +794,7 @@ if [ -f /tmp/set_crash_reboot_flag ];then
+ fi
+ 
+ # Get the MAC address of the box
+-MAC=`getMacAddressOnly`
++MAC=`ifconfig erouter0 | grep HWaddr | awk '{print $NF}' | sed 's/://g'`
+ # Ensure MAC is not empty
+ checkMAC
+ 
+@@ -834,6 +835,18 @@ codebigUpload()
+     TLSRet=$?
+ }
+ 
++saveCoreDump()
++{
++    count=`ls $CORE_PATH | grep ".core.tgz" | wc -l`
++    while [ $count -gt 5 ]; do
++        olddumps=`ls -t $CORE_PATH | grep ".core.tgz" | tail -1`
++        logMessage "Removing old dump $olddumps"
++        rm -rf $CORE_PATH/$olddumps
++        count=`ls $CORE_PATH | grep ".core.tgz" | wc -l`
++    done
++    logMessage "Total pending Minidumps : $count"
++}
++
+ saveDump()
+ {
+     count=`ls $MINIDUMPS_PATH | grep ".dmp.tgz" | wc -l`
+@@ -857,7 +870,7 @@ qca_upload()
+     logMessage "DEBUG Value Required for Check : ${file:0:3}"
+     logMessage "qca_upload $1 and partnerId=$partnerId"
+     
+-    if [ "${file:0:3}" = "mac" ]; then
++    if [ "${file:0:3}" == "mac" ]; then
+         # Update upload time to corefile from uploadToS3 function.
+         corefiletime=`echo $file | awk -F '_' '{print substr($2,4)}'`
+         logMessage "DEBUG $DUMP_NAME file timestamp (2,4) received to uploadToS3: $corefiletime"
+@@ -1648,8 +1648,8 @@ processDumps()
+             else
+                 logMessage "Coredump File `echo $f`"
+             fi
+-           QCA_FILENAME=`echo ${f##*/}`
+-            count=1
++           QCA_FILENAME=$f
++           upload_count=0
+
+             # check the network
+             if [ "$DEVICE_TYPE" != "broadband" ] && [ "$DUMP_NAME" = "minidump" -a $NoNetwork -eq 1 ]; then
+@@ -1658,22 +1658,25 @@ processDumps()
+                 return
+             fi
+            # upload to qca_upload first
+-           logMessage "[$0]: $count: $DUMP_NAME QCA Upload "
+-           qca_upload "`echo $QCA_FILENAME`"
++           logMessage "[$0]: $upload_count: $DUMP_NAME QCA Upload "
++           qca_upload $QCA_FILENAME
+             status=$?
+-            while [ $count -le 3 ]
+-            do
+-                if [ -f /etc/waninfo.sh ]; then
+-                    ARM_INTERFACE=$(getWanInterfaceName)
+-                fi
++           while [ $upload_count -lt 3 ]
++           do
++                   logMessage "In while loop, count = $upload_count"
++                   if [ -f /etc/waninfo.sh ]; then
++                           ARM_INTERFACE=$(getWanInterfaceName)
++                   fi
+                # qca_upload fail over recovery
+-                count=`expr $count + 1`
++               upload_count=$((upload_count + 1))
++               logMessage "Printing uploadcount = $upload_count"
+                 if [ $status -ne 0 ];then
+-                     logMessage "[$0]: Execution Status: $status, qca_Upload of $DUMP_NAME Failed"
+-                     logMessage "[$0]: $count: (Retry), $DUMP_NAME S3 Upload"
+-                     sleep 2
+-                    qca_upload "`echo $QCA_FILENAME`"
+-                     status=$?
++                    logMessage "[$0]:before  Execution Status: $status, qca_Upload of $DUMP_NAME Failed"
++                    logMessage "[$0]: $upload_count: (Retry), $DUMP_NAME S3 Upload"
++                    sleep 2
++                    qca_upload $QCA_FILENAME
++                    status=$?
++                    logMessage "[$0]: after qca_upload Execution Status: $status, qca_Upload of $DUMP_NAME Failed"
+                 else
+                      logMessage "[$0]: $DUMP_NAME qca_upload SUCESS: status: $status"
+                     if [ "$DUMP_NAME" == "minidump" ] && [ "$IS_T2_ENABLED" == "true" ]; then
+@@ -1683,17 +1686,18 @@ processDumps()
+                 fi
+             done
+             if [ $status -ne 0 ];then
+-                  logMessage "[$0]:qca_upload of $DUMP_NAME Failed..!"
+-                  if [  "$DUMP_NAME" == "minidump" ]; then
+-                      logMessage "Check and save the dump $S3_FILENAME"
+-                      saveDump
+-                  else
+-                      logMessage "Removing file $QCA_FILENAME"
+-                     rm -f $QCA_FILENAME
+-                  fi
+-                  exit 1
++                   logMessage "[$0]:qca_upload of $DUMP_NAME Failed..!"
++                   if [  "$DUMP_NAME" == "minidump" ]; then
++                       logMessage "Check and save the dump $S3_FILENAME"
++                       saveDump
++                   else
++                       logMessage "Check and save the recent dumps $QCA_FILENAME"
++                       saveCoreDump
++                       break
++               fi
++               exit 1
+             else
+-                  echo "[$0]: Execution Status: $status, qca_upload of $DUMP_NAME Success"
++                   logMessage "[$0]: Execution Status: $status, qca_upload of $DUMP_NAME Success"
+             fi
+            logMessage "Removing file $QCA_FILENAME"
+            rm -f $QCA_FILENAME
+@@ -1702,24 +1706,24 @@ processDumps()
+     done
+ }
+
+-if [ "$DUMP_FLAG" == "0" ]; then
++if [ "$DUMP_FLAG" == "1" ]; then
+     for j in 1 2 3; do
+         minidump_files=$(find . -name "$DUMPS_EXTN" | head -n1)
+         if [ -z "$minidump_files" ]; then
+             break
+         fi
+-       echo "calling processDumps when DUMP_FLAG = 0"
++       logMessage "calling processDumps when DUMP_FLAG = 1"
+         processDumps
+     done
+ else
+-    echo "in else path"
++    logMessage "in else path"
+     for i in 1 2 3; do
+         coredump_files=$(find . -name "$DUMPS_EXTN" | head -n1)
+-       echo "in for loop, files is $files"
++       logMessage "in for loop, files is $files"
+         if [ -z "$coredump_files" ]; then
+             break
+         fi
+-       echo "calling processDumps"
++       logMessage "calling processDumps"
+         processDumps
+     done
+ fi

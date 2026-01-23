@@ -1,0 +1,21 @@
+Commit ID: 85746271dbb328838ef2c89a90864552e46bf9f0
+From: Sandhya KS <sandhyks@qti.qualcomm.com>
+Date: Wed Apr 12 18:05:25 2023 +0530
+Subject: ccsp-webui : Fix patch failures
+Signed-off-by: Sandhya KS <sandhyks@qti.qualcomm.com>
+
+---
+
+diff --git a/source/Styles/xb3/config/webgui.sh b/source/Styles/xb3/config/webgui.sh
+index 6c6ad35..92613de 100755
+--- a/source/Styles/xb3/config/webgui.sh
++++ b/source/Styles/xb3/config/webgui.sh
+@@ -89,7 +89,7 @@ if [ "x$BOX_TYPE" != "xHUB4" ]; then
+     source /fss/gw/etc/utopia/service.d/log_env_var.sh
+ fi
+ REVERT_FLAG="/nvram/reverted"
+-LIGHTTPD_CONF="/etc/lighttpd.conf"
++LIGHTTPD_CONF="/etc/lighttpd/lighttpd.conf"
+ LIGHTTPD_CONF_TXT="/tmp/lighttpdconfig.txt"
+ FILE_LOCK="/tmp/webgui.lock"
+ MAX_RETRY_COUNT=10

@@ -1,0 +1,30 @@
+From 653c15a1d7ac615baa8c2c2aed1d2e48ed0ec7cf Mon Sep 17 00:00:00 2001
+From: rmariyap <rmariyap@qti.qualcomm.com>
+Date: Fri, 15 Dec 2023 18:33:47 +0530
+Subject: [PATCH] Fix for IPv6 GRETAP Tunnel Interface
+
+Reason for the change: The Tunnel interface was not getting created
+	when used with IPv6 addresses.
+
+Signed-off-by: rmariyap <rmariyap@qti.qualcomm.com>
+---
+ source/scripts/init/service.d/service_multinet/service_gre.sh | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/source/scripts/init/service.d/service_multinet/service_gre.sh b/source/scripts/init/service.d/service_multinet/service_gre.sh
+index 694a668..cb160e0 100644
+--- a/source/scripts/init/service.d/service_multinet/service_gre.sh
++++ b/source/scripts/init/service.d/service_multinet/service_gre.sh
+@@ -288,8 +288,7 @@ create_tunnel()
+ 	    ip link set $GRE_TUN_IF_NAME txqueuelen $TX_QUEUE_LEN mtu $MTU_VAL up
+ 	    ip r a default via $2 dev $WAN_IF
+     elif [ "$DELIVERY_PROTOCOL" = 2 ];then
+-	    IPv6_ADDR=`sysevent get ipv6_dhcp6_addr`
+-	    ip link add $GRE_TUN_IF_NAME type ip6gretap remote $2 local $IPv6_ADDR dev $WAN_IF
++	    ip link add $GRE_TUN_IF_NAME type ip6gretap remote $2 local $3 dev $WAN_IF
+ 	    ip link set $GRE_TUN_IF_NAME txqueuelen $TX_QUEUE_LEN mtu $MTU_VAL up
+ 	    ip -6 route add default via $2 dev $WAN_IF
+     fi
+-- 
+2.34.1
+

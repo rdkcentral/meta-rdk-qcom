@@ -1,0 +1,12 @@
+[Unit]
+Description=Network Time Service
+After=network-online.target CcspPandMSsp.service
+
+[Service]
+Type=forking
+Restart=always
+PIDFile=/run/ntpd.pid
+ExecStart=/usr/sbin/ntpd -u ntp:ntp -p /run/ntpd.pid -g
+
+[Install]
+WantedBy=multi-user.target

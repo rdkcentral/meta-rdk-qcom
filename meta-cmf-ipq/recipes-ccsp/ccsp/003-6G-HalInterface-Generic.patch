@@ -1,0 +1,21 @@
+Commit ID: 2014e523e4bb541ca263cd55d12d82c617c98b3b
+From: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+Date: Tue Feb 14 20:28:18 2023 +0530
+Subject: 6G_Enablement_CcspWiFiAgent_Changes
+Signed-off-by: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+
+---
+
+diff --git a/wifi_hal_generic.h b/wifi_hal_generic.h
+index 7808e93..83b610e 100644
+--- a/wifi_hal_generic.h
++++ b/wifi_hal_generic.h
+@@ -141,7 +141,7 @@ extern "C"{
+ #define MAX_NUM_RADIOS           2
+ #endif
+ 
+-#define MAX_NUM_VAP_PER_RADIO    8
++#define MAX_NUM_VAP_PER_RADIO    17
+ 
+ #define MAC_STR_LEN        18
+ #ifndef ETHER_ADDR_LEN

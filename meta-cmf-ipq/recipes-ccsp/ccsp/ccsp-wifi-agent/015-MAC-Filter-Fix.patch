@@ -1,0 +1,37 @@
+Commit ID: f11fe6097fd673db0a393767a9233ec2cd1677d4
+From: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+Date: Fri Jul 7 12:17:48 2023 +0530
+Subject: [ccsp-recipes]MAC_Filter_Fix
+Signed-off-by: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index 80fede6..e774f1d 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -21749,14 +21749,22 @@ CosaDmlMacFilt_SetConf(ULONG apIns, ULONG macFiltIns, PCOSA_DML_WIFI_AP_MAC_FILT
+         }
+     }
+ 
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &oldDevMac);
++    if (retPsmSet != CCSP_SUCCESS) {
++        wifiDbgPrintf("%s Error %d getting the mac\n", __FUNCTION__, retPsmSet);
++        CcspWifiTrace(("RDK_LOG_ERROR,%s Getting the mac from psm\n",__FUNCTION__));
++        return ANSC_STATUS_FAILURE;
++    }
++    CcspTraceInfo(("%s Deleting old MAC address: %s from hostapd file\n", __func__, oldDevMac));
++    wifi_delApAclDevice(apIns-1, oldDevMac);
+     retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, pMacFilt->MACAddress);
+     if (retPsmSet != CCSP_SUCCESS) {
+ 	wifiDbgPrintf("%s Error %d adding mac = %s \n", __FUNCTION__, retPsmSet, pMacFilt->MACAddress);
+ 	CcspWifiTrace(("RDK_LOG_ERROR,%s :adding mac = %s\n",__FUNCTION__, pMacFilt->MACAddress));
+         return ANSC_STATUS_FAILURE;
+     }
+-	CcspWifiTrace(("RDK_LOG_INFO,%s :adding mac = %s\n",__FUNCTION__, pMacFilt->MACAddress));
+-
++    CcspWifiTrace(("RDK_LOG_INFO,%s :adding mac = %s in hostapd file\n",__FUNCTION__, pMacFilt->MACAddress));
++    wifi_addApAclDevice(apIns-1, pMacFilt->MACAddress);
+     // Add Mac Device Name to Non-Vol PSM
+     rc = sprintf_s(recName, sizeof(recName) ,MacFilterDevice, apIns, pMacFilt->InstanceNumber);
+     if(rc < EOK)

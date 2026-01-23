@@ -1,0 +1,338 @@
+Commit ID: b92f3c014b3269dc705085d57b284c0155bd3cd0
+From: sriraama <sriraama@qti.qualcomm.com>
+Date: Mon May 20 18:50:19 2024 +0530
+Subject: [meta-cmf-ipq] Rebasing patches for 2024-q1-dunfell migration.
+Signed-off-by: sriraama <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/coredump-upload.path b/coredump-upload.path
+index 6f7002f..ccb8492 100644
+--- a/coredump-upload.path
++++ b/coredump-upload.path
+@@ -21,7 +21,8 @@ Description=Path Exists
+ OnFailure=path-fail-notifier@%n.service
+ 
+ [Path]
+-PathChanged=/minidumps/
++PathExistsGlob=/tmp/*core.prog*
++PathChanged=/tmp/
+ 
+ [Install]
+ WantedBy=multi-user.target
+diff --git a/coredump-upload.service b/coredump-upload.service
+index 27e9762..8bc3ee9 100644
+--- a/coredump-upload.service
++++ b/coredump-upload.service
+@@ -26,4 +26,4 @@ Requires=network-online.target
+ #Environment="TS="
+ #Type=oneshot
+ #RemainAfterExit=yes
+-ExecStart=/bin/busybox sh -c '/lib/rdk/uploadDumps.sh "" 0 '
++ExecStart=/bin/busybox sh -c '/lib/rdk/uploadDumps.sh  1 '
+diff --git a/uploadDumps.sh b/uploadDumps.sh
+index 0f57491..ab18fcd 100755
+--- a/uploadDumps.sh
++++ b/uploadDumps.sh
+@@ -22,6 +22,9 @@
+ #Uploads coredumps to an ftp server if there are any
+ LOGMAPPER_FILE="/etc/breakpad-logmapper.conf"
+ LOG_FILES="/tmp/minidump_log_files.txt"
++DEVICE_TYPE=broadband
++CORE_PATH="/tmp"
++
+ if [ -f /lib/rdk/t2Shared_api.sh ]; then
+     source /lib/rdk/t2Shared_api.sh
+     IS_T2_ENABLED="true"
+@@ -60,7 +63,8 @@ if [ "x$UPLOAD_FLAG" = "xsecure" ];then
+         CORE_PATH="/opt/secure/corefiles"
+         MINIDUMPS_PATH="/opt/secure/minidumps"
+ else
+-        CORE_PATH="/var/lib/systemd/coredump"
++        #CORE_PATH="/var/lib/systemd/coredump"
++	CORE_PATH="/tmp"
+         MINIDUMPS_PATH="/opt/minidumps"
+ fi
+ 
+@@ -133,8 +137,8 @@ export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+ # causes a pipeline to produce a failure return code in case of errors
+ set -o pipefail
+ 
+-S3BUCKET="ccp-stbcrashes"
+-s3bucketurl="s3.amazonaws.com"
++#S3BUCKET="ccp-stbcrashes"
++#s3bucketurl="s3.amazonaws.com"
+ HTTP_CODE="/tmp/httpcode"
+ S3_FILENAME=""
+ CURL_UPLOAD_TIMEOUT=45
+@@ -177,7 +181,7 @@ setLogFile()
+ {
+     fileName=`basename $6`
+     ## Do not perform log file processing if the core name is already processed
+-    echo "$fileName" | grep "_mac\|_dat\|_box\|_mod" 2> /dev/null 1> /dev/null
++    echo "fileName = $fileName" | grep "_mac\|_dat\|_box\|_mod" 2> /dev/null 1> /dev/null
+     if [ $? -eq 0 ]; then
+        echo "$fileName"
+        logMessage "Core name is already processed."
+@@ -240,7 +244,7 @@ POTOMAC_USER=ccpstbscp
+ # Assign the input arguments
+ # CRASHTS was previously taken from first argument to the script, but we decided to just generate it here.
+ CRASHTS=$(date +%Y-%m-%d-%H-%M-%S)
+-DUMP_FLAG=$2
++DUMP_FLAG=$1
+ 
+ if [ "$DUMP_FLAG" == "1" ] ; then
+     DUMP_NAME="coredump"
+@@ -415,7 +419,7 @@ cleanup()
+ 
+ finalize()
+ {
+-    cleanup
++    #cleanup
+     [ -f "$crashLoopFlagFile" ] && rm -f "$crashLoopFlagFile"
+     remove_lock $LOCK_DIR_PREFIX
+     remove_lock "$TIMESTAMP_FILENAME"
+@@ -445,8 +449,9 @@ trap 'sigterm_function' SIGTERM
+ 
+ if [ "$DUMP_FLAG" == "1" ] ; then
+     logMessage "starting coredump processing"
+-    WORKING_DIR="$CORE_PATH"
+-    DUMPS_EXTN=*core.prog*.gz*
++    #WORKING_DIR="$CORE_PATH"
++    WORKING_DIR="/tmp"
++    DUMPS_EXTN=*core.prog*
+     TARBALLS=*.core.tgz
+     #to limit this to only one instance at any time..
+     LOCK_DIR_PREFIX="/tmp/.uploadCoredumps"
+@@ -473,7 +478,7 @@ if [ -z "$WORKING_DIR" ] || [ -z "$(ls -A $WORKING_DIR 2> /dev/null)" ];then
+ fi
+ 
+ if [ "$DEVICE_TYPE" = "broadband" ];then
+-     PORTAL_URL="rdkbcrashportal.stb.r53.xcal.tv"
++     #PORTAL_URL="rdkbcrashportal.stb.r53.xcal.tv"
+      REQUEST_TYPE=18
+ else
+      PORTAL_URL=$(tr181 -g Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.CrashUpload.crashPortalSTBUrl 2>&1)
+@@ -805,11 +810,11 @@ fi
+ # Upon exit, remove locking
+ trap finalize EXIT
+ 
+-if isBuildBlacklisted; then
+-    logMessage "Skipping upload. The build is blacklisted."
+-    removePendingDumps
+-    exit
+-fi
++#if isBuildBlacklisted; then
++#    logMessage "Skipping upload. The build is blacklisted."
++#    removePendingDumps
++#    exit
++#fi
+ 
+ #skip upload if opt out is set to true
+ getOptOutStatus
+@@ -849,7 +854,7 @@ logMessage "Mac address is $MAC"
+ count=`find "$WORKING_DIR" -name "$DUMPS_EXTN" | wc -l`
+ if [ $count -eq 0 ]; then logMessage "No ${DUMP_NAME} for uploading exiting" ; exit 0; fi
+ 
+-cleanup
++#cleanup
+ logMessage "Portal URL: $PORTAL_URL"
+ 
+ codebigUpload()
+@@ -911,6 +916,52 @@ saveDump()
+      logMessage "Total pending Minidumps : $count"
+ }
+ 
++qca_upload()
++{
++    local file=$(basename $1)
++
++    count=`find "$WORKING_DIR" -name "$file" | wc -l`
++    if [ $count -eq 0 ]; then logMessage "DEBUG_ERROR:UPLOAD_FAILED:No ${file} for uploading In Dir:${WORKING_DIR}" ; exit 0; fi
++
++    logMessage "DEBUG Original File Name : $file"
++    logMessage "DEBUG Value Required for Check : ${file:0:3}"
++    logMessage "qca_upload $1 and partnerId=$partnerId"
++
++    if [ "${file:0:3}" = "mac" ]; then
++        # Update upload time to corefile from uploadToS3 function.
++        corefiletime=`echo $file | awk -F '_' '{print substr($2,4)}'`
++	logMessage "DEBUG $DUMP_NAME file timestamp (2,4) received to uploadToS3: $corefiletime"
++    else
++        # Update upload time to corefile from uploadToS3 function.
++	corefiletime=`echo $file | awk -F '_' '{print substr($3,4)}'`
++	logMessage "DEBUG $DUMP_NAME file timestamp (3,4) received to uploadToS3: $corefiletime"
++    fi
++
++    uploadcurtime=`date +%Y-%m-%d-%H-%M-%S`
++    logMessage "$DUMP_NAME file timestamp before upload: $uploadcurtime"
++
++    updatedfile=`echo $file | sed "s/$corefiletime/$uploadcurtime/g"`
++    logMessage "DEBUG $DUMP_NAME file to be uploaded: `echo $updatedfile`"
++
++    if [ -f $WORKING_DIR"/"$file ]; then
++        logMessage "DEBUG Renaming the $DUMP_NAME file under $WORKING_DIR"
++	logMessage "DEBUG mv $WORKING_DIR"/"$file $WORKING_DIR"/"$updatedfile"
++	mv $WORKING_DIR"/"$file $WORKING_DIR"/"$updatedfile
++	QCA_FILENAME=$updatedfile
++	logMessage "DEBUG QCA_FILENAME File Name : $QCA_FILENAME"
++    else
++        logMessage "$DUMP_NAME file: $file not found under $WORKING_DIR folder..!!!"
++    fi
++
++    count=`find "$WORKING_DIR" -name "$QCA_FILENAME" | wc -l`
++    if [ $count -eq 0 ]; then logMessage "DEBUG_ERROR:UPLOAD_FAILED:No ${QCA_FILENAME} for uploading In Dir:${WORKING_DIR}" ; exit 0; fi
++
++    crashupload_server_url=`syscfg get crashupload-server-url`
++    echo "crashupload = "$crashupload_server_url""
++    if [ "$DEVICE_TYPE" = "broadband" ];then
++        curl -X PUT --upload-file $QCA_FILENAME "$crashupload_server_url"
++    fi
++}
+ 
+ uploadToS3()
+ {
+@@ -1031,7 +1082,7 @@ uploadToS3()
+        logMessage "Using Xpki cert for CrashdumpUpload"
+     fi
+ 
+-    signed_url_file="/tmp/signed_url_$$"
++    #signed_url_file="/tmp/signed_url_$$"
+     if [ ! -z "$IF_OPTION" ]; then
+         if [ -f $EnableOCSPStapling ] || [ -f $EnableOCSP ]; then
+             CURL_ARGS="-s $TLS --interface $IF_OPTION --cert-status -o $signed_url_file -w \"%{http_code} ${CURL_LOG_OPTION}\" --data-urlencode "filename=\"$updatedfile\""\
+@@ -1514,8 +1565,8 @@ processDumps()
+ 	            logfiles="$stbLogFile $ocapLogFile $messagesTxtFile $appStatusLogFile $appLogFile $cefLogFile $wpeLogFile $VERSION_FILE $CORE_LOG"
+                     OUT_FILES="$dumpName"
+                     copy_log_files_tmp_dir $logfiles
+-	            nice -n 19 tar -zcvf $tgzFile $OUT_FILES 2>&1 | logStdout
+-                    if [ $? -eq 0 ]; then
++                    tar -zcvf $tgzFile $OUT_FILES 2>&1 | logStdout
++		    if [ $? -eq 0 ]; then
+                        logMessage "Success Compressing the files, $tgzFile $OUT_FILES"
+                     else
+                        logMessage "Compression Failed ."
+@@ -1546,7 +1597,8 @@ processDumps()
+                 fi
+             else
+                 if [ "$DEVICE_TYPE" = "hybrid" ] || [ "$DEVICE_TYPE" = "mediaclient" ]; then
+-                    files="$VERSION_FILE $messagesTxtFile $appStatusLogFile $appLogFile $cefLogFile $CORE_LOG $crashedUrlFile"
++                    files="$VERSION_FILE $messagesTxtFile $appStatusLogFile $appLogFile $cefLogFile
++ $CORE_LOG $crashedUrlFile"
+                     if [ "$BUILD_TYPE" != "prod" ]; then
+                         test -f $LOG_PATH/receiver.log && files="$files $LOG_PATH/receiver.log*"
+                         test -f $LOG_PATH/thread.log && files="$files $LOG_PATH/thread.log"
+@@ -1555,14 +1607,14 @@ processDumps()
+                         test -f $LOG_PATH/receiver.log.1 && files="$files $LOG_PATH/receiver.log.1"
+                     fi
+                     add_crashed_log_file $files
+-                    nice -n 19 tar -zcvf $tgzFile $dumpName $files 2>&1 | logStdout
++		    tar -zcvf $tgzFile $dumpName $files 2>&1 | logStdout
+                     if [ $? -eq 0 ]; then
+                         logMessage "Success Compressing the files $tgzFile $dumpName $files"
+                     else
+                         # If the tar creation failed then will create new tar after copying logs files to /tmp
+                         OUT_FILES="$dumpName"
+ 		        copy_log_files_tmp_dir $files
+-		        nice -n 19 tar -zcvf $tgzFile $OUT_FILES 2>&1 | logStdout
++			tar -zcvf $tgzFile $OUT_FILES 2>&1 | logStdout
+                         if [ $? -eq 0 ]; then
+                            logMessage "Success Compressing the files, $tgzFile $OUT_FILES"
+                         else
+@@ -1572,7 +1624,7 @@ processDumps()
+                 elif [ "$DEVICE_TYPE" = "broadband" ]; then
+                     files="$tgzFile $dumpName $VERSION_FILE $CORE_LOG"
+                     add_crashed_log_file $files
+-                    nice -n 19 tar -zcvf $files 2>&1 | logStdout
++		    tar -zcvf $files 2>&1 | logStdout
+                     if [ $? -eq 0 ]; then
+                         logMessage "Success Compressing the files, $files"
+                     else
+@@ -1664,7 +1716,7 @@ processDumps()
+             else
+                 logMessage "Coredump File `echo $f`"
+             fi
+-            S3_FILENAME=`echo ${f##*/}`
++	    QCA_FILENAME=`echo ${f##*/}`
+             count=1
+             
+             # check the network
+@@ -1673,25 +1725,25 @@ processDumps()
+                 saveDump
+                 return
+             fi
+-            # upload to S3 amazon first
+-            logMessage "[$0]: $count: $DUMP_NAME S3 Upload "
+-            uploadToS3 "`echo $S3_FILENAME`" 
++	    # upload to qca_upload first
++	    logMessage "[$0]: $count: $DUMP_NAME QCA Upload "
++	    qca_upload "`echo $QCA_FILENAME`"
+             status=$?
+             while [ $count -le 3 ]
+             do
+                 if [ -f /etc/waninfo.sh ]; then
+                     ARM_INTERFACE=$(getWanInterfaceName)
+                 fi
+-                # S3 amazon fail over recovery
++		# qca_upload fail over recovery
+                 count=`expr $count + 1`
+                 if [ $status -ne 0 ];then
+-                     logMessage "[$0]: Execution Status: $status, S3 Amazon Upload of $DUMP_NAME Failed"
++                     logMessage "[$0]: Execution Status: $status, qca_Upload of $DUMP_NAME Failed"
+                      logMessage "[$0]: $count: (Retry), $DUMP_NAME S3 Upload"
+                      sleep 2
+-                     uploadToS3 "`echo $S3_FILENAME`"
++		     qca_upload "`echo $QCA_FILENAME`"
+                      status=$?
+                 else
+-                     logMessage "[$0]: $DUMP_NAME uploadToS3 SUCESS: status: $status"
++                     logMessage "[$0]: $DUMP_NAME qca_upload SUCESS: status: $status"
+ 		     if [ "$DUMP_NAME" == "minidump" ] && [ "$IS_T2_ENABLED" == "true" ]; then
+ 			     t2CountNotify "SYST_INFO_minidumpUpld"
+ 		     fi
+@@ -1699,20 +1751,20 @@ processDumps()
+                 fi
+             done
+             if [ $status -ne 0 ];then
+-                  logMessage "[$0]: S3 Amazon Upload of $DUMP_NAME Failed..!"
++                  logMessage "[$0]:qca_upload of $DUMP_NAME Failed..!"
+                   if [  "$DUMP_NAME" == "minidump" ]; then
+                       logMessage "Check and save the dump $S3_FILENAME"
+                       saveDump
+                   else
+-                      logMessage "Removing file $S3_FILENAME"
+-                      rm -f $S3_FILENAME
++                      logMessage "Removing file $QCA_FILENAME"
++		      rm -f $QCA_FILENAME
+                   fi
+                   exit 1
+             else
+-                  echo "[$0]: Execution Status: $status, S3 Amazon Upload of $DUMP_NAME Success"
++                  echo "[$0]: Execution Status: $status, qca_upload of $DUMP_NAME Success"
+             fi
+-            logMessage "Removing file $S3_FILENAME"
+-            rm -f $S3_FILENAME
++	    logMessage "Removing file $QCA_FILENAME"
++	    rm -f $QCA_FILENAME
+             logUploadTimestamp
+         fi
+     done
+@@ -1724,14 +1776,18 @@ if [ "$DUMP_FLAG" == "0" ]; then
+         if [ -z "$minidump_files" ]; then
+             break
+         fi
++	echo "calling processDumps when DUMP_FLAG = 0"
+         processDumps
+     done
+ else
++    echo "in else path"
+     for i in 1 2 3; do
+         coredump_files=$(find . -name "$DUMPS_EXTN" | head -n1)
++	echo "in for loop, files is $files"
+         if [ -z "$coredump_files" ]; then
+             break
+         fi
++	echo "calling processDumps"
+         processDumps
+     done
+ fi

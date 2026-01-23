@@ -1,0 +1,29 @@
+Commit ID: f33cbffc8796dd87394f70f187ab8903127e0ac4
+From: sridgopa <sridgopa@qti.qualcomm.com>
+Date: Mon Aug 5 19:44:39 2024 +0530
+Subject: Reason for change: Continuously vaps are going to up and down for all the radios
+Signed-off-by: sridgopa <sridgopa@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/sbapi/wifi_monitor.c b/source/TR-181/sbapi/wifi_monitor.c
+index c972778..144b595 100644
+--- a/source/TR-181/sbapi/wifi_monitor.c
++++ b/source/TR-181/sbapi/wifi_monitor.c
+@@ -1092,13 +1092,13 @@ int upload_client_telemetry_data(void *arg)
+                 switch (radioOperation->band)
+                 {
+                     case WIFI_FREQUENCY_2_4_BAND:
+-                        wifi_dbg_print(1, "%s:%d: client detailed stats collection for 2.4GHz radio set to %s\n", __func__, __LINE__, 
++                        wifi_dbg_print(1, "%s:%d: client detailed stats collection for 2.4GHz radio-%d set to %s\n", __func__, __LINE__,
+                                 radioIndex, (enableRadioDetailStats[radioIndex] == TRUE)?"enabled":"disabled");
+                     case WIFI_FREQUENCY_5_BAND:
+-                        wifi_dbg_print(1, "%s:%d: client detailed stats collection for 5GHz radio set to %s\n", __func__, __LINE__, 
++                        wifi_dbg_print(1, "%s:%d: client detailed stats collection for 5GHz radio-%d set to %s\n", __func__, __LINE__,
+                                 radioIndex, (enableRadioDetailStats[radioIndex] == TRUE)?"enabled":"disabled");
+                     case WIFI_FREQUENCY_6_BAND:
+-                        wifi_dbg_print(1, "%s:%d: client detailed stats collection for 6GHz radio set to %s\n", __func__, __LINE__, 
++                        wifi_dbg_print(1, "%s:%d: client detailed stats collection for 6GHz radio-%d set to %s\n", __func__, __LINE__,
+                                 radioIndex, (enableRadioDetailStats[radioIndex] == TRUE)?"enabled":"disabled");
+                     default:
+                         break;

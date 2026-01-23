@@ -1,0 +1,16 @@
+[Unit]
+Description=PDT initialize routine service
+
+After=ipq-boot.service
+
+[Service]
+Type=oneshot
+ExecStart= /bin/sh -c "/usr/bin/pdt.sh start"
+ExecStop= /bin/sh -c "/usr/bin/pdt.sh stop"
+RemainAfterExit=Yes
+
+StandardOutput=syslog
+
+[Install]
+WantedBy=multi-user.target
+

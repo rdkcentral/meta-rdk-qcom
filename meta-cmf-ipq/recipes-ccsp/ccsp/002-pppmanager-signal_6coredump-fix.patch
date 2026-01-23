@@ -1,0 +1,20 @@
+Commit ID: 47c94f2315e946225c79028ad19e46074e7227f8
+From: sanknata <sanknata@qti.qualcomm.com>
+Date: Fri Aug 16 17:25:17 2024 +0530
+Subject: Reason for change: core.prog_pppmanager.signal_6 coredumps observed during traffic testing.
+Signed-off-by: sanknata <sanknata@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c b/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+index 3b2eccf..7b0ce28 100644
+--- a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
++++ b/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+@@ -592,6 +592,7 @@ PppDmlGetIntfValuesFromPSM
+ 
+     // init mutex
+     pthread_mutexattr_t     muttex_attr;
++    memset(&muttex_attr, 0, sizeof(pthread_mutexattr_t));
+     pthread_mutexattr_settype(&muttex_attr, PTHREAD_MUTEX_RECURSIVE);
+     pthread_mutex_init(&(pEntry->mDataMutex), &(muttex_attr));
+ 

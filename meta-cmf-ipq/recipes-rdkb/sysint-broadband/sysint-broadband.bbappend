@@ -1,0 +1,1 @@
+SRCREV_FORMAT = "1"

@@ -1,0 +1,102 @@
+Commit ID: 8dc435b8c9bc88672782f3eb677e46b868d2f6c4
+From: sreehari ramanjula <sramanju@qti.qualcomm.com>
+Date: Mon Jun 12 16:41:25 2023 +0530
+Subject: recipes-ccsp: Fix ccsp-wifi-agent compilation issue
+Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
+
+---
+
+diff --git a/config-atom/TR181-WiFi-USGv2.XML b/config-atom/TR181-WiFi-USGv2.XML
+index 47d5209..0399b21 100644
+--- a/config-atom/TR181-WiFi-USGv2.XML
++++ b/config-atom/TR181-WiFi-USGv2.XML
+@@ -2455,7 +2455,19 @@ INSTMSMT_PH2 -->
+                                 <parameter>
+                                     <name>ModesSupported</name>
+                                     <type>string</type>
++                                   <syntax>string</syntax>
++				</parameter>
++				<parameter>
++                                    <name>DppEnable</name>
++                                    <type>boolean</type>
++				    <syntax>bool</syntax>
++				    <writable>true</writable>
++			         </parameter>
++                                <parameter>
++                                    <name>EnrolleeBootstrapUri</name>
++                                    <type>string(512)</type>
+                                     <syntax>string</syntax>
++                                    <writable>true</writable>
+                                 </parameter>
+                                 <parameter>
+                                     <name>ModeEnabled</name>
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 3ec6e3c..ce9d9ba 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -11015,6 +11015,14 @@ Security_GetParamBoolValue
+         return TRUE;
+     }
+ 
++	if (strcmp(ParamName, "DppEnable") == 0)
++	{
++	    ULONG apIndex = pWifiAp->AP.Cfg.InstanceNumber - 1;
++	    BOOL is_dpp_enable = FALSE;
++	    qca_is_dpp_enabled(apIndex, &is_dpp_enable);
++	    *pBool = is_dpp_enable;
++	    return TRUE;
++	}
+     /* CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName)); */
+     return FALSE;
+ }
+@@ -12069,6 +12077,29 @@ Security_SetParamBoolValue
+ 		return TRUE;		
+     }
+ 
++    if (strcmp(ParamName, "DppEnable") == 0)
++    {
++            int ret = 0;
++
++           if ((bValue == TRUE))
++           {
++                   ret = qca_dpp_enable(apIndex);
++                   if ( ret != 0)
++                   {
++                           CcspTraceError(("%s: Error in Dpp Enable\n",__func__));
++                           return FALSE;
++                   }
++                   return TRUE;
++           }
++            ret = qca_dpp_disable(apIndex);
++            if ( ret != 0)
++            {
++                    CcspTraceError(("%s: Error in Dpp Disable\n",__func__));
++                    return FALSE;
++            }
++
++            return TRUE;
++    }
+     /* CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName)); */
+     return FALSE;
+ }
+@@ -13170,6 +13201,20 @@ Security_SetParamStringValue
+         return TRUE;
+     }
+ 
++    rc = strcmp_s("EnrolleeBootstrapUri", strlen("EnrolleeBootstrapUri"), ParamName, &ind);
++    ERR_CHK(rc);
++    if((rc == EOK) && (!ind))
++    {
++       int ret = 0; CcspTraceInfo(("%s:pString value is %s\n",__func__,pString));
++       ret = qca_dpp_bootstrap(apIndex,pString);
++       if ( ret != 0)
++       {
++             CcspTraceError(("%s: Error in Dpp Config \n",__func__));
++             return FALSE;
++       }
++	return TRUE;
++    }
++
+     /* CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName)); */
+     return FALSE;
+ }

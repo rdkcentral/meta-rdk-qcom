@@ -1,0 +1,25 @@
+Commit ID: 93fbfc61c136f92a40044b91df3ade746284860f
+From: krisa <krisa@qti.qualcomm.com>
+Date: Thu Mar 23 13:14:22 2023 +0530
+Subject: DHCP FIX
+Signed-off-by: krisa <krisa@qti.qualcomm.com>
+
+---
+
+diff --git dnsmasqLauncher.sh dnsmasqLauncher.sh
+index 20afe8d..fa193c4 100755
+--- dnsmasqLauncher.sh
++++ dnsmasqLauncher.sh
+@@ -61,7 +61,11 @@ if [ "$DEVICE_TYPE" = "broadband" ];then
+      fi
+ else
+      # RDK Video Platforms
+-     DNS_OPTIONS=" -N -a 127.0.0.1 -z "
++     if [ "$BOX_TYPE" = "ipq" ]; then
++          DNS_OPTIONS=" -P 4096 -C /var/dnsmasq.conf "
++     else
++          DNS_OPTIONS=" -N -a 127.0.0.1 -z "
++     fi
+      # RFC configuration File
+      if [ ! "${TR181_STORE_FILENAME}" ];then
+            if [ -f /opt/secure/RFC/tr181store.ini ];then

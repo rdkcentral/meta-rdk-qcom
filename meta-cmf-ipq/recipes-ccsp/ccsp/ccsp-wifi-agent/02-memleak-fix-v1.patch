@@ -1,0 +1,214 @@
+Commit ID: 78e1ad3d9e3c97d771ec3f4843bf0a827f254c02
+From: Sandhya KS <sandhyks@qti.qualcomm.com>
+Date: Wed Apr 12 18:10:47 2023 +0530
+Subject: ccsp-wifi-agent : Fix patch failures
+Signed-off-by: Sandhya KS <sandhyks@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/lib/common/os_exec.c b/source/TR-181/lib/common/os_exec.c
+index 165ddaa..f991290 100644
+--- a/source/TR-181/lib/common/os_exec.c
++++ b/source/TR-181/lib/common/os_exec.c
+@@ -159,6 +159,7 @@ error:
+     }
+     LOG_SEVERITY(errlevel, "exit=%d err=%d(%s) '%s'", xcode, errno, strerror(errno), command);
+     if (buf) free(buf);
++    if (fp) free(fp);
+     return false;
+ }
+ 
+diff --git a/source/TR-181/lib/common/scheduler.c b/source/TR-181/lib/common/scheduler.c
+index cddc334..c6455f4 100644
+--- a/source/TR-181/lib/common/scheduler.c
++++ b/source/TR-181/lib/common/scheduler.c
+@@ -61,6 +61,7 @@ struct scheduler * scheduler_init(void)
+         sched->timer_list = queue_create();
+         if (sched->timer_list == NULL) {
+             queue_destroy(sched->timer_list);
++            free(sched->high_priority_timer_list);
+             free(sched);
+             pthread_mutex_destroy(&sched->lock);
+             return NULL;
+diff --git a/source/TR-181/lib/osa/os_socket.c b/source/TR-181/lib/osa/os_socket.c
+index 175f601..f34fc33 100644
+--- a/source/TR-181/lib/osa/os_socket.c
++++ b/source/TR-181/lib/osa/os_socket.c
+@@ -97,6 +97,7 @@ int32_t server_socket_create(os_sock_type sock_type,
+     if (inet_pton(AF_INET, listen_addr, &server_addr.sin_addr.s_addr) != 1)
+     {
+         LOG(ERR, "Server socket inet_pton() failed::error=%s", strerror(errno));
++        close(sock_fd);
+         return -1;
+     }
+ 
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index af6b4b3..9b96c54 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -20595,6 +20595,8 @@ MacFiltTab_AddEntry
+     rc = sprintf_s(pMacFilt->Alias, sizeof(pMacFilt->Alias), "MacFilterTable%lu", pWiFiAP->ulMacFilterNextInsNum);
+     if(rc < EOK)
+     {
++		AnscFreeMemory( pMacFilt);
++		pMacFilt = NULL;
+         ERR_CHK(rc);
+         return NULL;
+     }
+diff --git a/source/TR-181/ml/cosa_wifi_internal.c b/source/TR-181/ml/cosa_wifi_internal.c
+index a0c5bc8..8f909b9 100755
+--- a/source/TR-181/ml/cosa_wifi_internal.c
++++ b/source/TR-181/ml/cosa_wifi_internal.c
+@@ -1061,6 +1061,7 @@ CosaWifiInitialize
+ 		{
+ 			AnscFreeMemory(pWifiBandSteering);
+                         CcspTraceWarning(("CosaWifiInitialize - pBSSettings failed\n"));
++			AnscFreeMemory(pMacFiltLinkObj);
+ 			return ANSC_STATUS_RESOURCES;
+ 		}
+ 
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index 1e9ea30..ac27460 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -5802,6 +5802,7 @@ PCOSA_DML_WIFI_AP_CFG       pCfg
+             rc = strcpy_s(pcfg->beacon_rate_ctl, sizeof(pcfg->beacon_rate_ctl), pCfg->BeaconRate);
+ 	    if (rc != 0) {
+             ERR_CHK(rc);
++            free(pcfg);
+             return ANSC_STATUS_FAILURE;
+         }
+         }
+@@ -6441,6 +6442,7 @@ CosaDmlWiFi_SetApMFPConfigValue ( ULONG vAPIndex, char *pMFPConfig )
+             rc = strcpy_s(pcfg->mfp_config, sizeof(pcfg->mfp_config), pMFPConfig);
+ 	    if (rc != 0) {
+                 ERR_CHK(rc);
++                free(pcfg);
+                 return  ANSC_STATUS_FAILURE;
+             }
+             if (wifi_ovsdb_update_table_entry(vap_names[vAPIndex],"vap_name",OCLM_STR,&table_Wifi_VAP_Config,pcfg,filter_vaps) <= 0) {
+@@ -6981,6 +6983,8 @@ CosaDmlWiFiGetBridgePsmData
+                                 {
+                                     ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(ssidStrValue);
+                                 }
++                                free(pBridge);
++                                pBridge = NULL;
+                                 return ANSC_STATUS_FAILURE;
+                             }
+ 
+@@ -11108,6 +11117,7 @@ static int readRemoteIP (char *sIP, int size, char *sName)
+                 rc = strcpy_s(sIP, (unsigned)size, urlPtr);
+ 		if (rc != 0) {
+                     ERR_CHK(rc);
++                    fclose(fp1);
+                     return -1;
+                 }
+               ret=0;
+@@ -22257,6 +22267,7 @@ int init_client_socket(int *client_fd){
+ 	rc = strcpy_s(serv_addr.sun_path,sizeof(serv_addr.sun_path), WIFI_SERVER_FILE_NAME);
+ 	if (rc != 0) {
+             ERR_CHK(rc);
++            close(sockfd);
+             return -1;
+         }
+ #endif
+@@ -23109,12 +23120,14 @@ void *Wifi_Hosts_Sync_Func(void *pt, int index, wifi_associated_dev_t *associate
+ 
+                 rc = strcpy_s((char*)hosts.host[0].phyAddr,sizeof(hosts.host[0].phyAddr),rec_mac_id);
+ 		if (rc != 0) {
++                    AnscFreeMemory(assoc_devices);
+                     ERR_CHK(rc);
+                     return NULL;
+                 }
+                 rc = strcpy_s((char*)hosts.host[0].ssid,sizeof(hosts.host[0].ssid),ssid);
+ 		if (rc != 0) {
+                     ERR_CHK(rc);
++                    AnscFreeMemory(assoc_devices);
+                     return NULL;
+                 }
+                 hosts.host[0].RSSI = associated_dev->cli_SignalStrength;
+@@ -23320,11 +23333,13 @@ void *Wifi_Hosts_Sync_Func(void *pt, int index, wifi_associated_dev_t *associate
+ 				mac_id[17] = '\0';
+ 				rc = strcpy_s((char*)hosts.host[hosts.count].AssociatedDevice, sizeof(hosts.host[hosts.count].AssociatedDevice),assoc_device);
+               		        if (rc != 0) {
++                                    AnscFreeMemory(assoc_devices);
+                                     ERR_CHK(rc);
+                                     return NULL;
+                                 }
+ 				rc = strcpy_s((char*)hosts.host[hosts.count].phyAddr, sizeof(hosts.host[hosts.count].phyAddr), mac_id);
+               		        if (rc != 0) {
++                                    AnscFreeMemory(assoc_devices);
+                                     ERR_CHK(rc);
+                                     return NULL;
+                                 }
+diff --git a/source/TR-181/sbapi/cosa_wifi_passpoint.c b/source/TR-181/sbapi/cosa_wifi_passpoint.c
+index fdc5364..2f63319 100644
+--- a/source/TR-181/sbapi/cosa_wifi_passpoint.c
++++ b/source/TR-181/sbapi/cosa_wifi_passpoint.c
+@@ -184,7 +184,8 @@ static long readFileToBuffer(const char
+        fclose(infile);
+        return 0;
+     }
+-    fclose(infile);
++    if(infile != NULL)
++       fclose(infile);
+
+     return numbytes;
+ }
+ 
+diff --git a/source/TR-181/sbapi/pack_file.c b/source/TR-181/sbapi/pack_file.c
+index d6bf1c6..c795a00 100644
+--- a/source/TR-181/sbapi/pack_file.c
++++ b/source/TR-181/sbapi/pack_file.c
+@@ -81,6 +81,7 @@ struct pack_hdr *pack_files(char *files[], uint32_t nfile)
+         if (fstat(fileno(fp), &buf) != 0) {
+             fprintf(stderr, "%s: fstat() error\n", __FUNCTION__);
+             free(pkthdr);
++            fclose(fp);
+             return NULL;
+         }
+         filhdr->size = buf.st_size;
+@@ -88,6 +89,7 @@ struct pack_hdr *pack_files(char *files[], uint32_t nfile)
+ 
+         if ((pkthdr = realloc(pkthdr, pkthdr->totsize)) == NULL) {
+             fprintf(stderr, "%s: no memory\n", __FUNCTION__);
++            fclose(fp);
+             return NULL;
+         }
+ 
+diff --git a/source/TR-181/sbapi/wifi_ovsdb.c b/source/TR-181/sbapi/wifi_ovsdb.c
+index f0edb14..94eb1da 100644
+--- a/source/TR-181/sbapi/wifi_ovsdb.c
++++ b/source/TR-181/sbapi/wifi_ovsdb.c
+@@ -405,9 +405,11 @@ int get_ovsdb_interworking_config(char *vap_name, wifi_InterworkingElement_t *in
+     interworking->esr = pcfg->esr;
+     interworking->uesa = pcfg->uesa;
+     interworking->hessOptionPresent = pcfg->hess_option_present;
+-    strncpy(interworking->hessid, pcfg->hessid, sizeof(interworking->hessid)-1);
++    strlcpy(interworking->hessid, pcfg->hessid, sizeof(interworking->hessid)-1);
+     interworking->venueGroup = pcfg->venue_group;
+     interworking->venueType = pcfg->venue_type;
++    
++    free(pcfg);
+     return 0;
+ }
+ void print_ovsdb_interworking_config ()
+@@ -598,6 +600,8 @@ int get_ovsdb_gas_config(UINT advertisement_id, wifi_GASConfiguration_t *gas_inf
+     gas_info->ComeBackDelay = pcfg->comeback_delay;
+     gas_info->ResponseBufferingTime = pcfg->response_buffering_time;
+     gas_info->QueryResponseLengthLimit = pcfg->query_responselength_limit;
++    
++    free(pcfg);
+     return 0;
+ }
+ 
+@@ -1183,7 +1187,8 @@ int wifi_db_get_harvester_config(PCOSA_DML_WIFI_HARVESTER pHarvester)
+     pHarvester->uActiveMsmtPktSize = gcfg->wifi_active_msmt_pktsize;
+     pHarvester->uActiveMsmtNumberOfSamples = gcfg->wifi_active_msmt_num_samples;
+     pHarvester->bINSTClientEnabled = gcfg->inst_wifi_client_enabled;
+-  
++ 
++    free(gcfg);
+     return RETURN_OK;
+ }
+ 

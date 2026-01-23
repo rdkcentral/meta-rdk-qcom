@@ -1,0 +1,179 @@
+Commit ID: 46812d5a0f805d5e08d0239887c8f5ac6ea3b6d8
+From: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
+Date: Fri Aug 11 11:47:13 2023 +0530
+Subject: VLANTermiantion data model
+Signed-off-by: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
+
+---
+
+diff --git a/config-arm/TR181-USGv2.XML b/config-arm/TR181-USGv2.XML
+index a6956a9..7afc152 100755
+--- a/config-arm/TR181-USGv2.XML
++++ b/config-arm/TR181-USGv2.XML
+@@ -5275,7 +5284,6 @@
+           <syntax>uint32</syntax>
+ 
+         </parameter>
+-<!--
+         <parameter>
+ 
+           <name>VLANTerminationNumberOfEntries</name>
+@@ -5285,7 +5293,6 @@
+           <syntax>uint32</syntax>
+ 
+         </parameter>
+--->
+       </parameters>
+ 
+       <objects>
+@@ -6044,10 +6051,110 @@
+ 
+           </objects>
+ 
+-        </object>
++  </object>
++  <object>
++	  <name>VLANTermination</name>
++	  <objectType>writableTable</objectType>
++	  <maxInstance>128</maxInstance>
++	  <functions>
++		  <func_GetEntryCount>VLANTermination_GetEntryCount</func_GetEntryCount>
+ 
+-      </objects>
++		  <func_GetEntry>VLANTermination_GetEntry</func_GetEntry>
++
++		  <func_AddEntry>VLANTermination_AddEntry</func_AddEntry>
++
++		  <func_DelEntry>VLANTermination_DelEntry</func_DelEntry>
++
++		  <func_GetParamBoolValue>VLANTermination_GetParamBoolValue</func_GetParamBoolValue>
++
++		  <func_GetParamIntValue>VLANTermination_GetParamIntValue</func_GetParamIntValue>
++
++		  <func_GetParamUlongValue>VLANTermination_GetParamUlongValue</func_GetParamUlongValue>
++
++		  <func_GetParamStringValue>VLANTermination_GetParamStringValue</func_GetParamStringValue>
++
++		  <func_SetParamBoolValue>VLANTermination_SetParamBoolValue</func_SetParamBoolValue>
++
++		  <func_SetParamIntValue>VLANTermination_SetParamIntValue</func_SetParamIntValue>
++
++		  <func_SetParamUlongValue>VLANTermination_SetParamUlongValue</func_SetParamUlongValue>
++
++		  <func_SetParamStringValue>VLANTermination_SetParamStringValue</func_SetParamStringValue>
++
++		  <func_Validate>VLANTermination_Validate</func_Validate>
++
++		  <func_Commit>VLANTermination_Commit</func_Commit>
++
++		  <func_Rollback>VLANTermination_Rollback</func_Rollback>
++	  </functions>
++
++	  <parameters>
++		  <parameter>
++
++			  <name>Enable</name>
++
++			  <type>boolean</type>
++
++			  <syntax>bool</syntax>
+ 
++			  <writable>true</writable>
++		  </parameter>
++		  <parameter>
++			  <name>Status</name>
++
++			  <type>string: Up(1),Down(2),Unknown(3),Dormant(4),NotPresent(5),LowerLayerDown(6),Error(7)</type>
++
++			  <syntax>uint32/mapped</syntax>
++		  </parameter>
++		  <parameter>
++
++			  <name>Alias</name>
++
++			  <type>string(64)</type>
++
++			  <syntax>string</syntax>
++
++			  <writable>true</writable>
++
++		  </parameter>
++		  <parameter>
++
++                          <name>Name</name>
++
++                          <type>string(64)</type>
++
++                          <syntax>string</syntax>
++
++                  </parameter>
++
++		  <parameter>
++			  <name>LastChange</name>
++
++			  <type>unsignedInt</type>
++
++			  <syntax>uint32</syntax>
++
++			  <notify>off</notify>
++		  </parameter>
++		  <parameter>
++
++			  <name>VLANID</name>
++
++			  <type>unsignedInt</type>
++
++			  <syntax>uint32</syntax>
++
++			  <writable>true</writable>
++		  </parameter>
++		  <parameter>
++			  <name>LowerLayers</name>
++			  <type>string(1024)</type>
++			  <syntax>string</syntax>
++			  <writable>true</writable>
++		  </parameter>
++	  </parameters>
++  </object>
++      </objects>
+     </object>
+     <object>
+ 
+diff --git a/source-arm/TR-181/board_sbapi/cosa_ethernet_apis.c b/source-arm/TR-181/board_sbapi/cosa_ethernet_apis.c
+index c382237..5d80b40 100755
+--- a/source-arm/TR-181/board_sbapi/cosa_ethernet_apis.c
++++ b/source-arm/TR-181/board_sbapi/cosa_ethernet_apis.c
+@@ -893,7 +893,10 @@ CosaDmlEthVlanTerminationValidateCfg
+             // LowerLayers or VLANID updated, need to come up a new device name
+             ULONG                           ulEntryNameLen              = 256;
+             CHAR                            ucEntryParamName[256]       = {0};
+-            CHAR                            ucEntryNameValue[256]       = {0};
++	    CHAR                            ucEntryNameValue[256]       = {0};
++	    parameterValStruct_t varStruct;
++	    varStruct.parameterName = ucEntryParamName;
++	    varStruct.parameterValue = ucEntryNameValue;
+ 
+             rc = sprintf_s(ucEntryParamName, sizeof(ucEntryParamName), "%sName", pCfg->LowerLayers);
+             if(rc < EOK)
+@@ -902,7 +905,7 @@ CosaDmlEthVlanTerminationValidateCfg
+                 return FALSE;
+             }
+ 
+-            if ( ( 0 == CosaGetParamValueString(ucEntryParamName, ucEntryNameValue, &ulEntryNameLen)) &&
++            if ( ( 0 == COSAGetParamValueByPathName(g_MessageBusHandle,&varStruct,&ulEntryNameLen)) &&
+                  ( AnscSizeOfString((const char*)ucEntryNameValue) != 0                                        ) )
+             {
+                 rc = strcpy_s(pCfg->EthLinkName,sizeof(pCfg->EthLinkName), ucEntryNameValue);
+diff --git a/source/TR-181/middle_layer_src/cosa_ethernet_dml.c b/source/TR-181/middle_layer_src/cosa_ethernet_dml.c
+index 1464cd6..c043fa8 100644
+--- a/source/TR-181/middle_layer_src/cosa_ethernet_dml.c
++++ b/source/TR-181/middle_layer_src/cosa_ethernet_dml.c
+@@ -3683,7 +3683,7 @@ VLANTermination_GetParamStringValue
+     if (strcmp(ParamName, "Name") == 0)
+     {
+         /* collect value */
+-        rc = strcpy_s(pValue,*pUlSize, pEntry->StaticInfo.Name);
++        rc = strcpy_s(pValue,*pUlSize, pEntry->Cfg.EthLinkName);
+         if(rc != EOK)
+         {
+            ERR_CHK(rc);

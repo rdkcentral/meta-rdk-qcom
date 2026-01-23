@@ -1,0 +1,21 @@
+Commit ID: 1934e4dda83239c5d1270d21cca5feed99aff9bc
+From: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+Date: Thu Nov 17 17:00:27 2022 +0530
+Subject: [recipes-ccsp] Changes for maxstation
+Signed-off-by: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+
+---
+
+diff --git a/source/lm/lm_main.c b/source/lm/lm_main.c
+index 3861c33..617470e 100644
+--- a/source/lm/lm_main.c
++++ b/source/lm/lm_main.c
+@@ -106,7 +106,7 @@
+ #define DNS_LEASE "/nvram/dnsmasq.leases"
+ #define DEBUG_INI_NAME  "/etc/debug.ini"
+ #define HOST_ENTRY_LIMIT 175
+-#define HOST_OBJECT_SIZE	200
++#define HOST_OBJECT_SIZE	512
+ #define ARP_IPv6 0
+ #define DIBBLER_IPv6 1
+ 

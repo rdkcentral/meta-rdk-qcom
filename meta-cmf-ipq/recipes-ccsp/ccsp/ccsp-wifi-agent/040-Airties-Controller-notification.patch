@@ -1,0 +1,127 @@
+From: Robin Rajamony <rrajamon@qti.qualcomm.com>
+Date: Wed Mar 19 23:09:19 2025 +0530
+Subject: [ccsp-wifi-agent] : Airties controller notification
+Signed-off-by: Robin Rajamony <rrajamon@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index b6802e0..cc8a74c 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -3611,6 +3611,12 @@ Radio_SetParamBoolValue
+             wifiRadioOperParam->enable = bValue;
+             pWifiRadioFull->Cfg.isRadioConfigChanged = TRUE;
+             ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s RadioEnable : %d\n", __FUNCTION__, wifiRadioOperParam->enable);
++#if defined (FEATURE_SUPPORT_EASYMESH_CONTROLLER)
++        CcspWifiTrace(("RDK_LOG_ERROR, RadioEnable %d \n",wifiRadioOperParam->enable));
++        if (SendConfigChangeNotification("RadioEnable", wlanIndex, (wifiRadioOperParam->enable ? "1" : "0"), NULL) != CCSP_SUCCESS) {
++            CcspWifiTrace(("RDK_LOG_ERROR, Unable to send notification to EMController\n"));
++        }
++#endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ #else     //WIFI_HAL_VERSION_3
+              if ( pWifiRadioFull->Cfg.bEnabled == bValue )
+              {
+@@ -3638,6 +3644,14 @@ Radio_SetParamBoolValue
+         wifiRadioOperParam->autoChannelEnabled = bValue;
+         pWifiRadioFull->Cfg.isRadioConfigChanged = TRUE;
+         ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s autoChannelEnabled : %d\n", __FUNCTION__, wifiRadioOperParam->autoChannelEnabled);
++#if defined (FEATURE_SUPPORT_EASYMESH_CONTROLLER)
++        char chnValue[16];
++        snprintf(chnValue, sizeof(chnValue), "%u", pWifiRadioFull->Cfg.Channel);
++        CcspWifiTrace(("RDK_LOG_ERROR, AutoChannelEnable %d channel %lu \n",wifiRadioOperParam->autoChannelEnabled, pWifiRadioFull->Cfg.Channel));
++        if (SendConfigChangeNotification("AutoChannelEnable", wlanIndex, (wifiRadioOperParam->autoChannelEnabled ? "1" : "0"), chnValue) != CCSP_SUCCESS) {
++            CcspWifiTrace(("RDK_LOG_ERROR, Unable to send notification to EMController\n"));
++        }
++#endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ #else //WIFI_HAL_VERSION_3
+         if ( pWifiRadioFull->Cfg.AutoChannelEnable == bValue )
+         {
+@@ -4322,6 +4336,14 @@ Radio_SetParamUlongValue
+         pWifiRadioFull->Cfg.isRadioConfigChanged = TRUE;
+         wifiRadioSecondaryChannelUpdate(wlanIndex, wifiRadioOperParam, pWifiRadioFull->Cfg.ExtensionChannel);
+         ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s Channel : %d\n", __FUNCTION__, wifiRadioOperParam->channel);
++#if defined (FEATURE_SUPPORT_EASYMESH_CONTROLLER)
++        char chnValue[16];
++        snprintf(chnValue, sizeof(chnValue), "%u", wifiRadioOperParam->channel);
++        CcspWifiTrace(("RDK_LOG_ERROR, Channel %d \n",wifiRadioOperParam->channel));
++        if (SendConfigChangeNotification("Channel", wlanIndex, chnValue, NULL) != CCSP_SUCCESS) {
++            CcspWifiTrace(("RDK_LOG_ERROR, Unable to send notification to EMController\n"));
++        }
++#endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ #else //WIFI_HAL_VERSION_3
+         if ( pWifiRadioFull->Cfg.Channel == uValue )
+         {
+@@ -4396,6 +4418,38 @@ Radio_SetParamUlongValue
+         pWifiRadioFull->Cfg.isRadioConfigChanged = TRUE;
+         wifiRadioSecondaryChannelUpdate(wlanIndex, wifiRadioOperParam, pWifiRadioFull->Cfg.ExtensionChannel);
+         ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s OperatingChannelBandwidth : %d\n", __FUNCTION__, wifiRadioOperParam->channelWidth);
++#if defined (FEATURE_SUPPORT_EASYMESH_CONTROLLER)
++        const char* bandwidthString;
++        switch (uValue) {
++            case 0:
++                bandwidthString = "Auto";
++                break;
++            case 1:
++                bandwidthString = "20";
++                break;
++            case 2:
++                bandwidthString = "40";
++                break;
++            case 3:
++                bandwidthString = "80";
++                break;
++            case 4:
++                bandwidthString = "160";
++                break;
++            case 6:
++                bandwidthString = "320";
++                break;
++            default:
++                bandwidthString = "";
++                break;
++        }
++        CcspWifiTrace(("RDK_LOG_ERROR, OperatingChannelBandwidth %s \n",bandwidthString));
++        if( strlen(bandwidthString)>0 ){
++            if (SendConfigChangeNotification("ChannelMode", wlanIndex, bandwidthString, NULL) != CCSP_SUCCESS) {
++                CcspWifiTrace(("RDK_LOG_ERROR, Unable to send notification to EMController\n"));
++            }
++        }
++#endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ #else
+         if ( pWifiRadioFull->Cfg.OperatingChannelBandwidth == uValue )
+         {
+@@ -10103,6 +10157,12 @@ AccessPoint_SetParamBoolValue
+         /* save update to backup */
+         vapInfo->u.bss_info.isolation = bValue;
+         pWifiAp->AP.isApChanged = TRUE;
++#if defined (FEATURE_SUPPORT_EASYMESH_CONTROLLER)
++    CcspWifiTrace(("RDK_LOG_ERROR, ClientIsolation %d \n",vapInfo->u.bss_info.isolation));
++    if (SendConfigChangeNotification("ClientIsolation", apIndex, (vapInfo->u.bss_info.isolation?"true":"false"), NULL) != CCSP_SUCCESS) {
++        CcspWifiTrace(("RDK_LOG_ERROR, Unable to send notification to EMController\n"));
++    }
++#endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ #else
+         if ( pWifiAp->AP.Cfg.IsolationEnable == bValue )
+         {
+@@ -10145,6 +10205,12 @@ AccessPoint_SetParamBoolValue
+         /* save update to backup */
+         vapInfo->u.bss_info.showSsid = bValue;
+         pWifiAp->AP.isApChanged= TRUE;
++#if defined (FEATURE_SUPPORT_EASYMESH_CONTROLLER)
++    CcspWifiTrace(("RDK_LOG_ERROR, Visible %d \n",vapInfo->u.bss_info.showSsid));
++    if (SendConfigChangeNotification("Visible", apIndex, (vapInfo->u.bss_info.showSsid?"true":"false"), NULL) != CCSP_SUCCESS) {
++        CcspWifiTrace(("RDK_LOG_ERROR, Unable to send notification to EMController\n"));
++    }
++#endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ #else
+         if ( pWifiAp->AP.Cfg.SSIDAdvertisementEnabled == bValue )
+         {
+@@ -13200,7 +13266,7 @@ Security_SetParamStringValue
+ 
+ #if defined (FEATURE_SUPPORT_EASYMESH_CONTROLLER)
+                 if (SendConfigChangeNotification("KeyPassphrase", apIndex, (char*)vapInfo->u.bss_info.security.u.key.key, NULL) != CCSP_SUCCESS) {
+-                    CcspTraceError(("Unable to send KeyPassphrase notification to EMController\n"));
++                    CcspWifiTrace(("RDK_LOG_ERROR, Unable to send KeyPassphrase notification to EMController\n"));
+                 }
+ #endif //FEATURE_SUPPORT_EASYMESH_CONTROLLER
+ #else

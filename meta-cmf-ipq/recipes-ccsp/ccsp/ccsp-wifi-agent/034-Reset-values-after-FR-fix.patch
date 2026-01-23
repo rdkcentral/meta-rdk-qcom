@@ -1,0 +1,346 @@
+From: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+Date: Thu Jan 2 18:01:50 2025 +0530
+Subject: Set default values for WiFi params post Factory Reset
+Signed-off-by: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 560234b..0533856 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -4071,6 +4071,16 @@ Radio_SetParamIntValue
+ 
+     if (strcmp(ParamName, "X_CISCO_COM_MbssUserControl") == 0)
+     {
++#ifdef WIFI_HAL_VERSION_3
++        if (wifiRadioOperParam->userControl == iValue)
++        {
++            return  TRUE;
++        }
++        /* save update to backup */
++        wifiRadioOperParam->userControl = iValue;
++        pWifiRadioFull->Cfg.isRadioConfigChanged = TRUE;
++        ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s userControl : %d\n", __FUNCTION__, wifiRadioOperParam->userControl);
++#else //WIFI_HAL_VERSION_3
+         if ( pWifiRadioFull->Cfg.MbssUserControl == iValue )
+         {
+             return  TRUE;
+@@ -4079,11 +4089,21 @@ Radio_SetParamIntValue
+         /* save update to backup */
+         pWifiRadioFull->Cfg.MbssUserControl = iValue;
+         pWifiRadio->bRadioChanged = TRUE;
+-        
++#endif //WIFI_HAL_VERSION_3
+         return TRUE;
+     }
+     if (strcmp(ParamName, "X_CISCO_COM_AdminControl") == 0)
+     {
++#ifdef WIFI_HAL_VERSION_3
++        if (wifiRadioOperParam->adminControl == iValue)
++        {
++            return  TRUE;
++        }
++        /* save update to backup */
++        wifiRadioOperParam->adminControl = iValue;
++        pWifiRadioFull->Cfg.isRadioConfigChanged = TRUE;
++        ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s adminControl: %d\n", __FUNCTION__, wifiRadioOperParam->adminControl);
++#else //WIFI_HAL_VERSION_3
+         if ( pWifiRadioFull->Cfg.AdminControl == iValue )
+         {
+             return  TRUE;
+@@ -4092,7 +4112,7 @@ Radio_SetParamIntValue
+         /* save update to backup */
+         pWifiRadioFull->Cfg.AdminControl = iValue;
+         pWifiRadio->bRadioChanged = TRUE;
+-        
++#endif //WIFI_HAL_VERSION_3
+         return TRUE;
+     }
+     if (strcmp(ParamName, "X_CISCO_COM_OnOffPushButtonTime") == 0)
+@@ -10100,6 +10120,16 @@ AccessPoint_SetParamBoolValue
+     }
+     if (strcmp(ParamName, "X_CISCO_COM_BssHotSpot") == 0)
+     {
++#ifdef WIFI_HAL_VERSION_3
++        if ( vapInfo->u.bss_info.bssHotspot == bValue )
++        {
++            return  TRUE;
++        }
++
++        /* save update to backup */
++        vapInfo->u.bss_info.bssHotspot = bValue;
++        pWifiAp->AP.isApChanged = TRUE;
++#else
+         if ( pWifiAp->AP.Cfg.BssHotSpot == bValue )
+         {
+             return  TRUE;
+@@ -10108,6 +10138,7 @@ AccessPoint_SetParamBoolValue
+         pWifiAp->AP.Cfg.BssHotSpot = bValue;
+         pWifiAp->bApChanged = TRUE;
+         return TRUE;
++#endif
+     }
+     if (strcmp(ParamName, "X_CISCO_COM_KickAssocDevices") == 0)
+     {
+@@ -10389,6 +10420,29 @@ AccessPoint_SetParamIntValue
+     /* check the parameter name and set the corresponding value */
+     if (strcmp(ParamName, "X_CISCO_COM_WmmNoAck") == 0)
+     {
++#ifdef WIFI_HAL_VERSION_3
++        ULONG apIndex = pWifiAp->AP.Cfg.InstanceNumber;
++        if (apIndex == 0)
++        {
++            CcspWifiTrace(("RDK_LOG_ERROR, %s pWifiAp->AP.Cfg.InstanceNumber equal to zero:\n", __FUNCTION__));
++            return FALSE;
++        }
++        apIndex--;
++        wifi_vap_info_t * vapInfo = getVapInfo(apIndex);
++
++        if (vapInfo == NULL)
++        {
++            CcspWifiTrace(("RDK_LOG_ERROR, %s Unable to get VAP info for apIndex:%lu\n", __FUNCTION__, apIndex));
++            return FALSE;
++        }
++        if ( vapInfo->u.bss_info.wmmNoAck == iValue )
++        {
++            return  TRUE;
++        }
++        /* save update to backup */
++        vapInfo->u.bss_info.wmmNoAck = iValue;
++        pWifiAp->AP.isApChanged = TRUE;
++#else
+         if ( pWifiAp->AP.Cfg.WmmNoAck == iValue )
+         {
+             return  TRUE;
+@@ -10396,7 +10450,7 @@ AccessPoint_SetParamIntValue
+         /* save update to backup */
+         pWifiAp->AP.Cfg.WmmNoAck = iValue;
+         pWifiAp->bApChanged = TRUE;
+-
++#endif
+         return TRUE;
+     }
+     if (strcmp(ParamName, "X_CISCO_COM_MulticastRate") == 0)
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index aa3221f..3b7d618 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -5170,7 +5170,27 @@ CosaDmlWiFiSetRadioPsmData
+           wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting Transmit Power \n",__FUNCTION__, retPsmSet);
+     }
+ 
+-    ccspWifiDbgPrint(CCSP_WIFI_TRACE, " %s For Index %lu BeaconInterval : %d DTIMInterval : %d\n", __FUNCTION__, wlanIndex, wifiRadioOperParam->beaconInterval, wifiRadioOperParam->dtimPeriod);
++    /*UserControl*/
++    memset(recName, '\0', sizeof(recName));
++    memset(strValue, '\0', sizeof(strValue));
++    snprintf(recName, sizeof(recName), UserControl, ulInstance);
++    snprintf(strValue, sizeof(strValue), "%d", wifiRadioOperParam->userControl);
++    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++    if (retPsmSet != CCSP_SUCCESS) {
++          wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting UserControl\n",__FUNCTION__, retPsmSet);
++    }
++
++    /*AdminControl*/
++    memset(recName, '\0', sizeof(recName));
++    memset(strValue, '\0', sizeof(strValue));
++    snprintf(recName, sizeof(recName), AdminControl, ulInstance);
++    snprintf(strValue, sizeof(strValue), "%d", wifiRadioOperParam->adminControl);
++    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++    if (retPsmSet != CCSP_SUCCESS) {
++          wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting RTS AdminControl\n",__FUNCTION__, retPsmSet);
++    }
++
++    ccspWifiDbgPrint(CCSP_WIFI_TRACE, " %s For Index %lu BeaconInterval : %d DTIMInterval : %d  UserControl: %d AdminControl :%d\n", __FUNCTION__, wlanIndex, wifiRadioOperParam->beaconInterval, wifiRadioOperParam->dtimPeriod, wifiRadioOperParam->userControl, wifiRadioOperParam->adminControl);
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, " %s FragThreshold : %d GuardInterval : %d TransmitPower : %d RTSThreshold : %d\n", __FUNCTION__, wifiRadioOperParam->fragmentationThreshold, wifiRadioOperParam->guardInterval, wifiRadioOperParam->transmitPower, wifiRadioOperParam->rtsThreshold);
+ #else //WIFI_HAL_VERSION_3
+ 
+@@ -6119,7 +6139,7 @@ CosaDmlWiFiGetAccessPointPsmData
+ ANSC_STATUS
+ CosaDmlWiFiSetAccessPointPsmData
+ (
+-PCOSA_DML_WIFI_AP_CFG       pCfg
++    PCOSA_DML_WIFI_AP_CFG       pCfg
+ ) {
+     char strValue[256];
+     char recName[256];
+@@ -6171,6 +6191,22 @@ CosaDmlWiFiGetAccessPointPsmData
+           wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting WmmEnable\n",__FUNCTION__, retPsmSet);
+     }
+ 
++    //WmmNoAck
++    snprintf(recName, sizeof(recName), WmmNoAck, ulInstance);
++    snprintf(strValue, sizeof(strValue), "%d",pCfg->WmmNoAck);
++    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++    if (retPsmSet != CCSP_SUCCESS) {
++          wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting WmmNoAck\n",__FUNCTION__, retPsmSet);
++    }
++
++    //BssHotSpot
++    snprintf(recName, sizeof(recName), BssHotSpot, ulInstance);
++    snprintf(strValue, sizeof(strValue), "%d",pCfg->BssHotSpot);
++    retPsmSet = PSM_Set_Record_Value2(bus_handle,g_Subsystem, recName, ccsp_string, strValue);
++    if (retPsmSet != CCSP_SUCCESS) {
++          wifiDbgPrintf("%s PSM_Set_Record_Value2 returned error %d while setting BssHotSpot\n",__FUNCTION__, retPsmSet);
++    }
++
+     //BSSTransitionActivated
+     snprintf(recName, sizeof(recName), BSSTransitionActivated, ulInstance);
+     snprintf(strValue, sizeof(strValue), "%s", (pCfg->BSSTransitionActivated ? "true" : "false"));
+@@ -11322,6 +11358,18 @@ ANSC_STATUS CosaDmlWiFi_PSM_Del_Radio(ULONG radioIndex) {
+ 	snprintf(recName, sizeof(recName), GuardInterval, radioIndex);
+ 	PSM_Del_Record(bus_handle,g_Subsystem,recName);
+ 
++        snprintf(recName, sizeof(recName), UserControl, radioIndex);
++        PSM_Del_Record(bus_handle,g_Subsystem,recName);
++
++        snprintf(recName, sizeof(recName), AdminControl, radioIndex);
++        PSM_Del_Record(bus_handle,g_Subsystem,recName);
++
++        snprintf(recName, sizeof(recName), SetChanUtilThreshold, radioIndex);
++        PSM_Del_Record(bus_handle,g_Subsystem,recName);
++
++        snprintf(recName, sizeof(recName), SetChanUtilSelfHealEnable, radioIndex);
++        PSM_Del_Record(bus_handle,g_Subsystem,recName);
++
+ #if defined(_INTEL_BUG_FIXES_)
+ 	snprintf(recName, sizeof(recName), TransmitPower, radioIndex);
+ 	PSM_Del_Record(bus_handle,g_Subsystem,recName);
+@@ -17867,6 +17915,8 @@ CosaDmlWiFiApGetCfg
+         CcspWifiTrace(("RDK_LOG_INFO,X_RDKCENTRAL-COM_ManagementFramePowerControl:%d\n", pCfg->ManagementFramePowerControl));
+     }
+     pCfg->IsolationEnable = wifiVapInfo->u.bss_info.isolation;
++    pCfg->WmmNoAck = wifiVapInfo->u.bss_info.wmmNoAck;
++    pCfg->BssHotSpot = wifiVapInfo->u.bss_info.bssHotspot;
+     pCfg->BssMaxNumSta = wifiVapInfo->u.bss_info.bssMaxSta;
+     pCfg->BSSTransitionActivated = wifiVapInfo->u.bss_info.bssTransitionActivated;
+     pCfg->X_RDKCENTRAL_COM_NeighborReportActivated = wifiVapInfo->u.bss_info.nbrReportActivated;
+@@ -26166,6 +26216,8 @@ ANSC_STATUS vapGetCfgUpdateFromDmlToHal(rdk_wifi_vap_map_t *tmpWifiVapInfoMap)
+             wifiVapInfo->u.bss_info.showSsid = pWifiAp->AP.Cfg.SSIDAdvertisementEnabled;
+             wifiVapInfo->u.bss_info.mgmtPowerControl = pWifiAp->AP.Cfg.ManagementFramePowerControl;
+             wifiVapInfo->u.bss_info.isolation = pWifiAp->AP.Cfg.IsolationEnable;
++	    wifiVapInfo->u.bss_info.wmmNoAck = pWifiAp->AP.Cfg.WmmNoAck;
++	    wifiVapInfo->u.bss_info.bssHotspot = pWifiAp->AP.Cfg.BssHotSpot;
+             wifiVapInfo->u.bss_info.bssMaxSta = pWifiAp->AP.Cfg.BssMaxNumSta;
+             wifiVapInfo->u.bss_info.bssTransitionActivated = pWifiAp->AP.Cfg.BSSTransitionActivated;
+             wifiVapInfo->u.bss_info.nbrReportActivated = pWifiAp->AP.Cfg.X_RDKCENTRAL_COM_NeighborReportActivated;
+@@ -27155,15 +27207,17 @@ ANSC_STATUS radioGetCfgUpdateFromHalToDml(UINT wlanIndex, PCOSA_DML_WIFI_RADIO_C
+     pCfg->AutoChannelRefreshPeriod = pWifiRadioOperParam->autoChanRefreshPeriod;
+     pCfg->X_COMCAST_COM_DFSEnable = pWifiRadioOperParam->DfsEnabled;
+     pCfg->X_COMCAST_COM_DCSEnable = pWifiRadioOperParam->DCSEnabled;
++    pCfg->MbssUserControl = pWifiRadioOperParam->userControl;
++    pCfg->AdminControl = pWifiRadioOperParam->adminControl;
+ 
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s DTIMInterval : %d BeaconInterval : %d FragmentationThreshold : %d CTSProtection : %d \n",
+          __FUNCTION__, pCfg->DTIMInterval, pCfg->BeaconInterval, pCfg->FragmentationThreshold, pCfg->CTSProtectionMode);
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s GuardInterval : %d TransmitPower : %d RTSThreshold : %d\n",
+         __FUNCTION__, pCfg->GuardInterval, pCfg->TransmitPower, pCfg->RTSThreshold );
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s wlanIndex: %d ObssCoex  : %d stbcEnable: %d greenFieldEnable :%d"
+-         "MCS: %d AMSDU: %d DFS : %d RefreshPeriod: %d DCS: %d\n",
++         "MCS: %d AMSDU: %d DFS : %d RefreshPeriod: %d DCS: %d  MbssUserControl: %d AdminControl: %d\n",
+          __FUNCTION__, wlanIndex, pCfg->ObssCoex, pCfg->X_CISCO_COM_STBCEnable, pCfg->X_CISCO_COM_11nGreenfieldEnabled,
+-         pCfg->MCS, pCfg->X_CISCO_COM_AggregationMSDU, pCfg->X_COMCAST_COM_DFSEnable,  pCfg->AutoChannelRefreshPeriod, pCfg->X_COMCAST_COM_DCSEnable);
++         pCfg->MCS, pCfg->X_CISCO_COM_AggregationMSDU, pCfg->X_COMCAST_COM_DFSEnable,  pCfg->AutoChannelRefreshPeriod, pCfg->X_COMCAST_COM_DCSEnable, pCfg->MbssUserControl, pCfg->AdminControl);
+ 
+     return ANSC_STATUS_SUCCESS;
+ }
+@@ -27599,6 +27653,39 @@ ANSC_STATUS getApPSMValues(UINT vapIndex, bool *isChanged)
+         ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
+     }
+ 
++    /*WmmNoAck*/
++    rc = sprintf_s(recName, sizeof(recName) , WmmNoAck, ulInstance);
++    if(rc < EOK)
++    {
++        ERR_CHK(rc);
++    }
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &strValue);
++    if (retPsmGet == CCSP_SUCCESS) {
++          uIntValue = _ansc_atoi(strValue);
++          if (uIntValue != wifiVapInfo->u.bss_info.wmmNoAck) {
++              wifiVapInfo->u.bss_info.wmmNoAck = uIntValue;
++              *isChanged = TRUE;
++          }
++          ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
++    }
++
++    /*BssHotSpot*/
++    rc = sprintf_s(recName, sizeof(recName), BssHotSpot, ulInstance);
++    if(rc < EOK)
++    {
++        ERR_CHK(rc);
++    }
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &strValue);
++    if (retPsmGet == CCSP_SUCCESS) {
++        enabled = _ansc_atoi(strValue);
++
++        if (enabled != wifiVapInfo->u.bss_info.bssHotspot) {
++            wifiVapInfo->u.bss_info.bssHotspot = enabled;
++            *isChanged = TRUE;
++        }
++        ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
++    }
++
+     /*BssMaxNumSta*/
+     rc = sprintf_s(recName, sizeof(recName) , BssMaxNumSta, ulInstance);
+     if(rc < EOK)
+@@ -27909,6 +27996,42 @@ ANSC_STATUS getRadioPSMValues(UINT radioIndex, bool *isChanged)
+         ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
+     }
+ 
++    /*AdminControl*/
++    rc = sprintf_s(recName, sizeof(recName), AdminControl, psmIndex);
++    if(rc < EOK)
++    {
++        ERR_CHK(rc);
++    }
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &strValue);
++    if (retPsmGet == CCSP_SUCCESS) {
++          uIntValue = _ansc_atoi(strValue);
++          //Get the Value
++          if (uIntValue != gRadioCfg[radioIndex].oper.adminControl)
++          {
++              gRadioCfg[radioIndex].oper.adminControl = uIntValue;
++              *isChanged = TRUE;
++          }
++          ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
++    }
++
++    /*UserControl*/
++    rc = sprintf_s(recName, sizeof(recName), UserControl, psmIndex);
++    if(rc < EOK)
++    {
++        ERR_CHK(rc);
++    }
++    retPsmGet = PSM_Get_Record_Value2(bus_handle,g_Subsystem, recName, NULL, &strValue);
++    if (retPsmGet == CCSP_SUCCESS) {
++          uIntValue = _ansc_atoi(strValue);
++          //Get the Value
++          if (uIntValue != gRadioCfg[radioIndex].oper.userControl)
++          {
++              gRadioCfg[radioIndex].oper.userControl = uIntValue;
++              *isChanged = TRUE;
++          }
++          ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
++    }
++
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s beaconInterval : %d dtimPeriod : %d fragmentationThreshold : %d \n", __FUNCTION__, gRadioCfg[radioIndex].oper.beaconInterval, gRadioCfg[radioIndex].oper.dtimPeriod, gRadioCfg[radioIndex].oper.fragmentationThreshold);
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s guardInterval : %d transmitPower : %d rtsThreshold : %d\n", __FUNCTION__, gRadioCfg[radioIndex].oper.guardInterval, gRadioCfg[radioIndex].oper.transmitPower, gRadioCfg[radioIndex].oper.rtsThreshold);
+ 
+diff --git a/source/TR-181/sbapi/wifi_hostapd_glue.c b/source/TR-181/sbapi/wifi_hostapd_glue.c
+index 9e6588b..54e4b7c 100644
+--- a/source/TR-181/sbapi/wifi_hostapd_glue.c
++++ b/source/TR-181/sbapi/wifi_hostapd_glue.c
+@@ -989,6 +989,10 @@ int update_tr181_config_param(int ap_index, struct hostapd_bss_config *bss, PCOS
+     }
+     //dtim_period
+     bss->dtim_period = pWifiRadioFull->Cfg.DTIMInterval;
++    //bsshotspot
++    bss->bssHotspot = pWifiAp->AP.Cfg.BssHotSpot;
++    //wmmNoAck
++    bss->wmmNoAck = pWifiAp->AP.Cfg.WmmNoAck;
+     //max_num_sta
+     bss->max_num_sta = pWifiAp->AP.Cfg.BssMaxNumSta;
+     //macaddr_acl
+--
+2.17.1
+

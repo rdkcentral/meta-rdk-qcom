@@ -1,0 +1,89 @@
+Commit ID: 2d404039adf8aa71ba8ea18b16e8cf1a3b2244ef
+From: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
+Date: Wed Apr 12 09:58:42 2023 +0530
+Subject: GRE Rule fix
+Signed-off-by: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
+
+---
+
+diff --git a/source/scripts/init/service.d/service_multinet/service_gre.sh b/source/scripts/init/service.d/service_multinet/service_gre.sh
+index f75011f..582ed10 100644
+--- a/source/scripts/init/service.d/service_multinet/service_gre.sh
++++ b/source/scripts/init/service.d/service_multinet/service_gre.sh
+@@ -274,6 +274,7 @@ start_hotspot()
+ #Params :
+ # $1 - Tunnel Instance Number
+ # $2 - Remote EP
++# $3 - Local EP
+ create_tunnel()
+ {
+     GRE_TUN_IF_NAME="`psmcli get $DMSB_GRE_TUNNEL.$1.$GRE_INTERFACE.1.Name`"
+@@ -282,15 +283,19 @@ create_tunnel()
+ 
+     # if (1)=IPV4 creates a IPV4 tunnel else (2)=IPV6 creates an IPV6 Tunnel
+     if [ "$DELIVERY_PROTOCOL" = 1 ];then
+-        ip link add $GRE_TUN_IF_NAME type gretap remote $2 dev $WAN_IF nopmtudisc
+-        ip link set $GRE_TUN_IF_NAME txqueuelen $TX_QUEUE_LEN mtu $MTU_VAL up
++	    ip link add $GRE_TUN_IF_NAME type gretap local $3 remote $2 dev $WAN_IF nopmtudisc
++	    sleep 1;
++	    ip link set $GRE_TUN_IF_NAME txqueuelen $TX_QUEUE_LEN mtu $MTU_VAL up
++	    ip r a default via $2 dev $WAN_IF
+     elif [ "$DELIVERY_PROTOCOL" = 2 ];then
+-        IPv6_ADDR=`sysevent get ipv6_dhcp6_addr`
+-        ip link add $GRE_TUN_IF_NAME type ip6gretap remote $2 local $IPv6_ADDR dev $WAN_IF
+-        ip link set $GRE_TUN_IF_NAME txqueuelen $TX_QUEUE_LEN mtu $MTU_VAL up
++	    IPv6_ADDR=`sysevent get ipv6_dhcp6_addr`
++	    ip link add $GRE_TUN_IF_NAME type ip6gretap remote $2 local $IPv6_ADDR dev $WAN_IF
++	    ip link set $GRE_TUN_IF_NAME txqueuelen $TX_QUEUE_LEN mtu $MTU_VAL up
++	    ip -6 route add default via $2 dev $WAN_IF
+     fi
+ 
+     sysevent set ${1}_current_remoteEP $2
++    sysevent set ${1}_current_localEP $3
+ }
+ 
+ # Set Firewall rules for the bridges
+@@ -504,8 +509,9 @@ find_active_gre_tunnels()
+                     currentBrMembers=`sysevent get multinet_${BridgeInst}-allMembers`
+                     output=`echo $currentBrMembers | grep ${GRE_TUN_IF_NAME}`
+                 done
+-                REM_EP=`sysevent get ${greInst}_current_remoteEP`
+-                create_tunnel $greInst $REM_EP
++		REM_EP=`sysevent get ${greInst}_current_remoteEP`
++		LOC_EP=`sysevent get ${greInst}alEcurrent_localEP`
++		create_tunnel $greInst $REM_EP $LOC_EP
+                 dmcli eRT setv Device.Bridging.Bridge.$BridgeInst.Port.$PortInst.Enable bool true
+             fi
+         fi
+@@ -525,7 +531,7 @@ case "$1" in
+         psmcli set $DMSB_GRE_TUNNEL.$tunnelInst.PrimaryEndPoint $PRIMARY
+         psmcli set $DMSB_GRE_TUNNEL.$tunnelInst.SecondaryEndPoint $SECONDARY
+ 
+-        create_tunnel $tunnelInst $PRIMARY
++        create_tunnel $tunnelInst $PRIMARY $SECONDARY
+ 
+         bring_up_bridge_on_boot $tunnelInst
+     ;;
+@@ -574,16 +580,17 @@ case "$1" in
+         hs_br_port_inst=`sysevent get hotspot_br_port`
+         DEL_FOR_HS=1
+         curep=`sysevent get ${hs_gre_inst}_current_remoteEP`
++	localep=`sysevent get ${hs_gre_inst}_current_localEP`
+         if [ x"" != x"$curep" -a x"$curep" != x"${2}" ]; then
+             delete_tunnel $DEL_FOR_HS $hs_gre_inst $hs_br_inst $hs_br_port_inst
+         fi
+ 
+         if [ x"NULL" != x"${2}" ]; then
+-            create_tunnel $hs_gre_inst $2
+-            dmcli eRT setv Device.Bridging.Bridge.$hs_br_inst.Port.$hs_br_port_inst.Enable bool true
+-            ipv4_gre_rule=`sysevent setunique GeneralPurposeFirewallRule " -A INPUT -s $2 -p gre -j ACCEPT"`
+-            sysevent set ${hs_gre_inst}_ipv4_gre_rule $ipv4_gre_rule
+-            sysevent set firewall-restart
++		create_tunnel $hs_gre_inst $2 $3
++		dmcli eRT setv Device.Bridging.Bridge.$hs_br_inst.Port.$hs_br_port_inst.Enable bool true
++		ipv4_gre_rule=`sysevent setunique GeneralPurposeFirewallRule " -A INPUT -s $2 -p gre -j ACCEPT"`
++		sysevent set ${hs_gre_inst}_ipv4_gre_rule $ipv4_gre_rule
++		sysevent set firewall-restart
+         fi
+         check_ssids
+     ;;

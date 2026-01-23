@@ -1,0 +1,25 @@
+From: kalag <kalag@qti.qualcomm.com>
+Date: Mon Oct 28 18:00:14 2024 +0530
+Subject: Alder wan port change to 10G eth5 port.
+Signed-off-by: kalag <kalag@qti.qualcomm.com>
+-----------------------------------
+
+Author: kalag <kalag@qti.qualcomm.com>
+Date:   Mon Oct 28 15:33:46 2024 +0530
+
+    Alder wan port change to 10G eth5 port
+
+diff --git a/source/gw_prov_ethwan_sm.c b/source/gw_prov_ethwan_sm.c
+index a78fde1..b6286dc 100644
+--- a/source/gw_prov_ethwan_sm.c
++++ b/source/gw_prov_ethwan_sm.c
+@@ -114,6 +114,8 @@ static uint32_t cb_registration_cnt;
+ #define ETHWAN_DEF_INTF_NAME "eth2"
+ #elif defined(_CBR2_PRODUCT_REQ_) || defined(_PLATFORM_IPQ807x)
+ #define ETHWAN_DEF_INTF_NAME "eth4"
++#elif defined(_PLATFORM_IPQ95xx)
++#define ETHWAN_DEF_INTF_NAME "eth5"
+ #else
+ #define ETHWAN_DEF_INTF_NAME "eth0"
+ #endif
+

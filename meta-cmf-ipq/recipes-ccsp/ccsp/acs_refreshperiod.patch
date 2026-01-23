@@ -1,0 +1,20 @@
+Commit ID: e882c9702a4c255fc9e1bbf8c82dfd846fc5d9f0
+From: rajka <rajka@qti.qualcomm.com>
+Date: Mon Jul 17 18:05:32 2023 +0530
+Subject: auto_channel_refresh_period
+Signed-off-by: rajka <rajka@qti.qualcomm.com>
+
+---
+
+diff --git a/wifi_hal_radio.h b/wifi_hal_radio.h
+index 2d6f2c0..7f44ebe 100644
+--- a/wifi_hal_radio.h
++++ b/wifi_hal_radio.h
+@@ -70,6 +70,7 @@ typedef struct {
+     BOOL enable;                                        /**< The radio enable. */
+     wifi_freq_bands_t   band;                           /**< the radio frequency band. */
+     BOOL autoChannelEnabled;                            /**< set bAutoChannelEnabled to TRUE to enable Auto Channel. */
++    ULONG autoChannelRefreshPeriodEnable;               /**< set ulongAutochannelRefressPeriode in seconds. */
+     UINT op_class;                                      /**< The Operating class. */
+     UINT channel;                                       /**< The radio primary channel. */
+     UINT numSecondaryChannels;                          /**< The number odf secondary channels in the list */

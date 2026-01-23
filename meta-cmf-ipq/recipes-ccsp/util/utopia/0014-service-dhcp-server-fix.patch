@@ -1,0 +1,56 @@
+Commit ID: 12d406e9c6e765409fb9ddbacf2f034d9a115b66
+From: Prasanna Krishnan P <prasp@qti.qualcomm.com>
+Date: Tue May 23 10:42:20 2023 +0530
+Subject: dnsmaq ipAddress issue Fix
+Signed-off-by: Prasanna Krishnan P <prasp@qti.qualcomm.com>
+
+---
+
+diff --git a/source/scripts/init/service.d/service_dhcp_server.sh b/source/scripts/init/service.d/service_dhcp_server.sh
+index 2ac45ef..db3213e 100755
+--- a/source/scripts/init/service.d/service_dhcp_server.sh
++++ b/source/scripts/init/service.d/service_dhcp_server.sh
+@@ -120,26 +120,42 @@
+ 
+ dnsmasq_server_start ()
+ {
++    i=0
+          if [ "$XDNS_ENABLE" = "true" ]; then
+                 SYSCFG_XDNS_FLAG=`syscfg get X_RDKCENTRAL-COM_XDNS`
+                 SYSCFG_DNSSEC_FLAG=`syscfg get XDNS_DNSSecEnable`
+                 SYSCFG_XDNSREFAC_FLAG=`syscfg get XDNS_RefacCodeEnable`
+                 if ([ "$MODEL_NUM" = "CGA4131COM" ] || [ "$MODEL_NUM" = "CGA4332COM" ]) && [ -n "$SYSCFG_XDNS_FLAG" ] && [ "$SYSCFG_XDNS_FLAG" = "1" ] && [ "$SYSCFG_DNSSEC_FLAG" = "1" ] ; then
+                         if [ "$SYSCFG_XDNSREFAC_FLAG" = "1" ] && [ "$SYSCFG_XDNS_FLAG" = "1" ] ; then
++                            while [[ $i -le 0 ]]; do
+                                 $SERVER -q --clear-on-reload --bind-dynamic --add-mac --add-cpe-id=abcdefgh -P 4096 -C $DHCP_CONF $DNS_ADDITIONAL_OPTION --proxy-dnssec --cache-size=0 --xdns-refac-code  #--enable-dbus
++                                i=$(pidof dnsmasq)
++                            done
+                         else
++                            while [[ $i -le 0 ]]; do
+                                 $SERVER -q --clear-on-reload --bind-dynamic --add-mac --add-cpe-id=abcdefgh -P 4096 -C $DHCP_CONF $DNS_ADDITIONAL_OPTION --proxy-dnssec --cache-size=0 --stop-dns-rebind --log-facility=/rdklogs/logs/dnsmasq.log #--enable-dbus
++                                i=$(pidof dnsmasq)
++                            done
+                         fi
+ 
+                 else
+                         if [ "$SYSCFG_XDNSREFAC_FLAG" = "1" ] && [ "$SYSCFG_XDNS_FLAG" = "1" ]; then
++                            while [[ $i -le 0 ]]; do
+                                 $SERVER -q --clear-on-reload --bind-dynamic --add-mac --add-cpe-id=abcdefgh -P 4096 -C $DHCP_CONF $DNS_ADDITIONAL_OPTION --xdns-refac-code  --stop-dns-rebind --log-facility=/rdklogs/logs/dnsmasq.log #--enable-dbus
++                                i=$(pidof dnsmasq)
++                            done
+                         else
++                            while [[ $i -le 0 ]]; do
+                                 $SERVER -q --clear-on-reload --bind-dynamic --add-mac --add-cpe-id=abcdefgh -P 4096 -C $DHCP_CONF $DNS_ADDITIONAL_OPTION --stop-dns-rebind --log-facility=/rdklogs/logs/dnsmasq.log #--enable-dbus
++                                i=$(pidof dnsmasq)
++                            done
+                         fi
+                 fi
+          else
+-                $SERVER -P 4096 -C $DHCP_CONF $DNS_ADDITIONAL_OPTION  #--enable-dbus
++             while [[ $i -le 0 ]]; do
++                 $SERVER -P 4096 -C $DHCP_CONF $DNS_ADDITIONAL_OPTION  #--enable-dbus
++                 i=$(pidof dnsmasq)
++             done
+          fi
+ 
+ }

@@ -1,0 +1,65 @@
+From: Mukesh Maram <mmaram@qti.qualcomm.com>
+Date: Wed Nov 27 19:01:00 2024 +0530
+Subject: [recipes-ccsp]: Fix for logagent in RDK 13.0.
+Signed-off-by: Mukesh Maram <mmaram@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/LogComponent/cosa_apis_logagentplugin.c b/source/LogComponent/cosa_apis_logagentplugin.c
+index 67fbb82..e23c572 100644
+--- a/source/LogComponent/cosa_apis_logagentplugin.c
++++ b/source/LogComponent/cosa_apis_logagentplugin.c
+@@ -691,6 +691,10 @@ LogAgent_SetParamUlongValue
+ 	{
+ 		if (TR69_RDKLogLevel != uValue)
+ 		{
++			if (uValue > 4)
++			{
++				return false;
++			}
+ 			if (syscfg_set_u_commit(NULL, "X_RDKCENTRAL-COM_TR69_LogLevel", uValue) != 0)
+ 			{
+ 				AnscTraceWarning(("syscfg_set failed\n"));
+@@ -709,6 +713,10 @@ LogAgent_SetParamUlongValue
+         {
+ 		if (PAM_RDKLogLevel != uValue)
+ 		{
++			if (uValue > 4)
++                        {
++                                return false;
++                        }
+ 			if (syscfg_set_u_commit(NULL, "X_RDKCENTRAL-COM_PAM_LogLevel", uValue) != 0)
+ 			{
+ 				AnscTraceWarning(("syscfg_set failed\n"));
+@@ -727,6 +735,10 @@ LogAgent_SetParamUlongValue
+ 	{
+ 		if (PSM_RDKLogLevel != uValue)
+ 		{
++			if (uValue > 4)
++                        {
++                                return false;
++                        }
+ 			if (syscfg_set_u_commit(NULL, "X_RDKCENTRAL-COM_PSM_LogLevel", uValue) != 0)
+ 			{
+ 				AnscTraceWarning(("syscfg_set failed\n"));
+@@ -781,6 +793,10 @@ LogAgent_SetParamUlongValue
+ 	{
+ 		if (WiFi_RDKLogLevel != uValue)
+ 		{
++			if (uValue > 4)
++                        {
++                                return false;
++                        }
+ 			if (syscfg_set_u_commit(NULL, "X_RDKCENTRAL-COM_WiFi_LogLevel", uValue) != 0)
+ 			{
+ 				AnscTraceWarning(("syscfg_set failed\n"));
+@@ -896,6 +912,10 @@ LogAgent_SetParamUlongValue
+ 	{
+ 		if (ETHAGENT_RDKLogLevel != uValue)
+ 		{
++			if (uValue > 4)
++                        {
++                                return false;
++                        }
+ 			if (syscfg_set_u_commit(NULL, "X_RDKCENTRAL-COM_EthAgent_LogLevel", uValue) != 0)
+ 			{
+ 				AnscTraceWarning(("syscfg_set failed\n"));

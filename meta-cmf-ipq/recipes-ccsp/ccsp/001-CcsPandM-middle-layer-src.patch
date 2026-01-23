@@ -1,0 +1,40 @@
+Commit ID: a0481d101070a7baea7aad71d54b00ae12ebb692
+From: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+Date: Fri Jul 15 20:06:15 2022 +0530
+Subject: recipes-ccsp: RDK-B Board Bring up and Services
+Signed-off-by: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c b/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c
+index eb1146c..d047751 100644
+--- a/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c
++++ b/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c
+@@ -3509,9 +3509,9 @@ Snmpv3DHKickstart_SetParamBoolValue
+         if( pKickstart->TableUpdated == TRUE && pKickstart->Enabled == TRUE )
+         {
+ #if !defined(_XER5_PRODUCT_REQ_)
+-	    i = cm_hal_snmpv3_kickstart_initialize( &Snmpv3_Kickstart_Table );
+-            CcspTraceError(("cm_hal_snmpv3_kickstart_initialize: return value = %d\n", i));
+-            pKickstart->TableUpdated = FALSE;
++	    //i = cm_hal_snmpv3_kickstart_initialize( &Snmpv3_Kickstart_Table );
++            //CcspTraceError(("cm_hal_snmpv3_kickstart_initialize: return value = %d\n", i));
++            //pKickstart->TableUpdated = FALSE;
+ #endif
+         }
+     }
+diff --git a/source/TR-181/middle_layer_src/plugin_main_apis.c b/source/TR-181/middle_layer_src/plugin_main_apis.c
+index 7965287..3ca213e 100644
+--- a/source/TR-181/middle_layer_src/plugin_main_apis.c
++++ b/source/TR-181/middle_layer_src/plugin_main_apis.c
+@@ -409,9 +409,9 @@ if(id != 0)
+     pMyObject->hUpnp          = (ANSC_HANDLE)CosaUpnpCreate();
+     AnscTraceWarning(("  CosaUpnpCreate done!\n"));
+ 
++#endif
+     pMyObject->hParentalControl = (ANSC_HANDLE)TR181_ParentalControlCreate();
+     AnscTraceWarning(("  CosaParentalControlCreate done - hParentalControl = 0x%p!\n", pMyObject->hParentalControl));
+-#endif
+     pMyObject->hRLog          = (ANSC_HANDLE)CosaRLogCreate();
+     AnscTraceWarning(("  CosaRLogCreate done!\n"));
+ 

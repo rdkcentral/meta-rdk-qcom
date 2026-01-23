@@ -1,0 +1,34 @@
+Commit ID: 0efa6201dd9bc38b1f7b3f293ddbae3df4699552
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Thu Jul 4 19:07:33 2024 +0530
+Subject: [recipes-ccsp] PPP Interface name change
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/middle_layer_src/pppmgr_dml.c b/source/TR-181/middle_layer_src/pppmgr_dml.c
+index 8703733..356b048 100644
+--- a/source/TR-181/middle_layer_src/pppmgr_dml.c
++++ b/source/TR-181/middle_layer_src/pppmgr_dml.c
+@@ -43,7 +43,7 @@
+ #define PPP_IF_SERVICE_NAME "atm0.0.0.38"
+ #define PPP_IF_NAME         "pppoa0"
+ #define WAN_IF_NAME         "wan0"
+-#define PPPoE_VLAN_IF_NAME  "vlan101"
++#define PPPoE_VLAN_IF_NAME  "erouter0"
+ 
+ extern char g_Subsystem[32];
+ extern ANSC_HANDLE bus_handle;
+diff --git a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c b/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+index 3b2eccf..40f230d 100644
+--- a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
++++ b/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+@@ -39,7 +39,7 @@
+ #include <regex.h>
+ 
+ #define NET_STATS_FILE "/proc/net/dev"
+-#define PPPoE_VLAN_IF_NAME  "vlan101"
++#define PPPoE_VLAN_IF_NAME  "erouter0"
+ #define PPP_LCPEcho 30
+ #define PPP_LCPEchoRetry 3
+ 
