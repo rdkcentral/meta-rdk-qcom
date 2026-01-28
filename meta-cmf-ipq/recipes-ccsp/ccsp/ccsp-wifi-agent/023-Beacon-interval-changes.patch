@@ -1,0 +1,37 @@
+Commit ID: 036f34bdbb57d4d415c6bb33d192b08d1c29408a
+From: Sritaaman C <sriraama@qti.qualcomm.com>
+Date: Mon Dec 18 19:37:50 2023 +0530
+Subject: Reason for change: Fix for able to set Beacon value between 100 to 3500
+Signed-off-by: Sritaaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 03b3915..793184d 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -4317,6 +4317,11 @@ Radio_SetParamUlongValue
+         wifiRadioOperParam->beaconInterval = uValue;
+         pWifiRadioFull->Cfg.isRadioConfigChanged = TRUE;
+         ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s beaconInterval : %d\n", __FUNCTION__, wifiRadioOperParam->beaconInterval);
++
++	if (uValue < 100 || uValue > 3500)
++	{
++		return FALSE;
++	}
+ #else //WIFI_HAL_VERSION_3
+         /* save update to backup */
+         pWifiRadioFull->Cfg.BeaconInterval = uValue;
+@@ -4417,6 +4422,12 @@ Radio_SetParamUlongValue
+         /* save update to backup */
+         pWifiRadioFull->Cfg.BeaconInterval = uValue;
+ 	CosaDmlWiFi_setRadioBeaconPeriod((pWifiRadio->Radio.Cfg.InstanceNumber - 1),uValue);
++
++	if (uValue < 100 || uValue > 3500)
++	{
++		return FALSE;
++	}
++
+         return TRUE;
+     }
+ 

@@ -1,0 +1,307 @@
+Commit ID: c899a9c974f7c064510832a01179d9730b50c3c5
+From: rajka <rajka@qti.qualcomm.com>
+Date: Mon Oct 16 15:26:08 2023 +0530
+Subject: CcpLogAgent component directory path is modified to match the RDK Central path. Internal build and external build are aligned to use rdkb/components/generic as the parent directory. bbappend file points to the same path for patching the source files.
+Signed-off-by: rajka <rajka@qti.qualcomm.com>
+
+---
+
+--- /dev/null	2023-08-14 17:05:12.250835331 +0530
++++ b/source/LogComponent/logagent.h	2023-08-14 17:04:56.986906707 +0530
+@@ -0,0 +1,64 @@
++/*
++ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++unsigned long  RDKLogLevel;
++unsigned int RDKLogEnable;
++unsigned long TR69_RDKLogLevel;
++unsigned int TR69_RDKLogEnable;
++unsigned long PAM_RDKLogLevel;
++unsigned int PAM_RDKLogEnable;
++unsigned long PSM_RDKLogLevel;
++unsigned int PSM_RDKLogEnable;
++unsigned long MTA_RDKLogLevel;
++unsigned int MTA_RDKLogEnable;
++unsigned long CM_RDKLogLevel;
++unsigned int CM_RDKLogEnable;
++unsigned long WiFi_RDKLogLevel;
++unsigned int WiFi_RDKLogEnable;
++unsigned long CR_RDKLogLevel;
++unsigned int CR_RDKLogEnable;
++unsigned int Harvester_RDKLogLevel;
++unsigned int Harvester_RDKLogEnable;
++unsigned long NOTIFY_RDKLogLevel;
++unsigned int NOTIFY_RDKLogEnable;
++unsigned long PWRMGR_RDKLogLevel;
++unsigned int PWRMGR_RDKLogEnable;
++unsigned long FSC_RDKLogLevel;
++unsigned int FSC_RDKLogEnable;
++unsigned long MESH_RDKLogLevel;
++unsigned int MESH_RDKLogEnable;
++unsigned long MeshService_RDKLogLevel;
++unsigned int MeshService_RDKLogEnable;
++unsigned long ETHAGENT_RDKLogLevel;
++unsigned int ETHAGENT_RDKLogEnable;
++unsigned long TELCOVOIPAGENT_RDKLogLevel;
++unsigned int TELCOVOIPAGENT_RDKLogEnable;
++unsigned long VLANMANAGER_RDKLogLevel;
++unsigned int VLANMANAGER_RDKLogEnable;
++unsigned long XDSLManager_RDKLogLevel;
++unsigned int XDSLManager_RDKLogEnable;
++unsigned int PPPMANAGER_RDKLogEnable;
++unsigned long PPPMANAGER_RDKLogLevel;
++unsigned long TELCOVOICEMANAGER_RDKLogLevel;
++unsigned int TELCOVOICEMANAGER_RDKLogEnable;
++unsigned int FWUPGRADEMGR_RDKLogEnable;
++unsigned long FWUPGRADEMGR_RDKLogLevel;
++unsigned long DSLAGENT_RDKLogLevel;
++unsigned int DSLAGENT_RDKLogEnable;
++unsigned long VLANAGENT_RDKLogLevel;
++unsigned int VLANAGENT_RDKLogEnable;
++unsigned long XTMAGENT_RDKLogLevel;
++unsigned int XTMAGENT_RDKLogEnable;
++unsigned int TELCOVOICEMANAGER_RDKLogEnable;
++unsigned int FWUPGRADEMGR_RDKLogEnable;
++unsigned long FWUPGRADEMGR_RDKLogLevel;
++unsigned long DSLAGENT_RDKLogLevel;
++unsigned int DSLAGENT_RDKLogEnable;
++unsigned long VLANAGENT_RDKLogLevel;
++unsigned int VLANAGENT_RDKLogEnable;
++unsigned long XTMAGENT_RDKLogLevel;
++unsigned int XTMAGENT_RDKLogEnable;
+diff --git a/source/LogComponent/cosa_apis_logagentplugin.c b/source/LogComponent/cosa_apis_logagentplugin.c
+index 67fbb82..9465311 100644
+--- a/source/LogComponent/cosa_apis_logagentplugin.c
++++ b/source/LogComponent/cosa_apis_logagentplugin.c
+@@ -75,6 +76,125 @@ static int getValueFromDevicePropsFile(char *str, char **value);
+ 
+ #define NUM_LOGLEVEL_TYPES (sizeof(loglevel_type_table)/sizeof(loglevel_type_table[0]))
+ 
++#define DEBUG_INI      "/etc/debug.ini"
++#define LOGLEVELS_MAX  5
++#define BUFSIZE        1024
++#define LEVELSTR_SIZE  256
++#include "logagent.h"
++char loglevel_map[LOGLEVELS_MAX][LEVELSTR_SIZE] = {
++        "FATAL ERROR WARN",
++        "FATAL ERROR WARN NOTICE",
++        "FATAL ERROR WARN NOTICE INFO",
++        "FATAL ERROR WARN NOTICE INFO DEBUG",
++        "FATAL ERROR WARN NOTICE INFO DEBUG TRACE",
++        };
++
++
++static int _syscmd(char *cmd, char *retBuf, int retBufSize)
++{
++    FILE *f;
++    char *ptr = retBuf;
++    int bufSize=retBufSize, bufbytes=0, readbytes=0, cmd_ret=0;
++
++    if((f = popen(cmd, "r")) == NULL)
++    {
++        fprintf(stderr,"\npopen %s error\n", cmd);
++        return false;
++    }
++    while(!feof(f))
++    {
++        *ptr = 0;
++        if(bufSize>=128)
++        {
++            bufbytes=128;
++        }
++        else
++        {
++            bufbytes=bufSize-1;
++        }
++        fgets(ptr,bufbytes,f);
++        readbytes=strlen(ptr);
++        if(!readbytes)
++        {
++            break;
++        }
++        bufSize-=readbytes;
++        ptr += readbytes;
++    }
++
++
++    cmd_ret = pclose(f);
++    retBuf[retBufSize-1]=0;
++    return cmd_ret >> 8;
++}
++
++bool is_enabled(const char *component) {
++        char cmd[BUFSIZE] = {0};
++        char buf[BUFSIZE] = {0};
++	char syscfg_buf[BUFSIZE] = {0};
++	char syscfg_component_string[BUFSIZE] = {0};
++
++
++	if(!strcmp("WIFI",component)) {
++		component = "WiFi";
++	}
++
++	if(!strcmp("ETHAGENT",component)) {
++		component = "EthAgent";
++	}
++
++       snprintf(cmd, sizeof(cmd), "grep -E -i '^LOG.RDK.%s' %s", component, DEBUG_INI);
++	snprintf(syscfg_component_string, sizeof(syscfg_component_string), "X_RDKCENTRAL-COM_%s_LoggerEnable", component);
++
++	syscfg_get( NULL, syscfg_component_string, syscfg_buf, sizeof(syscfg_buf));
++
++
++	if (atoi(syscfg_buf) == 0) {
++		
++		return false;
++	}
++
++	if (_syscmd(cmd, buf, sizeof(buf)) != 0) {
++	
++		return false;
++	}
++
++	
++	return true;
++}
++
++void enable_disable(const char *component, bool loggerenabled) {
++        char cmd[BUFSIZE] = {0};
++        char buf[BUFSIZE] = {0};
++
++	
++        if (is_enabled(component) && !loggerenabled) {
++                snprintf(cmd, sizeof(cmd), "sed -i 's/^LOG.RDK.%s/#LOG.RDK.%s/g' %s", component, component, DEBUG_INI);
++                _syscmd(cmd, buf, sizeof(buf));
++  	 }
++
++        if (!is_enabled(component) && loggerenabled) {
++                snprintf(cmd, sizeof(cmd), "sed -i 's/^#LOG.RDK.%s/LOG.RDK.%s/g' %s", component, component, DEBUG_INI);
++                _syscmd(cmd, buf, sizeof(buf));
++        }
++}
++bool loglevel_update(const char *component, uint32_t loggerlevel) {
++        char cmd[BUFSIZE] = {0};
++        char buf[BUFSIZE] = {0};
++
++        if (is_enabled(component)) {
++                if (loggerlevel >= LOGLEVELS_MAX) {
++                        loggerlevel = LOGLEVELS_MAX - 1;
++                }
++                snprintf(cmd, sizeof(cmd), "sed -i 's/^LOG.RDK.%s = .*/LOG.RDK.%s = %s/g' %s", component, component, loglevel_map[loggerlevel], DEBUG_INI);
++        } else {
++                return false;
++        }
++
++        _syscmd(cmd, buf, sizeof(cmd));
++        return true;
++}
++
+ /*Structure defined to get the log level type from the given Log Names */
+ 
+ typedef struct loglevel_pair {
+@@ -700,6 +820,7 @@ LogAgent_SetParamUlongValue
+ 				TR69_RDKLogLevel = uValue;
+ 			}
+ 		}
++		if (loglevel_update("TR69", uValue)) { system( "systemctl restart CcspTr069PaSsp.service" ); } else { return FALSE;}
+ 		SendSignal(TR069_PROC_NAME);
+ 		return TRUE;
+ 	}
+@@ -718,6 +839,7 @@ LogAgent_SetParamUlongValue
+ 				PAM_RDKLogLevel = uValue;
+ 			}
+ 		}
++		if (loglevel_update("PAM", uValue)) { system( "systemctl restart CcspPandMSsp.service" ); } else { return FALSE; }
+ 		SendSignal(PAM_PROC_NAME);
+ 		return TRUE;
+ 	}
+@@ -736,6 +858,7 @@ LogAgent_SetParamUlongValue
+ 				PSM_RDKLogLevel = uValue;
+ 			}
+ 		}
++		if (loglevel_update("PSM", uValue)) { system( "systemctl restart PsmSsp.service" ); } else { return FALSE; }
+ 		SendSignal(PSM_PROC_NAME);
+ 		return TRUE;
+ 	}
+@@ -790,7 +913,7 @@ LogAgent_SetParamUlongValue
+ 				WiFi_RDKLogLevel = uValue;
+ 			}
+ 		}
+-		
++		if (loglevel_update("WIFI", uValue)) { system( "systemctl restart ccspwifiagent.service" ); } else { return FALSE; }
+ 		#if defined(_COSA_INTEL_XB3_ARM_)
+ 		SendSignal_wifi();
+ 		#else 
+@@ -905,6 +1028,7 @@ LogAgent_SetParamUlongValue
+ 				ETHAGENT_RDKLogLevel = uValue;
+ 			}
+ 		}
++		if (loglevel_update("ETHAGENT", uValue)) { system( "systemctl restart CcspEthAgent.service" ); } else { return FALSE; }
+ 		SendSignal(ETHAGENT_PROC_NAME);
+ 		return TRUE;
+ 	}
+@@ -1684,7 +1808,7 @@ LogAgent_SetParamBoolValue
+     if ((!ind) && (rc == EOK))
+     {
+ 		TR69_RDKLogEnable = bValue;
+-
++		enable_disable("TR69", bValue);
+ 		if (syscfg_set_commit(NULL, "X_RDKCENTRAL-COM_TR69_LoggerEnable", bValue ? "1" : "0") != 0)
+ 		{
+ 			AnscTraceWarning(("syscfg_set failed\n"));
+@@ -1697,6 +1821,7 @@ LogAgent_SetParamBoolValue
+     if ((!ind) && (rc == EOK))
+     {
+ 		PAM_RDKLogEnable = bValue;
++		enable_disable("PAM", bValue);
+         if (syscfg_set_commit(NULL, "X_RDKCENTRAL-COM_PAM_LoggerEnable", bValue ? "1" : "0") != 0)
+ 		{
+              AnscTraceWarning(("syscfg_set failed\n"));
+@@ -1709,6 +1834,7 @@ LogAgent_SetParamBoolValue
+     if ((!ind) && (rc == EOK))
+ 	{
+ 		PSM_RDKLogEnable = bValue;
++		enable_disable("PSM", bValue);
+ 		if (syscfg_set_commit(NULL, "X_RDKCENTRAL-COM_PSM_LoggerEnable", bValue ? "1" : "0") != 0)
+ 		{
+ 			 AnscTraceWarning(("syscfg_set failed\n"));
+@@ -1745,6 +1871,7 @@ LogAgent_SetParamBoolValue
+     if ((!ind) && (rc == EOK))
+     {
+ 		WiFi_RDKLogEnable = bValue;
++		enable_disable("WIFI", bValue);
+ 		if (syscfg_set_commit(NULL, "X_RDKCENTRAL-COM_WiFi_LoggerEnable", bValue ? "1" : "0") != 0)
+ 		{
+ 			AnscTraceWarning(("syscfg_set failed\n"));
+@@ -1848,6 +1975,7 @@ LogAgent_SetParamBoolValue
+     if ((!ind) && (rc == EOK))
+     {
+         ETHAGENT_RDKLogEnable = bValue;
++	enable_disable("ETHAGENT", bValue);
+         if (syscfg_set_commit(NULL, "X_RDKCENTRAL-COM_EthAgent_LoggerEnable", bValue ? "1" : "0") != 0)
+         {
+              AnscTraceWarning(("syscfg_set failed\n"));
+diff --git a/source/LogComponent/ssp_main.c b/source/LogComponent/ssp_main.c
+index 011b204..60a6a3a 100644
+--- a/source/LogComponent/ssp_main.c
++++ b/source/LogComponent/ssp_main.c
+@@ -43,6 +43,7 @@
+ #include "stdlib.h"
+ #include "ccsp_dm_api.h"
+ #include "safec_lib_common.h"
++#include "logagent.h"
+ #include <syscfg/syscfg.h>
+ 
+ #define DEBUG_INI_NAME "/etc/debug.ini"

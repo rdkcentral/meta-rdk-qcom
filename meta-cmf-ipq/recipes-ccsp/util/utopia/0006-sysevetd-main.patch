@@ -1,0 +1,117 @@
+Commit ID: be70cd84dbd82c51ec8cc0845386fa6acd767213
+From: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+Date: Sun Aug 21 10:28:28 2022 +0530
+Subject: RDKB - Patch for sysevent ping failure
+Signed-off-by: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+
+---
+
+diff --git a/source/sysevent/server/syseventd_main.c b/source/sysevent/server/syseventd_main.c
+index 821278c..05407da 100644
+--- a/source/sysevent/server/syseventd_main.c
++++ b/source/sysevent/server/syseventd_main.c
+@@ -102,6 +102,7 @@ int debug_num_accepts;
+  * file where sysevent daemon pid is kept
+  */
+ #define SE_SERVER_PID_FILE "/var/run/syseventd.pid"
++#define SE_SERVER_TEST_PID_FILE "/tmp/syseventd_test.pid"
+ 
+ 
+ #define LISTEN_IP_ADDR     INADDR_ANY
+@@ -231,6 +232,30 @@ static int daemon_init(void)
+    return(0);
+ }
+ 
++static void execute(char *command, char *result, int result_len)
++{
++    FILE *fp = NULL;
++    char output[256] = {0};
++    char *str = NULL, *pos = NULL;
++
++    result[0] = '0';
++    result[1] = 0;
++    fp = popen(command, "r");
++    if (fp == NULL) {
++        return;
++    }
++
++    /* only the first line of the output is of interest */
++    fgets(output, sizeof(output) - 1, fp);
++    if ((pos = strchr(output, '\n')) != NULL) {
++        *pos = '\0';
++    }
++
++    strlcpy(result, output, result_len);
++    pclose(fp);
++    return;
++}
++
+ /*
+  * Procedure     : deinitialize_system
+  * Purpose       : UniInitialize the system
+@@ -683,6 +708,7 @@ static int initialize_system(void)
+       fprintf(fp, "%d", pid);
+       fclose(fp);
+    }
++   unlink(SE_SERVER_TEST_PID_FILE);
+    
+    // make syseventd immune from the oom-killer (Out of Memory)
+    char oom_filename[256];
+@@ -1187,6 +1213,57 @@ int main (int argc, char **argv)
+ {
+    int rc, ret;
+ 
++   {
++       int fd_lock = open("/tmp/syseventlockfile", O_CREAT);
++       flock(fd_lock, LOCK_EX);
++       FILE *fp= fopen(SE_SERVER_TEST_PID_FILE, "r");
++       if (NULL != fp) {
++          int old_pid;
++          if((ret = fscanf(fp, "%d", &old_pid)) <= 0 )
++          {
++	     printf("read error of %s\n",SE_SERVER_TEST_PID_FILE);
++             fclose(fp);
++          } else {
++             fclose(fp);
++             // see if the process is still alive
++             char filename[500];
++             snprintf(filename, sizeof(filename), "/proc/%d/cmdline", old_pid);
++             fp = fopen(filename, "r");
++             if (NULL == fp) {
++                 printf("We are dead but have an old pid file. Cleaning up\n");
++                 unlink(SE_SERVER_TEST_PID_FILE);
++             } else {
++                 char cmdline[500];
++                 if ((ret = fscanf(fp, "%s", cmdline)) <= 0)
++	         {
++	             printf("read error of %s\n",filename);
++	         }
++                 if (NULL == strstr(cmdline, argv[0])) {
++                     unlink(SE_SERVER_TEST_PID_FILE);
++                 } else {
++                     flock(fd_lock, LOCK_UN);
++                     close(fd_lock);
++                     return(0);
++                 }
++             }
++          }
++       }
++       pid_t pid = getpid();
++       fp = fopen(SE_SERVER_TEST_PID_FILE, "w");
++       if (NULL != fp) {
++          fprintf(fp, "%d", pid);
++          fclose(fp);
++       }
++       char result[200]={0};
++       execute("netstat -an | grep LISTEN | grep 52367 | wc -l ",result, 200);
++       if (strcmp(result, "0") != 0) {
++           flock(fd_lock, LOCK_UN);
++           close(fd_lock);
++           return;
++       }
++       flock(fd_lock, LOCK_UN);
++       close(fd_lock);
++   }
+    if (1 > NUM_CLIENT_ONLY_THREAD) {
+       printf("NUM_CLIENT_ONLY_THREAD must be at least 1. Currently it is %d", NUM_CLIENT_ONLY_THREAD);
+       exit(-1);

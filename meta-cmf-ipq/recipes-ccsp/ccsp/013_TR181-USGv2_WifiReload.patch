@@ -1,0 +1,154 @@
+Commit ID: 102790b13bfdd953ef7dca78cca993f0d5db8e40
+From: rmariyap <rmariyap@qti.qualcomm.com>
+Date: Fri Aug 9 11:25:24 2024 +0530
+Subject: [recipes-ccsp] added patch for protracted wsplcd restart after M2 from controller issue
+Signed-off-by: rmariyap <rmariyap@qti.qualcomm.com>
+
+---
+
+diff --git a/config-arm/TR181-USGv2.XML b/config-arm/TR181-USGv2.XML
+index 1d68c8b..56be642 100755
+--- a/config-arm/TR181-USGv2.XML
++++ b/config-arm/TR181-USGv2.XML
+@@ -14068,7 +14068,32 @@
+ 				     <writable>true</writable>
+ 			     </parameter>
+ 		     </parameters>
+-	     </object>		
++	     </object>
++	     <object>
++               <name>IPQ_WiFiReload</name>
++               <objectType>writableTable</objectType>
++                 <functions>
++                     <func_GetEntryCount>IPQ_WiFiReload_GetEntryCount</func_GetEntryCount>
++                     <func_GetEntry>IPQ_WiFiReload_GetEntry</func_GetEntry>
++                     <func_SetParamBoolValue>IPQ_WiFiReload_SetParamBoolValue</func_SetParamBoolValue>
++               </functions>
++               <parameters>
++                     <parameter>
++                         <name>Enable</name>
++                         <type>boolean</type>
++                         <syntax>bool</syntax>
++                        <writable>true</writable>
++                     </parameter>
++                     <parameter>
++                         <name>MAP_Agent_reload</name>
++                         <type>boolean</type>
++                         <syntax>bool</syntax>
++                        <writable>true</writable>
++                     </parameter>
++
++               </parameters>
++             </object>
++
+ 	     <object>
+ 
+           <name>LanManagementEntry</name>
+diff --git a/source-arm/TR-181/board_sbapi/cosa_bridging_apis.c b/source-arm/TR-181/board_sbapi/cosa_bridging_apis.c
+index 6c9d423..d23da4f 100644
+--- a/source-arm/TR-181/board_sbapi/cosa_bridging_apis.c
++++ b/source-arm/TR-181/board_sbapi/cosa_bridging_apis.c
+@@ -1220,6 +1220,61 @@ CosaDmlBrgVlanAddEntryHAL
+ 	return ANSC_STATUS_SUCCESS;
+ }
+ 
++ANSC_STATUS CosaDmlUpdateBrgIfaceWiFi(int apIndex, char* BridgeName)
++{
++      CCSP_MESSAGE_BUS_INFO *bus_info = (CCSP_MESSAGE_BUS_INFO *)bus_handle;
++      fprintf(stderr, "WiFi hostapd file update\n");
++      CcspTraceInfo(("Update Hostapd,RELOAD AP\n"));
++      int                         ret;
++      int                         size = 0;
++      componentStruct_t **        ppComponents = NULL;
++      char paramname[1024]= {0};
++      char*   faultParam = NULL;
++      char   dst_pathname_cr[64]  =  {0};
++      //AssociatedBridgeInterface
++      snprintf(paramname,sizeof(paramname),"Device.WiFi.AccessPoint.%d.BridgingHostapd",(apIndex+1));
++      snprintf(dst_pathname_cr,sizeof(dst_pathname_cr),"%s%s", g_Subsystem, CCSP_DBUS_INTERFACE_CR);
++
++      CcspTraceInfo(("  Value of param stored for IPC %s value of index %d and bridge name %s\n", paramname, apIndex+1,BridgeName));
++      ret = CcspBaseIf_discComponentSupportingNamespace(bus_handle,
++                      dst_pathname_cr,
++                      paramname,
++                      g_Subsystem,        /* prefix */
++                      &ppComponents,
++                      &size);
++
++      if ( ret == CCSP_SUCCESS && size == 1)
++      {
++              parameterValStruct_t val[1] = { { paramname,BridgeName, ccsp_string}};
++
++              ret = CcspBaseIf_setParameterValues
++                      (
++                       bus_handle,
++                       ppComponents[0]->componentName,
++                       ppComponents[0]->dbusPath,
++                       0, 0x0,   /* session id and write id */
++                       &val,
++                       //                                      2,
++                       1,
++                       TRUE,   /* no commit */
++                       &faultParam
++                      );
++
++              if (ret != CCSP_SUCCESS && faultParam)
++              {
++                      CcspTraceInfo((" %s Failed to SetValue for param '%s'\n",__FUNCTION__,faultParam));
++                      bus_info->freefunc(faultParam);
++              } else {
++
++                       CcspTraceInfo((" %s success to SetValue for param '%s'\n",__FUNCTION__,faultParam));
++                        return ANSC_STATUS_SUCCESS;
++              }
++      }
++
++      return ANSC_STATUS_FAILURE;
++}
++
++
+ /**********************************************************************
+ 
+     caller:     COSA DML
+diff --git a/source/TR-181/include/cosa_bridging_apis.h b/source/TR-181/include/cosa_bridging_apis.h
+index f31e832..fa36d02 100644
+--- a/source/TR-181/include/cosa_bridging_apis.h
++++ b/source/TR-181/include/cosa_bridging_apis.h
+@@ -394,7 +394,11 @@ CosaDmlBrgDelEntryHAL
+          PCOSA_DML_BRG_FULL_ALL         pDmlBridge,
+          ULONG                       ulInstanceNumber
+         );
+-
++ANSC_STATUS CosaDmlUpdateBrgIfaceWiFi
++	(
++	int apIndex,
++	char* BridgeName
++	);
+ ANSC_STATUS
+ CosaDmlBrgSetCfg
+     (
+diff --git a/source/TR-181/middle_layer_src/cosa_bridging_dml.c b/source/TR-181/middle_layer_src/cosa_bridging_dml.c
+index 3350608..0a1a14b 100644
+--- a/source/TR-181/middle_layer_src/cosa_bridging_dml.c
++++ b/source/TR-181/middle_layer_src/cosa_bridging_dml.c
+@@ -2650,6 +2650,7 @@ Port_SetParamStringValue
+ {
+     PCOSA_CONTEXT_LINK_OBJECT       pCosaContext     = (PCOSA_CONTEXT_LINK_OBJECT)hInsContext;
+     PCOSA_DML_BRG_PORT_FULL         pPort            = (PCOSA_DML_BRG_PORT_FULL  )pCosaContext->hContext;
++     PCOSA_DML_BRG_FULL_ALL          pDmlBridge       = (PCOSA_DML_BRG_FULL_ALL   )pCosaContext->hParentTable;
+     ULONG                           ulEntryNameLen;
+     CHAR                            ucEntryParamName[256] = {0};
+     CHAR                           ucEntryNameValue[256] = {0};
+@@ -3088,6 +3089,12 @@ Port_Commit
+ 		if (( pPort->Cfg.bEnabled &&pPort->Cfg.PVID && pVLAN->Cfg.bEnabled && (pPort->Cfg.PVID == pVLAN->Cfg.VLANID)) || (pDmlBridge->Cfg.InstanceNumber ==1 && pPort->Cfg.bEnabled))
+                 {
+                         CosaDmlBrgPortAddEntryHAL((PCOSA_DML_BRG_FULL_ALL)pDmlBridge, pDmlBridge->Cfg.InstanceNumber, (PCOSA_DML_BRG_PORT_FULL)pPort);
++			int apindex;
++                    char *ind = ((char *)(pPort->Info.Name))+3;
++                    apindex = atoi(ind);
++                    AnscTraceFlow(("Reload hostapd file values index %d brg name %s",apindex,pDmlBridge->Cfg.Alias));
++                    CosaDmlUpdateBrgIfaceWiFi(apindex,pDmlBridge->Cfg.Alias);
++
+                 }
+ 
+ 	}

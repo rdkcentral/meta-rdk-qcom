@@ -1,0 +1,40 @@
+Commit ID: 07b6152b23de1879907462aecd3d987e2f0d93aa
+From: prasathr <prasathr@qti.qualcomm.com>
+Date: Sat Jul 8 12:34:13 2023 +0530
+Subject: [recipes-ccsp] Added changes to support HK
+Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
+
+---
+
+diff --git a/wifi_hal_generic.h b/wifi_hal_generic.h
+index c09d5b0..ad95401 100644
+--- a/wifi_hal_generic.h
++++ b/wifi_hal_generic.h
+@@ -135,10 +135,14 @@ extern "C"{
+ #endif
+ 
+ 
+-#ifdef WIFI_HAL_VERSION_3
++#if defined (WIFI_HAL_VERSION_3) && !defined(_PLATFORM_IPQ807x)
+ #define MAX_NUM_RADIOS           3
++#define MIN_ADDITIONAL_VAP_IDX   24
++#define MAX_ADDITIONAL_VAP_IDX   50
+ #else
+ #define MAX_NUM_RADIOS           2
++#define MIN_ADDITIONAL_VAP_IDX   16
++#define MAX_ADDITIONAL_VAP_IDX   33
+ #endif
+ 
+ #define MAX_NUM_VAP_PER_RADIO    17
+@@ -629,6 +633,11 @@ typedef enum {
+     wifi_countrycode_ZA, /**< SOUTH AFRICA */
+     wifi_countrycode_ZM, /**< ZAMBIA */
+     wifi_countrycode_ZW, /**< ZIMBABWE */
++    wifi_countrycode_AX, /**< ALAND_ISLANDS */
++    wifi_countrycode_BL, /**< SAINT_BARTHELEMY */
++    wifi_countrycode_CW, /**< CURACAO */
++    wifi_countrycode_MF, /**< SAINT_MARTIN */
++    wifi_countrycode_SX, /**< SINT_MAARTEN */
+     wifi_countrycode_max /**< Max number of country code */
+ } wifi_countrycode_type_t;
+ 

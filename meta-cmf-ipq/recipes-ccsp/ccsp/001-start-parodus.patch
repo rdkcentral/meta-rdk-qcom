@@ -1,0 +1,22 @@
+Commit ID: a0481d101070a7baea7aad71d54b00ae12ebb692
+From: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+Date: Fri Jul 15 20:06:15 2022 +0530
+Subject: recipes-ccsp: RDK-B Board Bring up and Services
+Signed-off-by: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
+
+---
+
+diff --git a/source/parodusStart/start_parodus.c b/source/parodusStart/start_parodus.c
+index 007d523..823d5cd 100644
+--- a/source/parodusStart/start_parodus.c
++++ b/source/parodusStart/start_parodus.c
+@@ -82,7 +82,7 @@
+ #define PARCONNHEALTH_FILE          "/tmp/parconnhealth.txt"
+ #define GETCONF_FILE                "/usr/bin/GetConfigFile"
+ #define MAX_PARTNERID_LEN              64
+-
++#define CONFIG_VENDOR_NAME  "QTI"
+ #ifdef CONFIG_CISCO
+ #define CONFIG_VENDOR_NAME  "Cisco"
+ #endif
+

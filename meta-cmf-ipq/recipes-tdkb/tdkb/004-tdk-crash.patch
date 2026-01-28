@@ -1,0 +1,30 @@
+Commit ID: ca8cda60ec9b46d9ab5574a1b3cafff4803eea16
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Mon Jun 5 16:03:05 2023 +0530
+Subject: TDK Agent crash specific for IPQ platform is fixed
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/WIFIHAL_stub/src/WIFIHAL.cpp b/WIFIHAL_stub/src/WIFIHAL.cpp
+index 0149f41..97a2f90 100644
+--- a/WIFIHAL_stub/src/WIFIHAL.cpp
++++ b/WIFIHAL_stub/src/WIFIHAL.cpp
+@@ -1011,7 +1011,7 @@ std::string WIFIHAL::testmodulepre_requisites()
+
+     int return_status = SSP_SUCCESS;
+
+-#if defined(_COSA_BCM_MIPS_)
++#if defined(_COSA_BCM_MIPS_) || defined(_PLATFORM_IPQ_)
+     DEBUG_PRINT(DEBUG_TRACE,"\nInvoking wifi_init HAL API\n");
+
+     return_status = wifi_init();
+@@ -1226,7 +1226,7 @@ void WIFIHAL::WIFIHAL_GetOrSetParamStringValue(IN const Json::Value& req, OUT Js
+     DEBUG_PRINT(DEBUG_TRACE,"\n WIFIHAL_GetOrSetParamStringValue  ----->Entry\n");
+     char methodName[50] = {'\0'};
+     int radioIndex = 0;
+-    char output[1000] = {'\0'};
++    char output[4096] = {'\0'};
+     int returnValue = SSP_SUCCESS;
+     int retValue = SSP_SUCCESS;
+     char details[200] = {'\0'};

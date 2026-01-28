@@ -1,0 +1,29 @@
+Commit ID: 4ad1ac505b8db4a2bafd5f45fcc670b618da1572
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Fri Jun 9 15:00:38 2023 +0530
+Subject: [recipes-tdkb] Apply settings handled for HAL_VERSION_3
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/WIFIHAL_stub/src/WIFIHAL.cpp b/WIFIHAL_stub/src/WIFIHAL.cpp
+index 0149f41..4309e77 100644
+--- a/WIFIHAL_stub/src/WIFIHAL.cpp
++++ b/WIFIHAL_stub/src/WIFIHAL.cpp
+@@ -44,6 +44,7 @@ int ssp_WIFIHALApplySettings(int radioIndex, char* methodName)
+     printf("return value from wifi_apply is %d\n",return_status);
+     #else
+
++    #ifndef WIFI_HAL_VERSION_3
+     if(strstr(methodName, "setRadio")||strstr(methodName, "setAp")||strstr(methodName, "setBandSteering")||strstr(methodName, "wifi_down"))
+     {
+         return_status = wifi_applyRadioSettings(radioIndex);
+@@ -66,6 +67,8 @@ int ssp_WIFIHALApplySettings(int radioIndex, char* methodName)
+     }
+     printf("\n ssp_WIFIHALApplySettings----> Exit\n");
+     #endif
++    #endif
++    printf("\n ssp_WIFIHALApplySettings----> Exit\n");
+     return return_status;
+ }
+

@@ -1,0 +1,144 @@
+Commit ID: 1c6da4acfb2203e54b2f6b6f0f271bd0e797e775
+From: Venkatesh Perumal <venkperu@qti.qualcomm.com>
+Date: Fri Dec 30 01:04:44 2022 +0530
+Subject: Fix for Txpower issue validation for Q3 migration
+Signed-off-by: Venkatesh Perumal <venkperu@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 0b99a4c..e4d75cc 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -1515,7 +1515,18 @@ WiFi_SetParamStringValue
+ 
+         /* save update to backup */
+         CosaDmlWiFi_SetRadioPower(TmpPower);
+-        
++    
++        int idx = 0;
++        for ( idx = 0; idx < pMyObject->RadioCount; idx++)
++        {
++            PCOSA_DML_WIFI_RADIO_FULL       pWifiRadio      = pMyObject->pRadio + idx;
++            PCOSA_DML_WIFI_RADIO_SINFO      pInfo = &pWifiRadio->StaticInfo;
++            PCOSA_DML_WIFI_RADIO_CFG        pWifiRadioCfg   = &pWifiRadio->Cfg;
++
++            wifi_getRadioTransmitPowerSupported(idx, pInfo->TransmitPowerSupported);
++        }
++
++
+         return TRUE;
+     }
+ 	
+@@ -5816,11 +5827,13 @@ Radio_Validate
+ 
+     if (isValidTransmitPower(pWifiRadioFull->StaticInfo.TransmitPowerSupported, pWifiRadioFull->Cfg.TransmitPower) != TRUE)
+     {
+-         CcspTraceWarning(("********Radio Validate:Failed Transmit Power\n"));
+-         rc = strcpy_s(pReturnParamName, *puLength, "TransmitPower");
+-         ERR_CHK(rc);
+-         *puLength = AnscSizeOfString("TransmitPower");
+-         return FALSE;
++        if (pWifiRadioFull->Cfg.TransmitPower > 100) {
++            CcspTraceWarning(("********Radio Validate:Failed Transmit Power\n"));
++            rc = strcpy_s(pReturnParamName, *puLength, "TransmitPower");
++            ERR_CHK(rc);
++            *puLength = AnscSizeOfString("TransmitPower");
++            return FALSE;
++        }
+     }    
+ 
+     if( pWifiRadioFull->Cfg.BeaconInterval > 65535 )
+
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index a8eb06c..1bbe820 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -4498,6 +4498,18 @@ fprintf(stderr, "-- %s %d wifi_setApRadioIndex  wlanIndex = %lu intValue=%d \n",
+     return ANSC_STATUS_SUCCESS;
+ }
+ 
++#define container_of(ptr, type, member) ({         \
++        const typeof( ((type *)0)->member ) *__mptr = (ptr); \
++        (type *)( (char *)__mptr - offsetof(type,member) );})
++
++CosaDmlWiFiUpdateRadioTransmitPowerSupported(PCOSA_DML_WIFI_RADIO_CFG pcfg, int wlanIndex)
++{
++	PCOSA_DML_WIFI_RADIO_FULL pWifiRadio = container_of(pcfg, struct _COSA_DML_WIFI_RADIO_FULL, Cfg);
++	PCOSA_DML_WIFI_RADIO_SINFO      pInfo = &pWifiRadio->StaticInfo;
++	
++	wifi_getRadioTransmitPowerSupported(wlanIndex, pInfo->TransmitPowerSupported);
++}
++
+ ANSC_STATUS
+ CosaDmlWiFiGetRadioPsmData
+     (
+@@ -4693,6 +4705,7 @@ printf("%s g_Subsytem = %s\n",__FUNCTION__, g_Subsystem);
+              ( gRadioNextPowerSetting != COSA_DML_WIFI_POWER_DOWN ) )
+         {
+             CosaDmlWiFiRadioSetTransmitPowerPercent(wlanIndex,transmitPower);
++            CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, wlanIndex);
+         }
+         ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
+     }
+@@ -4702,6 +4715,7 @@ printf("%s g_Subsytem = %s\n",__FUNCTION__, g_Subsystem);
+              ( gRadioNextPowerSetting != COSA_DML_WIFI_POWER_DOWN ) )
+         {
+             CosaDmlWiFiRadioSetTransmitPowerPercent(wlanIndex,pCfg->TransmitPower);
++            CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, wlanIndex);
+         }
+     }
+ 
+@@ -12181,7 +12200,7 @@ CosaDmlWiFiRadioSetTransmitPowerPercent
+ 
+     wifiDbgPrintf("%s: enter wlanIndex %d transmitPowerPercent %d \n", __func__, wlanIndex, transmitPowerPercent);
+ 
+-#if defined(_COSA_BCM_MIPS_)|| defined(_COSA_BCM_ARM_) || defined(_PLATFORM_TURRIS_) || defined(_INTEL_WAV_)
++#if defined(_COSA_BCM_MIPS_)|| defined(_COSA_BCM_ARM_) || defined(_PLATFORM_TURRIS_) || defined(_INTEL_WAV_) || defined(_PLATFORM_IPQ_)
+     wifi_setRadioTransmitPower(wlanIndex, transmitPowerPercent);
+ #else
+     ULONG curTransmitPower;
+@@ -12313,6 +12332,7 @@ CosaDmlWiFiRadioPushCfg
+     wifi_setRadioGuardInterval(wlanIndex, (pCfg->GuardInterval == 2)?"800nsec":"Auto");
+ 
+     CosaDmlWiFiRadioSetTransmitPowerPercent(wlanIndex, pCfg->TransmitPower);
++    CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, wlanIndex);
+ 
+     wifi_setRadioCtsProtectionEnable(wlanIndex, pCfg->CTSProtectionMode);
+     wifi_setApBeaconInterval(wlanIndex, pCfg->BeaconInterval);
+@@ -13457,10 +13477,12 @@ fprintf(stderr, "----# %s %d 	wifi_setApEnable %d true\n", __func__, __LINE__, i
+                          ( gRadioNextPowerSetting != COSA_DML_WIFI_POWER_DOWN ) )
+                     {
+                         CosaDmlWiFiRadioSetTransmitPowerPercent(wlanIndex, pCfg->TransmitPower);
++                        CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, wlanIndex);
+                     } else if ( gRadioPowerState[wlanIndex] == COSA_DML_WIFI_POWER_LOW )
+                     {
+                         wifiDbgPrintf("%s calling wifi_setRadioTransmitPower to 5 dbM, RadioPower was set to COSA_DML_WIFI_POWER_LOW \n",__FUNCTION__);
+                         wifi_setRadioTransmitPower(wlanIndex, 5);
++                        CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, wlanIndex);
+                     }
+                 }
+                 
+@@ -13932,7 +13954,13 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+         wlanRestart = TRUE;
+ #endif
+     }
+-	
++
++    if (pStoredCfg->TransmitPower != pCfg->TransmitPower) {
++        wifi_setRadioTransmitPower(wlanIndex, pCfg->TransmitPower);
++        CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, wlanIndex);
++        pStoredCfg->TransmitPower = pCfg->TransmitPower;
++    }
++
+ 	if (pStoredCfg->X_COMCAST_COM_DCSEnable != pCfg->X_COMCAST_COM_DCSEnable )
+     {
+         wifi_setRadioDCSEnable(wlanIndex,pCfg->X_COMCAST_COM_DCSEnable);
+@@ -15034,6 +15062,7 @@ CosaDmlWiFiRadioGetCfg
+             {
+ 				CcspWifiTrace(("RDK_LOG_WARN,%s : setTransmitPowerPercent  wlanIndex:%d TransmitPower:%d \n",__FUNCTION__,wlanIndex,pCfg->TransmitPower));
+                 CosaDmlWiFiRadioSetTransmitPowerPercent(wlanIndex, pCfg->TransmitPower);
++                CosaDmlWiFiUpdateRadioTransmitPowerSupported(pCfg, wlanIndex);
+             } else {
+                 printf("%s: Radio was not in Power Up mode, didn't set the tranmitPower level \n", __func__);
+ 	}

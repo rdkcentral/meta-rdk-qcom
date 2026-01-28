@@ -1,0 +1,266 @@
+Commit ID: 209e0a8f50c37515411e9384b743f77a44235fa0
+From: sreehari ramanjula <sramanju@qti.qualcomm.com>
+Date: Tue Sep 3 20:44:59 2024 +0530
+Subject: rdkgponmanager: Handle the synchronization between data models
+Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
+
+---
+
+diff --git a/config/RdkGponManager.xml b/config/RdkGponManager.xml
+index f69847b..6cdf222 100644
+--- a/config/RdkGponManager.xml
++++ b/config/RdkGponManager.xml
+@@ -21,14 +21,10 @@
+                             <func_GetEntryCount>GponPhy_GetEntryCount</func_GetEntryCount>
+                             <func_GetEntry>GponPhy_GetEntry</func_GetEntry>
+                             <func_GetParamStringValue>GponPhy_GetParamStringValue</func_GetParamStringValue>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                             <func_SetParamStringValue>GponPhy_SetParamStringValue</func_SetParamStringValue>
+-<?endif?>
+                             <func_GetParamUlongValue>GponPhy_GetParamUlongValue</func_GetParamUlongValue>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                             <func_GetParamBoolValue>GponPhy_GetParamBoolValue</func_GetParamBoolValue>
+                             <func_SetParamBoolValue>GponPhy_SetParamBoolValue</func_SetParamBoolValue>
+-<?endif?>
+                             <func_Validate>GponPhy_Validate</func_Validate>
+                             <func_Commit>GponPhy_Commit</func_Commit>
+                             <func_Rollback>GponPhy_Rollback</func_Rollback>
+@@ -61,7 +57,7 @@
+                             </parameter>
+                             <parameter>
+                                 <name>PonMode</name>
+-                                <type>string: GPON(0),XG-PON(1),NG-PON2(2),XGS-PON2(3)</type>
++                                <type>string: GPON(0),XG-PON(1),NG-PON2(2),XGS-PON2(3),XGSPON(4)</type>
+                                 <syntax>uint32/mapped</syntax>
+                             </parameter>
+                             <parameter>
+@@ -79,14 +75,12 @@
+                                 <type>unsignedInt</type>
+                                 <syntax>uint32</syntax>
+                             </parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                             <parameter>
+                                 <name>Enable</name>
+                                 <type>boolean</type>
+                                 <syntax>bool</syntax>
+                                 <writable>true</writable>
+                             </parameter>
+-<?endif?>
+                             <parameter>
+                                 <name>Status</name>
+                                 <type>string: Up(0),Down(1),Unknown(2),Dormant(3),NotPresent(4),LowerLayerDown(5),Error(6)</type>
+@@ -97,7 +91,6 @@
+                                 <type>string: Active(0),Standby(1)</type>
+                                 <syntax>uint32/mapped</syntax>
+                             </parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                             <parameter>
+                             	<name>Alias</name>
+                             	<type>string(64)</type>
+@@ -120,7 +113,6 @@
+                             	<type>boolean</type>
+                             	<syntax>bool</syntax>
+                             </parameter>
+-<?endif?>
+                         </parameters>
+                         <objects>                                
+                                 <object>
+@@ -185,11 +177,7 @@
+                                     </functions>
+                                     <parameters>
+                                         <parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                                             <name>CurrentVoltage</name>
+-<?else?>
+-                                            <name>VoltageLevel</name>
+-<?endif?>
+                                             <type>int</type>
+                                             <syntax>int</syntax>
+                                         </parameter>
+@@ -346,20 +334,12 @@
+                                 <syntax>uint32</syntax>
+                             </parameter>
+                             <parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                                 <name>GtcTotalFecCodeWords</name>
+-<?else?>
+-                                <name>TotalFecCodeWords</name>
+-<?endif?>
+                                 <type>unsignedInt</type>
+                                 <syntax>uint32</syntax>
+                             </parameter>
+                             <parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                                 <name>GtcHecErrorCount</name>
+-<?else?>
+-                                <name>HecErrorCount</name>
+-<?endif?>
+                                 <type>unsignedInt</type>
+                                 <syntax>uint32</syntax>
+                             </parameter>
+@@ -428,7 +408,6 @@
+                                 <type>unsignedInt</type>
+                                 <syntax>uint32</syntax>
+                             </parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                             <parameter>
+                                 <name>TO1Timer</name>
+                                 <type>unsignedInt</type>
+@@ -439,9 +418,7 @@
+                                 <type>unsignedInt</type>
+                                 <syntax>uint32</syntax>
+                             </parameter>
+-<?endif?>
+                         </parameters>
+-<?ifndef WAN_MANAGER_UNIFICATION_ENABLED?>
+                         <objects>
+                             <object>
+                                 <name>RegistrationTimers</name>
+@@ -463,7 +440,6 @@
+                                 </parameters>
+                             </object>
+                         </objects>
+-<?endif?>
+                     </object>
+                     <object>
+                         <name>Gem</name>
+@@ -647,20 +623,12 @@
+                         </functions>
+                         <parameters>
+                             <parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                                 <name>BaselineMessageCount</name>
+-<?else?>
+-                                <name>RxBaseLineMessageCountValid</name>
+-<?endif?>
+                                 <type>int</type>
+                                 <syntax>int</syntax>
+                             </parameter>
+                             <parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                                 <name>ExtendedMessageCount</name>
+-<?else?>
+-                                <name>RxExtendedMessageCountValid</name>
+-<?endif?>
+                                 <type>int</type>
+                                 <syntax>int</syntax>
+                             </parameter>
+@@ -688,11 +656,7 @@
+                         </functions>
+                         <parameters>
+                             <parameter>
+-<?ifdef WAN_MANAGER_UNIFICATION_ENABLED?>
+                                 <name>ManagedEntityId</name>
+-<?else?>
+-                                <name>MeId</name>
+-<?endif?>
+                                 <type>unsignedInt</type>
+                                 <syntax>uint32</syntax>
+                             </parameter>
+diff --git a/source/TR-181/include/gpon_apis.h b/source/TR-181/include/gpon_apis.h
+index 57c6773..432bbc7 100644
+--- a/source/TR-181/include/gpon_apis.h
++++ b/source/TR-181/include/gpon_apis.h
+@@ -148,7 +148,8 @@ _DML_PONMODE_ENUM
+     GPON,
+     XGPON,
+     NGPON2,
+-    XGPON2
++    XGPON2,
++    XGSPON
+ }
+ DML_PONMODE_ENUM;
+ 
+diff --git a/source/TR-181/middle_layer_src/gponmgr_dml_hal.c b/source/TR-181/middle_layer_src/gponmgr_dml_hal.c
+index 54e00d8..f2d1120 100644
+--- a/source/TR-181/middle_layer_src/gponmgr_dml_hal.c
++++ b/source/TR-181/middle_layer_src/gponmgr_dml_hal.c
+@@ -57,7 +57,7 @@
+
+ #if defined(WAN_MANAGER_UNIFICATION_ENABLED)
+ #define GPON_QUERY_PM    "Device.X_RDK_ONT.PhysicalMedia.1."
+-#define GPON_QUERY_GEM   "Device.X_RDK_ONT.GemStats.1."
++#define GPON_QUERY_GEM   "Device.X_RDK_ONT.Gem.1."
+ #define GPON_QUERY_VEIP  "Device.X_RDK_ONT.Veip.1."
+ #else
+ #define GPON_QUERY_PM    "Device.X_RDK_ONT.PhysicalMedia."
+@@ -100,7 +100,7 @@ ANSC_STATUS GponHal_Init()
+ #if defined(WAN_MANAGER_UNIFICATION_ENABLED)
+     char wan_type[32] = {0};
+
+-    v_secure_system("/bin/json_hal_server_gpon /etc/rdk/conf/gpon_manager_conf.json &");
++    v_secure_system("/bin/json_hal_server_gpon /etc/rdk/conf/gpon_manager_wan_unify_conf.json &");
+ #endif
+
+     if (json_hal_client_init(GPON_MANAGER_CONF_FILE) != RETURN_OK)
+diff --git a/source/TR-181/middle_layer_src/gponmgr_dml_hal_param.c b/source/TR-181/middle_layer_src/gponmgr_dml_hal_param.c
+index b6259c3..4b591b4 100644
+--- a/source/TR-181/middle_layer_src/gponmgr_dml_hal_param.c
++++ b/source/TR-181/middle_layer_src/gponmgr_dml_hal_param.c
+@@ -42,7 +42,7 @@ ANSC_STATUS gpon_hal_get_pm_index(char* ParamName, int* index)
+ ANSC_STATUS gpon_hal_get_gem_index(char* ParamName, int* index)
+ {    
+ #if defined(WAN_MANAGER_UNIFICATION_ENABLED)
+-    sscanf(ParamName,"Device.X_RDK_ONT.GemStats.%d.", index);
++    sscanf(ParamName,"Device.X_RDK_ONT.Gem.%d.", index);
+ #else
+     sscanf(ParamName,"Device.X_RDK_ONT.Gem.%d.", index);
+ #endif
+@@ -223,6 +223,11 @@ ANSC_STATUS Map_hal_dml_pm(DML_PHY_MEDIA_LIST_T* gponPhyList, char* ParamName, c
+             pPhyMedia->PonMode = NGPON2;
+             retStatus = ANSC_STATUS_SUCCESS;
+         }
++        else if (strstr(pValue,"XGSPON"))
++        {
++            pPhyMedia->PonMode = XGSPON;
++            retStatus = ANSC_STATUS_SUCCESS;
++        }
+     }
+     else if( strstr(ParamName, "Connector"))
+     {
+diff --git a/source/TR-181/middle_layer_src/gponmgr_dml_data.c b/source/TR-181/middle_layer_src/gponmgr_dml_data.c
+index 0a84224..b0acad6 100644
+--- a/source/TR-181/middle_layer_src/gponmgr_dml_data.c
++++ b/source/TR-181/middle_layer_src/gponmgr_dml_data.c
+@@ -30,10 +30,21 @@ GPON_DML_DATA* GponMgrDml_GetData_locked(void)
+ {
+     GPON_DML_DATA* pDmlData = GponMgrDml_GetData();
+ 
++    if (ijsonrpcbuginevent==1)
++    {
++        if (ijsonrpcbug==1)
++        {
++            ijsonrpcbuginevent=0;
++	    CcspTraceInfo(("Mutex lock was already acquired. So skipping Event request to avoid race condition(deadlock situation)\n"));
++            return NULL;
++        }
++    }
++
+     if(pDmlData != NULL)
+     {
+         if(pthread_mutex_lock(&(pDmlData->mDataMutex)) == 0)
+         {
++	    ijsonrpcbug=1;
+             return pDmlData;
+         }
+     }
+@@ -45,6 +56,7 @@ void GponMgrDml_GetData_release(GPON_DML_DATA* pDmlData)
+ {
+     if(pDmlData != NULL)
+     {
++	ijsonrpcbug=0;
+         pthread_mutex_unlock (&(pDmlData->mDataMutex));
+     }
+ }
+diff --git a/source/TR-181/middle_layer_src/gponmgr_dml_data.h b/source/TR-181/middle_layer_src/gponmgr_dml_data.h
+index 21ff7eb..5545dcf 100644
+--- a/source/TR-181/middle_layer_src/gponmgr_dml_data.h
++++ b/source/TR-181/middle_layer_src/gponmgr_dml_data.h
+@@ -26,6 +26,7 @@
+ #include "ansc_string_util.h"
+ #include "gpon_apis.h"
+ #include "gponmgr_controller.h"
++#include "json_hal_client.h"
+ 
+ 
+ #define GPON_DATA_MAX_PM            2

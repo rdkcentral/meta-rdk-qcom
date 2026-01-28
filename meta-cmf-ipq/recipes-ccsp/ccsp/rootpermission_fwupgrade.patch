@@ -1,0 +1,51 @@
+Commit ID: 6780022f0083a7b75b7f294c03adbb51d8c1e41e
+From: Venkatesh Perumal <venkperu@qti.qualcomm.com>
+Date: Tue Apr 4 02:07:36 2023 +0530
+Subject: Fix for fwupgrade tftp failure and root perm daemon restart issue
+Signed-off-by: Venkatesh Perumal <venkperu@qti.qualcomm.com>
+
+---
+
+diff --git a/source/FwUpgradeManager/deviceinfo_apis.c b/source/FwUpgradeManager/deviceinfo_apis.c
+index 12badf5..e6542b5 100644
+--- a/source/FwUpgradeManager/deviceinfo_apis.c
++++ b/source/FwUpgradeManager/deviceinfo_apis.c
+@@ -49,6 +49,7 @@ extern token_t sysevent_token;
+ #endif
+ 
+ extern cap_user appcaps;
++extern int g_uid;
+ 
+ ANSC_STATUS FwDlDmlDIGetDLFlag(ANSC_HANDLE hContext)
+ {
+@@ -359,8 +360,12 @@ void FwDl_ThreadFunc()
+     ULONG reboot_ready_status = 0;
+ 
+     pthread_detach(pthread_self());
+-    CcspTraceInfo(("Gaining root permission to download and write the code to flash \n"));
++    g_uid = (int) geteuid();
++    CcspTraceInfo(("Gaining root permission to download and write the code to flash uid : %d \n", g_uid));
++    //if(getuid() == NULL)
++    //{
+     gain_root_privilege();
++    //}
+     // Set download led here
+ #ifdef FEATURE_RDKB_LED_MANAGER
+     sysevent_set(sysevent_fd, sysevent_token, SYSEVENT_LED_STATE, FW_DOWNLOAD_START_EVENT, 0);
+@@ -456,10 +461,12 @@ void FwDl_ThreadFunc()
+     }
+ 
+ EXIT:
+-    CcspTraceInfo(("Dropping root permission...\n"));
+-    init_capability();
+-    drop_root_caps(&appcaps);
+-    update_process_caps(&appcaps);
++    CcspTraceInfo(("Dropping root permission... real uid:%d \n", (int) geteuid()));
++    if ((int) geteuid() == 0) {
++	    init_capability();
++	    drop_root_caps(&appcaps);
++	    update_process_caps(&appcaps);
++    }
+ }
+ 
+ void FwDlAndFR_ThreadFunc()

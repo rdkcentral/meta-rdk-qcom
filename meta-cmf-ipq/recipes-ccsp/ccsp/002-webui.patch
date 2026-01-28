@@ -1,0 +1,20 @@
+Commit ID: b901d7752f4e64abeb8c3198a4086064914b55ad
+From: sreehari ramanjula <sramanju@qti.qualcomm.com>
+Date: Tue Dec 6 19:16:32 2022 +0530
+Subject: recipes-ccsp: changes to upgrade to 2022q3-dunfell branch
+Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
+
+---
+
+diff --git a/recipes-ccsp/ccsp/files/webgui_config.sh b/recipes-ccsp/ccsp/files/webgui_config.sh
+index 35c2815..dfe9963 100755
+--- a/recipes-ccsp/ccsp/files/webgui_config.sh
++++ b/recipes-ccsp/ccsp/files/webgui_config.sh
+@@ -41,6 +41,7 @@ else
+     INTERFACE="brlan0"
+     LAN_IPADDR_V6=`sysevent get lan_ipaddr_v6`
+ fi
++INTERFACE="erouter0"
+
+ if [ "$BOX_TYPE" == "HUB4" ]; then
+     echo "setenv.add-environment = (\"LANG\" => \"$LOCALE\")"

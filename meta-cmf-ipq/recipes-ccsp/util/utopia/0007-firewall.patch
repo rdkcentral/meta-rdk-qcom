@@ -1,0 +1,327 @@
+Commit ID: 143aeb0fbac6dd617a3ea94e878d061f7e7ca4ec
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Mon Mar 25 22:08:43 2024 +0530
+Subject: [recipes-ccsp] changes to migrate to 2023q4-dunfell branch
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/firewall/firewall.c b/source/firewall/firewall.c
+index e0f1b3b..1faf599 100644
+--- a/source/firewall/firewall.c
++++ b/source/firewall/firewall.c
+@@ -539,6 +539,8 @@ static int do_portscanprotectv6(FILE *fp);
+ static int do_ipflooddetectv6(FILE *fp);
+ static int lan_access_set_proto(FILE *fp,const char *port, const char *interface);
+
++static int do_add_pppoe_rule(FILE *filter_fp, FILE *nat_fp);
++
+ int prepare_rabid_rules(FILE *filter_fp, FILE *mangle_fp, ip_ver_t ver);
+ int prepare_rabid_rules_v2020Q3B(FILE *filter_fp, FILE *mangle_fp, ip_ver_t ver);
+ int prepare_rabid_rules_for_mapt(FILE *filter_fp, ip_ver_t ver);
+@@ -5627,13 +5627,13 @@ static int do_wan2self_attack(FILE *fp)
+ #elif defined(_PROPOSED_BUG_FIX_)
+    if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0))
+    {
+-   	fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type address-mask-request %s -j LOG --log-prefix \"DoS Attack - Smurf Attack\" --log-level 7\n", logRateLimit);
++      fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type address-mask-request %s -j LOG --log-prefix \"DoS Attack - Smurf Attack\" --log-level 7\n", logRateLimit);
+    }
+    else
+    {
+-   	fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type address-mask-request %s -j ULOG --ulog-prefix \"DoS Attack - Smurf Attack\" --ulog-cprange 50\n", logRateLimit);
++      fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type address-mask-request %s -j ULOG --ulog-prefix \"DoS Attack - Smurf Attack\" --ulog-cprange 50\n", logRateLimit);
+    }
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+    fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type address-mask-request %s -j LOG --log-prefix \"DoS Attack - Smurf Attack\"\n", logRateLimit);
+ #else
+    fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type address-mask-request %s -j ULOG --ulog-prefix \"DoS Attack - Smurf Attack\" --ulog-cprange 50\n", logRateLimit);
+@@ -5644,13 +5644,13 @@ static int do_wan2self_attack(FILE *fp)
+ #elif defined(_PROPOSED_BUG_FIX_)
+    if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0))
+    {
+-   	fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type timestamp-request %s -j LOG --log-prefix \"DoS Attack - Smurf Attack\" --log-level 7\n", logRateLimit);
++      fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type timestamp-request %s -j LOG --log-prefix \"DoS Attack - Smurf Attack\" --log-level 7\n", logRateLimit);
+    }
+    else
+    {
+-   	fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type timestamp-request %s -j ULOG --ulog-prefix \"DoS Attack - Smurf Attack\" --ulog-cprange 50\n", logRateLimit);
++      fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type timestamp-request %s -j ULOG --ulog-prefix \"DoS Attack - Smurf Attack\" --ulog-cprange 50\n", logRateLimit);
+    }
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+    fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type timestamp-request %s -j LOG --log-prefix \"DoS Attack - Smurf Attack\"\n", logRateLimit);
+ #else
+    fprintf(fp, "-A wanattack -p icmp -m icmp --icmp-type timestamp-request %s -j ULOG --ulog-prefix \"DoS Attack - Smurf Attack\" --ulog-cprange 50\n", logRateLimit);
+@@ -5668,9 +5668,9 @@ static int do_wan2self_attack(FILE *fp)
+    }
+    else
+    {
+-   	fprintf(fp, "-A wanattack -p icmp %s -j ULOG --ulog-prefix \"DoS Attack - ICMP Flooding\" --ulog-cprange 50\n", logRateLimit);
++      fprintf(fp, "-A wanattack -p icmp %s -j ULOG --ulog-prefix \"DoS Attack - ICMP Flooding\" --ulog-cprange 50\n", logRateLimit);
+    }
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined (_PLATFORM_TURRIS_)
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined (_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+    fprintf(fp, "-A wanattack -p icmp %s -j LOG --log-prefix \"DoS Attack - ICMP Flooding\" \n", logRateLimit);
+ #else
+    fprintf(fp, "-A wanattack -p icmp %s -j ULOG --ulog-prefix \"DoS Attack - ICMP Flooding\" --ulog-cprange 50\n", logRateLimit);
+@@ -5684,13 +5684,13 @@ static int do_wan2self_attack(FILE *fp)
+ #elif defined(_PROPOSED_BUG_FIX_)
+    if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,17,0))
+    {
+-   	fprintf(fp, "-A wanattack -p tcp --syn %s -j LOG --log-prefix \"DoS Attack - TCP SYN Flooding\" --log-level 7\n", logRateLimit);
++      fprintf(fp, "-A wanattack -p tcp --syn %s -j LOG --log-prefix \"DoS Attack - TCP SYN Flooding\" --log-level 7\n", logRateLimit);
+    }
+    else
+    {
+-   	fprintf(fp, "-A wanattack -p tcp --syn %s -j ULOG --ulog-prefix \"DoS Attack - TCP SYN Flooding\" --ulog-cprange 50\n", logRateLimit);
++      fprintf(fp, "-A wanattack -p tcp --syn %s -j ULOG --ulog-prefix \"DoS Attack - TCP SYN Flooding\" --ulog-cprange 50\n", logRateLimit);
+    }
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined (_PLATFORM_TURRIS_)
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined (_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+    fprintf(fp, "-A wanattack -p tcp --syn %s -j LOG --log-prefix \"DoS Attack - TCP SYN Flooding\" \n", logRateLimit);
+ #else
+    fprintf(fp, "-A wanattack -p tcp --syn %s -j ULOG --ulog-prefix \"DoS Attack - TCP SYN Flooding\" --ulog-cprange 50\n", logRateLimit);
+@@ -5806,7 +5806,7 @@ int do_wan2self_attack(FILE *fp,char* wan_ip)
+        {
+                fprintf(fp, "-A wanattack -s %s %s -j ULOG --ulog-prefix \"DoS Attack - LAND Attack\" --ulog-cprange 50\n", wan_ip, logRateLimit);
+        }
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined (_PLATFORM_TURRIS_)
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined (_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+    fprintf(fp, "-A wanattack -s %s %s -j LOG --log-prefix \"DoS Attack - LAND Attack\" \n", wan_ip, logRateLimit);
+ #elif defined(_COSA_BCM_ARM_) && (defined(_CBR_PRODUCT_REQ_) || defined(_XB6_PRODUCT_REQ_))
+        fprintf(fp, "-A wanattack -s %s %s -j NFLOG --nflog-group 2 --nflog-prefix \"DoS Attack - LAND Attack\" --nflog-size 50\n", wan_ip, logRateLimit);
+@@ -5725,9 +5725,9 @@ static int do_wan2self_attack(FILE *fp)
+    {
+        if (IsValidIPv4Addr(mapt_ip_address))
+        {
+-           fprintf(fp, "-A wanattack -p udp -s %s -d 224.0.0.0/8 -j RETURN\n", mapt_ip_address);
+-           fprintf(fp, "-A wanattack -s %s %s -j LOG --log-prefix \"DoS Attack - LAND Attack\" --log-level 7\n", mapt_ip_address, logRateLimit);
+-           fprintf(fp, "-A wanattack -s %s -j xlog_drop_wanattack\n", mapt_ip_address);
++          fprintf(fp, "-A wanattack -p udp -s %s -d 224.0.0.0/8 -j RETURN\n", mapt_ip_address);
++          fprintf(fp, "-A wanattack -s %s %s -j LOG --log-prefix \"DoS Attack - LAND Attack\" --log-level 7\n", mapt_ip_address, logRateLimit);
++          fprintf(fp, "-A wanattack -s %s -j xlog_drop_wanattack\n", mapt_ip_address);
+        }
+    }
+ #endif
+@@ -6046,8 +6046,8 @@ static int do_remote_access_control(FILE *nat_fp, FILE *filter_fp, int family)
+     if (family == AF_INET6)
+     {
+ #endif
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
+-	   remote_access_set_proto(filter_fp, nat_fp, "80", srcaddr, family, ecm_wan_ifname);
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
++       remote_access_set_proto(filter_fp, nat_fp, "80", srcaddr, family, ecm_wan_ifname);
+        remote_access_set_proto(filter_fp, nat_fp, "443", srcaddr, family, ecm_wan_ifname);
+ #endif
+ #if defined(_ENABLE_EPON_SUPPORT_)
+@@ -7334,15 +7334,15 @@ InternetAccessPolicyNext3:
+                }
+ #if defined (INTEL_PUMA7)
+                //Intel Proposed RDKB Generic Bug Fix from XB6 SDK
+-               snprintf(str, sizeof(str), 
++               snprintf(str, sizeof(str),
+                         "-A %s -p tcp -m tcp --dport 80 -m webstr --host \"%s\" -j %s",
+                         rules_table, url + host_name_offset, block_site);
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
+-               snprintf(str, sizeof(str), 
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
++               snprintf(str, sizeof(str),
+                         "-A %s -p tcp -m tcp --dport 80 -d \"%s\" -j %s",
+                         rules_table, url + host_name_offset, block_site);
+ #else
+-               snprintf(str, sizeof(str), 
++               snprintf(str, sizeof(str),
+                         "-A %s -p tcp -m tcp --dport 80 -m httphost --host \"%s\" -j %s",
+                         rules_table, url + host_name_offset, block_site);
+ #endif
+@@ -8948,15 +8948,15 @@ static int do_parcon_mgmt_site_keywd(FILE *fp, FILE *nat_fp, int iptype, FILE *c
+                 else
+                 {
+ #if defined (INTEL_PUMA7)
+-					//Intel Proposed RDKB Generic Bug Fix from XB6 SDK
+-					fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 80 -m webstr --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
+-					fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 443 -m webstr --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
+-                    fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 80 -d \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
+-                    fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 443 -d \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
++                   //Intel Proposed RDKB Generic Bug Fix from XB6 SDK
++                   fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 80 -m webstr --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
++                   fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 443 -m webstr --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
++                   fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 80 -d \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
++                   fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 443 -d \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
+ #else
+-					fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 80 -m httphost --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
+-                    fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 443 -m httphost --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
++                   fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 80 -m httphost --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
++                   fprintf(fp, "-A lan2wan_pc_site -p tcp -m tcp --dport 443 -m httphost --host \"%s\" -j LOG_SiteBlocked_%d_DROP\n", query + host_name_offset, idx);
+ #endif
+ #ifdef CONFIG_CISCO_PARCON_WALLED_GARDEN
+                     if(iptype == 4)
+@@ -9890,7 +9890,7 @@ static int do_lan2wan_misc(FILE *filter_
+       fprintf(filter_fp, "-A lan2wan_misc -p tcp --dport 1723 -j RETURN\n"); // VPN
+       fprintf(filter_fp, "-A lan2wan_misc -p tcp --dport 3689 -j RETURN\n"); // ITUNES
+       fprintf(filter_fp, "-A lan2wan_misc -m state --state RELATED,ESTABLISHED -j RETURN\n");
+-#if !defined(_PLATFORM_IPQ_)
++#if defined(_PLATFORM_IPQ_)
+       fprintf(filter_fp, "-A lan2wan_misc -j xlog_drop_lan2wan_misc\n");
+ #endif
+    }
+@@ -11745,7 +11745,7 @@ static int prepare_subtables(FILE *raw_fp, FILE *mangle_fp, FILE *nat_fp, FILE *
+ #if !defined(_COSA_INTEL_XB3_ARM_)
+    filterPortMap(filter_fp);
+ #endif
+-#if defined(_COSA_BCM_ARM_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if defined(_COSA_BCM_ARM_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+    fprintf(filter_fp, "-A INPUT -s 172.31.255.40/32 -p tcp -m tcp --dport 9000 -j ACCEPT\n");
+    fprintf(filter_fp, "-A INPUT -s 172.31.255.40/32 -p udp -m udp --dport 9000 -j ACCEPT\n");
+    fprintf(filter_fp, "-A INPUT -p tcp -m tcp --dport 9000 -j REJECT\n");
+@@ -11781,7 +11781,7 @@ static int prepare_subtables(FILE *raw_fp, FILE *mangle_fp, FILE *nat_fp, FILE *
+    fprintf(filter_fp, "-A INPUT -i %s -j wan2self_mgmt\n", ecm_wan_ifname);
+ #endif /*_HUB4_PRODUCT_REQ_*/
+    fprintf(filter_fp, "-A INPUT -i %s -j wan2self_mgmt\n", current_wan_ifname);
+-#if !defined(_HUB4_PRODUCT_REQ_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_HUB4_PRODUCT_REQ_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+    fprintf(filter_fp, "-A INPUT -i %s -j wan2self_mgmt\n", emta_wan_ifname);
+ #endif /*_HUB4_PRODUCT_REQ_*/
+    fprintf(filter_fp, "-A INPUT -i %s -j lan2self\n", lan_ifname);
+@@ -11861,7 +11861,7 @@ static int prepare_subtables(FILE *raw_fp, FILE *mangle_fp, FILE *nat_fp, FILE *
+ 
+       fprintf(filter_fp, "-A INPUT -i %s -j ACCEPT\n", ecm_wan_ifname);
+    }
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+    if (emta_wan_ifname[0]) // spare eMTA wan interface from Utopia firewall
+    {
+       fprintf(filter_fp, "-A INPUT -i %s -p udp --dport 80 -j DROP\n", emta_wan_ifname);
+@@ -11875,11 +11875,11 @@ static int prepare_subtables(FILE *raw_fp, FILE *mangle_fp, FILE *nat_fp, FILE *
+        do_ssh_IpAccessTable(filter_fp, "22", AF_INET, ecm_wan_ifname);
+    } else {
+        fprintf(filter_fp, "-A SSH_FILTER -j ACCEPT\n");
+-   } */   
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++   } */
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+    do_ssh_IpAccessTable(filter_fp, "22", AF_INET, ecm_wan_ifname);
+ #else
+-    fprintf(filter_fp, "-A SSH_FILTER -j ACCEPT\n");
++   fprintf(filter_fp, "-A SSH_FILTER -j ACCEPT\n");
+ #endif
+ 
+    do_snmp_IpAccessTable(filter_fp, AF_INET);
+@@ -12684,6 +12684,10 @@ static int prepare_enabled_ipv4_firewall(FILE *raw_fp, FILE *mangle_fp, FILE *na
+    do_portscanprotectv4(filter_fp);
+    do_ipflooddetectv4(filter_fp);
+ 
++#if defined(_PLATFORM_IPQ_)
++   do_add_pppoe_rule(filter_fp, nat_fp);
++#endif
++
+    prepare_rabid_rules_for_mapt(filter_fp, IP_V4);
+ 
+    fprintf(raw_fp, "%s\n", "COMMIT");
+@@ -12889,7 +12893,7 @@ static int prepare_disabled_ipv4_firewall(FILE *raw_fp, FILE *mangle_fp, FILE *n
+    filterPortMap(filter_fp);
+ #endif
+ 
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined (_PLATFORM_IPQ_)
+    do_ssh_IpAccessTable(filter_fp, "22", AF_INET, ecm_wan_ifname);
+ #else
+    fprintf(filter_fp, "-A SSH_FILTER -j ACCEPT\n");
+@@ -13921,7 +13925,7 @@ static void do_ipv6_filter_table(FILE *fp){
+       } */
+       do_ssh_IpAccessTable(fp, "22", AF_INET6, ecm_wan_ifname);
+ 
+-       do_snmp_IpAccessTable(fp, AF_INET6);
++      do_snmp_IpAccessTable(fp, AF_INET6);
+ 
+ 
+       // Development override
+@@ -14694,6 +14698,61 @@ static int do_portscanprotectv4(FILE *fp)
+     return 0;
+ }
+ 
++#if defined(_PLATFORM_IPQ_)
++static int do_add_pppoe_rule(FILE *filter_fp, FILE *nat_fp)
++{
++    int enable = 0;
++    char query[MAX_QUERY] = {0};
++    syscfg_get(NULL, "pppoe_enable", query, sizeof(query));
++    if (query[0] != '\0')
++    {
++        enable = atoi(query);
++    }
++
++    if (enable)
++    {
++        FILE *f;
++        char *context = NULL;
++        char source_addr[20];
++        char dest_addr[20];
++        char cmd_buff[100];
++
++        snprintf(cmd_buff, sizeof(cmd_buff), "ip addr show ppp0|grep -w inet|cut -d/ -f1| cut -d ' ' -f6| sed '1q;d'");
++        f = popen(cmd_buff, "r");
++        if (f == NULL)
++        {
++            printf("Failed to run command\n");
++            return 0;
++        }
++
++        fgets(source_addr, 20, f);
++        strtok_r(source_addr, "\n", &context);
++        pclose(f);
++
++        snprintf(cmd_buff, sizeof(cmd_buff), "ip addr show ppp0|grep -w peer|cut -d/ -f1| cut -d ' ' -f8|sed '1q;d'");
++        f = popen(cmd_buff, "r");
++        if (f == NULL)
++        {
++            printf("Failed to run command\n");
++            return 0;
++        }
++
++        fgets(dest_addr, 20, f);
++        strtok_r(dest_addr, "\n", &context);
++        pclose(f);
++
++        fprintf(nat_fp, "-A PREROUTING -i ppp0 -j DNAT --to-destination %s\n", dest_addr);
++        fprintf(nat_fp, "-A POSTROUTING -o ppp0 -j SNAT --to-source %s\n", source_addr);
++        fprintf(nat_fp, "-A POSTROUTING -o ppp0 -j MASQUERADE\n");
++        fprintf(filter_fp, "-A FORWARD -i brlan0 -o ppp0 -j ACCEPT\n");
++        fprintf(filter_fp, "-A FORWARD -i erouter0 -o ppp0 -j ACCEPT\n");
++
++        syscfg_set(NULL, "pppoe_enable", "0");
++    }
++    return 0;
++}
++#endif
++
+ /*
+  * Function to add IP Table rules against IPV4 Flooding
+  */
+
+diff --git a/source/firewall/firewall.c b/source/firewall/firewall.c
+index 7b92ee3..cedba10 100644
+--- a/source/firewall/firewall.c
++++ b/source/firewall/firewall.c
+@@ -6017,7 +6017,17 @@ static int remote_access_set_proto(FILE *filt_fp, FILE *nat_fp, const char *port
+         fprintf(filt_fp, "-A INPUT -i %s %s -p tcp -m tcp --dport %s -j ACCEPT\n", interface, src, port);
+       }
+     }
+-         FIREWALL_DEBUG("Exiting remote_access_set_proto\n");
++#ifdef _PLATFORM_IPQ_
++    //To allow Tr069 port for ACS
++    char tr069port[64] = {0};
++    ret = syscfg_get(NULL, "mgmt_wan_tr069port", tr069port, sizeof(tr069port));
++    if ((ret != 0) || ('\0' == tr069port[0])) {
++           strlcpy(tr069port, "7547", sizeof(tr069port));
++    }
++    fprintf(filt_fp, "-A wan2self_mgmt -i %s %s -p tcp -m tcp --dport %s -j ACCEPT \n", interface,src, tr069port);
++#endif
++
++    FIREWALL_DEBUG("Exiting remote_access_set_proto\n");
+     return 0;
+ }
+

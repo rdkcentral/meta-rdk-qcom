@@ -1,0 +1,32 @@
+Commit ID: 857a9ff3370d8a573d00892f9997cf55e88b3da0
+From: gokulraj <gokulraj@qti.qualcomm.com>
+Date: Tue Jun 18 23:35:23 2024 +0530
+Subject: [recipe-ccsp] Fix for martian console flooding
+Signed-off-by: gokulraj <gokulraj@qti.qualcomm.com>
+
+---
+
+diff --git a/scripts/oemhooks.sh b/scripts/oemhooks.sh
+index 1856a5d..ca30fdb 100755
+--- a/scripts/oemhooks.sh
++++ b/scripts/oemhooks.sh
+@@ -37,6 +37,7 @@ case $BOX_TYPE in
+     "SE501") SELFHEAL_TYPE="SYSTEMD";;
+     "SR213") SELFHEAL_TYPE="SYSTEMD";;
+     "WNXL11BWL") SELFHEAL_TYPE="SYSTEMD";;
++    "ipq") SELFHEAL_TYPE="SYSTEMD";;
+     *)
+         echo_t "RDKB_SELFHEAL : ERROR: Unknown BOX_TYPE '$BOX_TYPE', using SELFHEAL_TYPE='BASE'"
+         SELFHEAL_TYPE="BASE";;
+diff --git a/scripts/task_health_monitor.sh b/scripts/task_health_monitor.sh
+index 759b606..e349f41 100644
+--- a/scripts/task_health_monitor.sh
++++ b/scripts/task_health_monitor.sh
+@@ -70,6 +70,7 @@ case $BOX_TYPE in
+     "SE501") SELFHEAL_TYPE="SYSTEMD";;
+     "SR213") SELFHEAL_TYPE="SYSTEMD";;
+     "WNXL11BWL") SELFHEAL_TYPE="SYSTEMD";;
++    "ipq") SELFHEAL_TYPE="SYSTEMD";;
+     *)
+         echo_t "RDKB_SELFHEAL : ERROR: Unknown BOX_TYPE '$BOX_TYPE', using SELFHEAL_TYPE='BASE'"
+         SELFHEAL_TYPE="BASE";;

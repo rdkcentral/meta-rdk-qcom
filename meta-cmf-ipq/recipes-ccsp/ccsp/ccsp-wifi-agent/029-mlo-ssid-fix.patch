@@ -1,0 +1,43 @@
+Commit ID: 6ef0cf3933b87b5813ebe39c35a5a84f3dfde3fd
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Mon Aug 19 09:09:19 2024 +0530
+Subject: [recipes-ccsp] Reboot scenario handling for 11BE.
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 3a105ec..cd7062f 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -16288,6 +16288,8 @@ QTI_AdvFeature_SetParamStringValue
+     int ret = 0;
+     PCOSA_DML_WIFI_QTI_ADV_FEATURE_CFG pFeature = (PCOSA_DML_WIFI_QTI_ADV_FEATURE_CFG)hInsContext;
+     errno_t                         rc            = -1;
++    char vap_id[256] = {'\0'};
++    char ssid[256] = {'\0'};
+     // check the parameter name and return the corresponding value
+     if( AnscEqualString(ParamName, "SetConfig", TRUE) ) {
+       //collect value
+@@ -16299,10 +16301,20 @@ QTI_AdvFeature_SetParamStringValue
+ 	//return FALSE;
+       //}
+       CcspTraceInfo(("\n %s  sucessfull value : %s ", __func__, pString));
+-      ret = qca_wifi_handle_adv_configs(pString);
++      ret = qca_wifi_handle_adv_configs(pString, vap_id, ssid);
+       if(ret < 0) {
+ 	return FALSE;
+       }
++      wifi_vap_info_t *wifiVapInfo = NULL;
++      char *vap;
++      char *token = strtok_r(vap_id, ",", &vap);
++      while(token != NULL)
++      {
++	  int apIndex = atoi(token);
++	  wifiVapInfo = getVapInfo(apIndex);
++	  strlcpy(wifiVapInfo->u.bss_info.ssid, ssid, sizeof(wifiVapInfo->u.bss_info.ssid));
++	  token = strtok_r(NULL, ",", &vap);
++      }
+ 
+       if (_ansc_strstr(pString, "wds") || (_ansc_strstr(pString, "afc") && ret == 2)) {
+ 	//We could not do wifi reload from wifiagent, start will not happen.

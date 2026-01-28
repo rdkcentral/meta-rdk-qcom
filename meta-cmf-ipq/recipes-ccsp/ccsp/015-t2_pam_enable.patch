@@ -1,0 +1,67 @@
+Commit ID: a6f16eabef530b9385c52e44acdd5ef0f7e52a09
+From: rajka <rajka@qti.qualcomm.com>
+Date: Thu Jul 27 16:39:04 2023 +0530
+Subject: t2 tdk ccsp change
+Signed-off-by: rajka <rajka@qti.qualcomm.com>
+
+---
+
+--- a/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c	2023-07-27 15:04:15.570381611 +0530
++++ b/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c	2023-07-27 14:43:50.978914919 +0530
+@@ -21432,28 +21432,38 @@
+ 
+ **********************************************************************/
+ 
+-BOOL
++BOOL 
+ Telemetry_SetParamBoolValue (ANSC_HANDLE hInsContext, char* ParamName, BOOL bValue) {
+-    if (IsBoolSame(hInsContext, ParamName, bValue, Telemetry_GetParamBoolValue))
+-        return TRUE;
++	if (IsBoolSame(hInsContext, ParamName, bValue, Telemetry_GetParamBoolValue))
++		return TRUE;
+ 
+-    if (strcmp(ParamName, "Enable") == 0) {
+-        if (syscfg_set(NULL, "T2Enable", bValue ? "true" : "false") != 0) {
+-            CcspTraceError(("syscfg_set failed for Telemetry.Enable\n"));
+-        } else {
+-            if (syscfg_set_commit(NULL, "T2Version", bValue ? "2.0.1" : "1") != 0) {
+-                CcspTraceError(("syscfg_set failed\n"));
+-            } else {
+-                return TRUE;
+-            }
+-        }
+-
+-    }
+-    return FALSE;
++	if (strcmp(ParamName, "Enable") == 0) {
++		if (syscfg_set(NULL, "T2Enable", bValue ? "true" : "false") != 0) {
++			CcspTraceError(("syscfg_set failed for Telemetry.Enable\n"));
++		} else {
++			if (syscfg_set_commit(NULL, "T2Version", bValue ? "2.0.1" : "1") != 0) {
++				CcspTraceError(("syscfg_set failed\n"));
++			} else {
++				if(bValue)
++				{
++					CcspTraceError(("Telemetry2_0 had been enabled\n"));
++					system("touch /tmp/enable_t2_service");
++				}
++				else {
++					if (access("/tmp/enable_t2_service", F_OK) == 0) {
++						CcspTraceError(("Telemetry2_0 had been disabled\n"));
++						system("rm /tmp/enable_t2_service");
++						v_secure_system( "systemctl stop telemetry2_0.service" );
++					}
++				}
++				CcspTraceError(("syscfg_set failed else\n"));
++				return TRUE;
++			}
++		}
++	} 
++	return FALSE;
+ }
+ 
+-
+-
+ /**********************************************************************
+ 
+     caller:     owner of this object

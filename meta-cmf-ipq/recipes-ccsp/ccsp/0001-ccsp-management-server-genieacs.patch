@@ -1,0 +1,41 @@
+Commit ID: 143aeb0fbac6dd617a3ea94e878d061f7e7ca4ec
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Mon Mar 25 22:08:43 2024 +0530
+Subject: [recipes-ccsp] changes to migrate to 2023q4-dunfell branch
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source-embedded/DslhManagementServer/ccsp_management_server.c b/source-embedded/DslhManagementServer/ccsp_management_server.c
+index bab266a..55b7c67 100644
+--- a/source-embedded/DslhManagementServer/ccsp_management_server.c
++++ b/source-embedded/DslhManagementServer/ccsp_management_server.c
+@@ -937,6 +937,9 @@ CcspManagementServer_RegisterWanInterface()
+     if( parameterNames[0]) AnscFreeMemory(parameterNames[0]);
+     if(val_size > 0) {
+         pFirstUpstreamIpInterface = AnscCloneString(parameterval[0]->parameterValue);
++       if(!pFirstUpstreamIpInterface) {
++               strcpy_s(pFirstUpstreamIpInterface, sizeof(pFirstUpstreamIpInterface), "Device.IP.Interface.1.");
++       }
+         free_parameterValStruct_t (bus_handle, val_size, parameterval);
+     }
+     if(!pFirstUpstreamIpInterface) {
+@@ -999,6 +1002,9 @@ CcspManagementServer_RegisterWanInterface()
+     char pFirstUpstreamIpInterfaceIpv4AddrTbl[200] = {0};
+     errno_t rc = -1;
+     rc = strcpy_s(pFirstUpstreamIpInterfaceIpv4AddrTbl, sizeof(pFirstUpstreamIpInterfaceIpv4AddrTbl), pFirstUpstreamIpInterface);
++    if(strlen(pFirstUpstreamIpInterfaceIpv4AddrTbl) == 0){
++    rc = strcpy_s(pFirstUpstreamIpInterfaceIpv4AddrTbl, sizeof(pFirstUpstreamIpInterfaceIpv4AddrTbl), "Device.IP.Interface.1.");
++    }
+     ERR_CHK(rc);
+     if(strlen(pFirstUpstreamIpInterfaceIpv4AddrTbl) == 0){
+     	rc = strcpy_s(pFirstUpstreamIpInterfaceIpv4AddrTbl, sizeof(pFirstUpstreamIpInterfaceIpv4AddrTbl), "Device.IP.Interface.1.");
+@@ -2605,7 +2611,7 @@ int CcspManagementServer_StoreMGMTServerPasswordValuesintoDB( char *pString, int
+ 	}
+ 	else if ( ManagementServerConnectionRequestPasswordID == parameterID )
+ 	{
+-		v_secure_system( "echo %s > /tmp/tempMSCRPwdFile; mkdir -p /nvram/.keys; SaveConfigFile /tmp/tempMSCRPwdFile; rm -rf /tmp/tempMSCRPwdFile", 
++		v_secure_system( "echo %s > /tmp/tempMSCRPwdFile; mkdir -p /nvram/.keys; cp -p /tmp/tempMSCRPwdFile /nvram/.keys/MgmtCRPwdID; rm -rf /tmp/tempMSCRPwdFile",
+ 				 pString );
+ 		AnscTraceWarning((" TR069 %s %d : ManagementServerConnectionRequestPasswordID Changed\n", __FUNCTION__, __LINE__));
+ 		if (access(CCSP_MGMT_CRPWD_FILE,F_OK)!=0)

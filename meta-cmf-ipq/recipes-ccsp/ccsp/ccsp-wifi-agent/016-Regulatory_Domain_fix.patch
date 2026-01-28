@@ -1,0 +1,34 @@
+Commit ID: 444b72d77ec98a4dd93cd52139192e45553b7f7b
+From: Prasanna Krishnan P <prasp@qti.qualcomm.com>
+Date: Thu Sep 21 01:06:13 2023 +0530
+Subject: Issue: Unable to set Channel 12&13 for Regulatory domain "DK, KR, JP, CN"
+Signed-off-by: Prasanna Krishnan P <prasp@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index f5a742b..e93a8e9 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -27203,12 +27203,21 @@ rdk_wifi_vap_info_t *getRdkVapInfo(UINT apIndex)
+ //Returns the wifi_radio_capabilities_t, here radioIndex starts with 0 i.e., (dmlInstanceNumber-1)
+ wifi_radio_capabilities_t *getRadioCapability(UINT radioIndex)
+ {
++    int ret = 0;
+     if (radioIndex >= getNumberRadios())
+     {
+         CcspWifiTrace(("RDK_LOG_ERROR, %s Input radioIndex = %d not found, out of range\n", __FUNCTION__, radioIndex));
+         return NULL;
+     }
+ 
++    /* Get the wifi capabilities from from hal*/
++    ret = wifi_getHalCapability(&gWifiCapability);
++    if (ret != ANSC_STATUS_SUCCESS)
++    {
++	CcspWifiTrace(("RDK_LOG_ERROR, %s wifi_init returned with error %d\n", __FUNCTION__, ret));
++        return NULL;
++    }
++
+     ccspWifiDbgPrint(CCSP_WIFI_TRACE, "%s Input radioIndex = %d\n", __FUNCTION__, radioIndex);
+ 
+     return &gWifiCapability.wifi_prop.radiocap[radioIndex];

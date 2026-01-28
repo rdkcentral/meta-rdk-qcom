@@ -1,0 +1,127 @@
+Commit ID: 5645cbbe1bbdbb60e4fe3c80079b06d6f489f048
+From: sriraama <sriraama@qti.qualcomm.com>
+Date: Mon May 20 20:52:38 2024 +0530
+Subject: [recipe-ccsp] Rebasing patches for 2024q1-dunfell migration.
+Signed-off-by: sriraama <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/scripts/init/service.d/service_multinet/handle_gre.sh b/source/scripts/init/service.d/service_multinet/handle_gre.sh
+index 354fd70..eed6475 100755
+--- a/source/scripts/init/service.d/service_multinet/handle_gre.sh
++++ b/source/scripts/init/service.d/service_multinet/handle_gre.sh
+@@ -39,7 +39,6 @@
+ #------------------------------------------------------------------
+ 
+ TYPE=Gre
+-
+ GRE_IFNAME="gretap0"
+ GRE_IFNAME_DUMMY="gretap_0"
+ recover="false"
+@@ -237,11 +236,30 @@ create_tunnel () {
+         ip link add $2 type $GRETYPE remote $1 local $LOCAL_IP dev $WAN_IF $extra
+     fi
+     ifconfig $2 up
+-    if [ ! -f /tmp/.gre_flowmanager_enable ]
+-    then
+-          echo addif $2 wan > /proc/driver/flowmgr/cmd
+-	  touch /tmp/.gre_flowmanager_enable
+-    fi
++
++    INST=`psmcli getallinst dmsb.l2net. | tr -d \n | sed ' s/./& /g'`
++    for i in $INST; do
++        GRE=`psmcli get dmsb.l2net.$i.Members.Gre | grep $2`
++        if [ "$GRE" != "" ]; then
++            ENABLE=`dmcli eRT getv Device.Bridging.Bridge.$i.Enable`
++            VALUE=`echo "$ENABLE" | grep value | cut -f3 -d : | cut -f2 -d " "`
++            if [ "$VALUE" != "true" ]; then
++                continue
++            else
++                STAT=`sysevent get multinet_$i-status`
++                if [[ $STAT != "" ]] && [[ $STAT != "stopped" ]] ; then
++                    sysevent set multinet-syncMembers $i
++                    sysevent set gre_"$i"_inst "1"
++                else
++                    sysevent set multinet-up $i
++                    sysevent set gre_"$i"_inst "1"
++                fi
++            fi
++        else
++            continue
++        fi
++    done
++
+     sysevent set gre_current_endpoint $1
+     sysevent set if_${2}-status $IF_READY
+ }
+@@ -251,6 +269,16 @@ destroy_tunnel () {
+       touch "/tmp/destroy_tunnel_lock"
+    fi
+     echo "Destroying tunnel... remote"
++    INST=`psmcli getallinst dmsb.l2net. | tr -d \n | sed ' s/./& /g'`
++    for i in $INST; do
++        STAT=`sysevent get gre_"$i"_inst`
++        if [ "$STAT" != "1" ] ; then
++            continue
++        else
++            sysevent set gre_"$i"_inst
++            sysevent set multinet-syncMembers $i
++        fi
++    done
+     #kill `sysevent get dhcpsnoopd_pid`
+    if [ "$BOX_TYPE" = "XF3" ] ; then
+     echo " destroying $1"
+@@ -497,8 +497,10 @@ update_bridge_config () {
+             continue
+         fi
+
+-        br_snoop_rule="`sysevent setunique GeneralPurposeFirewallRule " -A FORWARD -o $br -p udp --dport=67:68 -j NFQUEUE --queue-bypass --queue-num $[$br]"`"
+-        sysevent set gre_${inst}_${br}_snoop_rule "$br_snoop_rule"
++       if [ "$BOX_TYPE" != "ipq"   ] ; then
++               br_snoop_rule="`sysevent setunique GeneralPurposeFirewallRule " -A FORWARD -o $br -p udp --dport=67:68 -j NFQUEUE --queue-bypass --queue-num $queue"`"
++               sysevent set gre_${inst}_${br}_snoop_rule "$br_snoop_rule"
++       fi
+
+   if [ "$BOX_TYPE" = "XF3"  ] ; then
+        sleep 5
+@@ -781,7 +813,6 @@ set_wecb_bridges() {
+     sysevent set wecb_hhs_bridges "$query"
+ }
+ 
+-
+ #service_init
+ case "$1" in
+ #  Synchronous calls from bridge
+@@ -817,8 +848,12 @@ case "$1" in
+             if [ "$BOX_TYPE" = "XF3" ] ; then
+             sleep 5
+             fi
+-            arpFWrule=`sysevent setunique GeneralPurposeFirewallRule " -I OUTPUT -o $WAN_IF -p icmp --icmp-type 3 -j NFQUEUE --queue-bypass --queue-num $ARP_NFQUEUE"`
+-            sysevent set ${inst}_arp_queue_rule "$arpFWrule" > /dev/null
++
++            if [ "$BOX_TYPE" != "ipq" ] ; then
++                arpFWrule=`sysevent setunique GeneralPurposeFirewallRule " -I OUTPUT -o $WAN_IF -p icmp --icmp-type 3 -j NFQUEUE --queue-bypass --queue-num $ARP_NFQUEUE"`
++                sysevent set ${inst}_arp_queue_rule "$arpFWrule" > /dev/null
++            fi
++
+             if [ "$BOX_TYPE" = "XF3" ] ; then
+               sleep 5
+             fi
+@@ -1032,6 +1067,9 @@ case "$1" in
+                 hotspot_down $2
+             fi
+         else
++            TUNNEL_EP=`dmcli eRT getv Device.X_COMCAST-COM_GRE.Tunnel.1.PrimaryRemoteEndpoint`
++            curr_tunnel=`echo "$TUNNEL_EP" | grep value | cut -f3 -d : | cut -f2 -d " "`
++            echo "dmcli ip : $curr_tunnel"
+             #Enabled
+             if [ xstarted = x$hotspot_started ]; then
+                 if [ x != x$curr_tunnel ]; then
+@@ -1111,7 +1149,6 @@ case "$1" in
+         ;;
+ esac
+ 
+-
+ # TODO 
+ # modify hotspot params
+ # modify hotspot bridge structure

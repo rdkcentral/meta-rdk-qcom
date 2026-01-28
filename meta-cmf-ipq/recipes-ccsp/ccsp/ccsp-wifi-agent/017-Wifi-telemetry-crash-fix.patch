@@ -1,0 +1,33 @@
+Commit ID: 1004abc7185d9422bb8486649afa872b8ee00a18
+From: rajka <rajka@qti.qualcomm.com>
+Date: Wed Sep 13 12:22:36 2023 +0530
+Subject: fix for ccsp wifi agent crash when event markers are enabled
+Signed-off-by: rajka <rajka@qti.qualcomm.com>
+
+---
+
+--- a/source/TR-181/sbapi/wifi_monitor.c	2023-09-13 11:48:00.722450790 +0530
++++ b/source/TR-181/sbapi/wifi_monitor.c	2023-09-13 12:00:01.784717646 +0530
+
+@@ -2462,6 +2497,7 @@
+             phase++;
+             return TIMER_TASK_CONTINUE;
+         } else if (phase == 2) {
++	#if !defined(_PLATFORM_IPQ_)
+                 if(phase_sta == 0){
+                     sta_map = g_monitor_module.bssid_data[apIndex].sta_map;
+                     sta = hash_map_get_first(sta_map);
+@@ -2484,11 +2520,13 @@
+                     }
+                     sta = hash_map_get_next(sta_map, sta);
+                     phase_fp = 0;
++		    
+                     if(sta != NULL){
+                         phase_sta++;
+                         return TIMER_TASK_CONTINUE;
+                     }
+                 }
++	#endif
+                 phase++;
+                 phase_sta=0;
+                 return TIMER_TASK_CONTINUE;

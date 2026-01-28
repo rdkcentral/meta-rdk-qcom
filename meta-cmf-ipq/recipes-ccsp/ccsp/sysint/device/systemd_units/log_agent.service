@@ -1,0 +1,15 @@
+[Unit]
+Description=Log_agent service
+
+After=CcspCrSsp.service dbus.service rdkbLogMonitor.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/log_agent
+ExecStop=/bin/killall log_agent
+RemainAfterExit=yes
+
+StandardOutput=syslog
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+Commit ID: d5bf6f1b4e0925aafd006c8ef7e8fac9a48f0784
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Fri Oct 27 12:36:59 2023 +0530
+Subject: [recipes-ccsp] In ACS Default channel was unable to change was fixed.
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index ae0a9f7..8e1ebce 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -4181,6 +4181,7 @@ Radio_SetParamUlongValue
+     if (strcmp(ParamName, "Channel") == 0)
+     {
+ #ifdef WIFI_HAL_VERSION_3
++        wifi_getRadioChannel(pWifiRadio->Radio.Cfg.InstanceNumber - 1, &wifiRadioOperParam->channel);
+         if (wifiRadioOperParam->channel == uValue)
+         {
+             return  TRUE;

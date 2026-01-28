@@ -1,0 +1,136 @@
+Commit ID: c7d8827a5c53cf73098e2b66363959e34d154094
+From: prasathr <prasathr@qti.qualcomm.com>
+Date: Wed Jun 21 09:55:10 2023 +0530
+Subject: AFC feature support
+Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 41e2565..4ef535d 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -16707,6 +16707,51 @@ QTI_AdvFeature_GetEntry
+        return &g_createvap_cfg; /* return the handle */
+ }
+ 
++void *CosaDmlUpdatePandmWifiReloadEvent( __attribute__((unused)) void* buff )
++{
++    CCSP_MESSAGE_BUS_INFO *bus_info               = (CCSP_MESSAGE_BUS_INFO *)bus_handle;
++    parameterValStruct_t param_val[1]       = {{ "Device.X_CISCO_COM_DeviceControl.IPQ_WiFiReload.1.Enable", "true", ccsp_boolean }};
++    char                            *pComponentName = "eRT.com.cisco.spvtg.ccsp.pam";
++    char                            *pComponentPath = "/com/cisco/spvtg/ccsp/pam";
++    char                            *faultParam               = NULL;
++    int                                  ret                      = 0;
++
++    pthread_detach(pthread_self());
++
++    /* Need to do factory reset the device here */
++    ret = CcspBaseIf_setParameterValues
++      (
++       bus_handle,
++       pComponentName,
++       pComponentPath,
++       0,
++       0x0,   /* session id and write id */
++       (void*)&param_val,
++       1,
++       TRUE,   /* Commit  */
++       &faultParam
++       );
++
++    if (( ret != CCSP_SUCCESS ) && ( faultParam )) {
++      AnscTraceWarning(("%s Failed to SetValue for param '%s'\n", __FUNCTION__, faultParam ));
++      bus_info->freefunc( faultParam );
++    }
++    else {
++      AnscTraceWarning(("%s: Device will reboot in some time\n", __FUNCTION__));
++    }
++    return NULL;
++}
++
++
++ANSC_STATUS SendWifiReloadEvent()
++{
++    pthread_t tid;
++    pthread_create(&tid, NULL, &CosaDmlUpdatePandmWifiReloadEvent, NULL);
++    AnscTraceWarning(("%s: Wifi Sent WiFi reload event to PANDM \n", __FUNCTION__));
++    return ANSC_STATUS_SUCCESS;
++}
++
++
+ /**********************************************************************
+ 
+     caller:     owner of this object
+@@ -16741,38 +16786,41 @@ QTI_AdvFeature_GetEntry
+ 
+ BOOL
+ QTI_AdvFeature_SetParamStringValue
+-    (
+-        ANSC_HANDLE                 hInsContext,
+-        char*                       ParamName,
+-        char*                       pString
+-    )
++(
++ ANSC_HANDLE                 hInsContext,
++ char*                       ParamName,
++ char*                       pString
++ )
+ {
+-	int ret =0;
+-	PCOSA_DML_WIFI_QTI_ADV_FEATURE_CFG pFeature = (PCOSA_DML_WIFI_QTI_ADV_FEATURE_CFG)hInsContext;
+-	errno_t                         rc            = -1;
+-	// check the parameter name and return the corresponding value
+-	if( AnscEqualString(ParamName, "SetConfig", TRUE))
+-	{
+-		//collect value
+-              rc = strcpy_s(pFeature->Features, sizeof(pFeature->Features), pString);
+-              ERR_CHK(rc);
+-              if(rc != EOK)
+-              {
+-                     ERR_CHK(rc);
+-                     CcspTraceInfo(("\n %s failed set",__func__));
+-                     return FALSE;
+-              }
+-              CcspTraceInfo(("\n %s  sucessfull value : %s ",__func__, pFeature->Features));
+-	      ret = qca_wifi_handle_adv_configs(pFeature->Features);
+-	      if(ret != 0)
+-	      {
+-		      return FALSE;
+-	      }
+-             return TRUE;
+-       }
++    int ret = 0;
++    PCOSA_DML_WIFI_QTI_ADV_FEATURE_CFG pFeature = (PCOSA_DML_WIFI_QTI_ADV_FEATURE_CFG)hInsContext;
++    errno_t                         rc            = -1;
++    // check the parameter name and return the corresponding value
++    if( AnscEqualString(ParamName, "SetConfig", TRUE)) {
++      //collect value
++      //rc = strcpy_s(pFeature->Features, sizeof(pFeature->Features), pString);
++      //ERR_CHK(rc);
++      //if(rc != EOK) {
++	//ERR_CHK(rc);
++	//CcspTraceInfo(("\n %s failed set", __func__));
++	//return FALSE;
++      //}
++      CcspTraceInfo(("\n %s  sucessfull value : %s ", __func__, pString));
++      ret = qca_wifi_handle_adv_configs(pString);
++      if(ret < 0) {
++	return FALSE;
++      }
+ 
+-       CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName));
+-       return FALSE;
++      if (_ansc_strstr(pString, "wds") || (_ansc_strstr(pString, "afc") && ret == 2)) {
++	//We could not do wifi reload from wifiagent, start will not happen.
++	//So notify to Pandm for wifi reload.
++	SendWifiReloadEvent();
++	return TRUE;
++      } else return TRUE;
++    }
++
++    CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName));
++    return FALSE;
+ }
+ 
+ /***********************************************************************

@@ -1,0 +1,134 @@
+Commit ID: c55205f3833e40a330ee9249089090917682018b
+From: Krishna Kumar A <krisa@qti.qualcomm.com>
+Date: Sun Mar 19 21:50:28 2023 +0530
+Subject: SAE CHANGES FOR CCSP_WIFI_AGENT
+Signed-off-by: Krishna Kumar A <krisa@qti.qualcomm.com>
+
+---
+
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c	2023-03-10 22:58:22.263128604 +0530
++++ a/source/TR-181/sbapi/cosa_wifi_apis.c	2023-03-10 22:54:30.817061877 +0530
+@@ -4197,7 +4198,34 @@
+             ERR_CHK(rc);
+             return ANSC_STATUS_FAILURE;
+         }
+-    } else
++    }
++     else if (modeEnabled == COSA_DML_WIFI_SECURITY_WPA3_Personal_Transition)
++    {
++        rc = strcpy_s(securityType,sizeof(securityType),"11i");
++        if (rc != 0) {
++            ERR_CHK(rc);
++            return ANSC_STATUS_FAILURE;
++        }
++        rc = strcpy_s(authMode,sizeof(authMode),"SAETAuthentication");
++        if (rc != 0) {
++            ERR_CHK(rc);
++            return ANSC_STATUS_FAILURE;
++        }
++    }
++    else if (modeEnabled == COSA_DML_WIFI_SECURITY_WPA3_Personal)
++    {
++        rc = strcpy_s(securityType,sizeof(securityType),"11i");
++        if (rc != 0) {
++            ERR_CHK(rc);
++            return ANSC_STATUS_FAILURE;
++        }
++        rc = strcpy_s(authMode,sizeof(authMode),"SAEAuthentication");
++        if (rc != 0) {
++            ERR_CHK(rc);
++            return ANSC_STATUS_FAILURE;
++        }
++    }
++    else
+     {
+         rc = strcpy_s(securityType,sizeof(securityType),"None");
+ 	if (rc != 0) {
+@@ -25872,7 +25968,7 @@
+     }
+ 
+     if ((wifiRadioOperParam->band == WIFI_FREQUENCY_6_BAND) && ((pWifiVapInfo->u.bss_info.security.mode != wifi_security_mode_wpa3_personal) &&
+-                (pWifiVapInfo->u.bss_info.security.mode != wifi_security_mode_wpa3_enterprise)))
++                (pWifiVapInfo->u.bss_info.security.mode != wifi_security_mode_wpa3_enterprise) && (pWifiVapInfo->u.bss_info.security.mode != wifi_security_mode_wpa3_transition)))
+     {
+         CcspWifiTrace(("RDK_LOG_ERROR, %s Input radioIndex = %d with 6G Band doesnot support non WPA3 Mode: %d\n", __FUNCTION__, pWifiVapInfo->radio_index, pWifiVapInfo->u.bss_info.security.mode));
+         return ANSC_STATUS_FAILURE;
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 0759e02..cd8fe0f 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -242,6 +243,9 @@ static int wifi_sec_type_from_name(char *name, int *type_ptr)
+   return 0;
+ }
+
++	#endif
++	#ifdef WIFI_HAL_VERSION_3
++	extern int is_hal_sae;
+ #endif
+ static ANSC_STATUS
+ GetInsNumsByWEPKey64(PCOSA_DML_WEPKEY_64BIT pWEPKey, ULONG *apIns, ULONG *wepKeyIdx)
+@@ -11747,6 +12506,7 @@ Security_GetParamStringValue
+ 	}
+ #ifdef WIFI_HAL_VERSION_3
+         char tempPassphrase[64] = {0};
++	is_hal_sae = 2;//2=wpa_passphrase, 1=sae passphrase
+ 
+         if ((wifi_getApSecurityKeyPassphrase(apIndex, tempPassphrase) == 0))
+         {
+@@ -11814,6 +12572,22 @@ Security_GetParamStringValue
+     if (strcmp(ParamName, "SAEPassphrase") == 0)
+     {
+ #ifdef WIFI_HAL_VERSION_3
++	char tempPassphrase[64] = {0};
++	is_hal_sae = 1;//sae passphrase 
++	if ((wifi_getApSecurityKeyPassphrase(apIndex, tempPassphrase) == 0))
++	{
++	snprintf((char *)pWifiApSec->Cfg.SAEPassphrase, sizeof(pWifiApSec->Cfg.SAEPassphrase), "%s", tempPassphrase);
++	if (!pWifiApSec->isSecChanged)
++	{
++	switch (vapInfo->u.bss_info.security.mode) {
++	case wifi_security_mode_wpa3_personal:
++	case wifi_security_mode_wpa3_transition:
++	default:
++	snprintf(vapInfo->u.bss_info.security.u.key.key, sizeof(vapInfo->u.bss_info.security.u.key.key), "%s", tempPassphrase);
++	break;
++	}
++	}
++	}
+         if (AnscSizeOfString(pWifiApSec->Cfg.SAEPassphrase) > 0)
+         {
+             if  ( AnscSizeOfString(pWifiApSec->Cfg.SAEPassphrase) < *pUlSize)
+@@ -11828,14 +12602,15 @@ Security_GetParamStringValue
+                 return 1;
+             }
+         }
++	pValue[0] = '\0';
++	return 0;
+ #else
+ 	    pValue[0] = '\0';
+ 	    return 0;
+ #endif
+     }
+     if (strcmp(ParamName, "RadiusSecret") == 0)
+-    {
+-        /* Radius Secret should always return empty string when read */
++    {	    /* Radius Secret should always return empty string when read */
+         pValue[0] = '\0';
+         return 0;
+     }
+@@ -12670,6 +13440,7 @@ Security_SetParamStringValue
+                     ERR_CHK(rc);
+                     return FALSE;
+                }
++		is_hal_sae = 2;
+                 pWifiApSec->isSecChanged = TRUE;
+ #else
+                if((pString == NULL) || (strlen(pString) >= sizeof(pWifiApSec->Cfg.KeyPassphrase)))
+@@ -12789,6 +13560,7 @@ Security_SetParamStringValue
+            ERR_CHK(rc);
+            return FALSE;
+         }
++	is_hal_sae = 1;
+         pWifiApSec->isSecChanged = TRUE;
+ #endif
+         return TRUE;

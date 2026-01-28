@@ -1,0 +1,94 @@
+Commit ID: d7c9e525c7d68d3d5bd07180b86badcf3408d920
+From: delango <delango@qti.qualcomm.com>
+Date: Tue Aug 20 16:27:17 2024 +0530
+Subject: [recipes-ccsp] ezmesh and wsplcd restart is handled in Background for delay in helper script
+Signed-off-by: delango <delango@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/include/cosa_x_cisco_com_devicecontrol_apis.h b/source/TR-181/include/cosa_x_cisco_com_devicecontrol_apis.h
+index 3645103..f510824 100644
+--- a/source/TR-181/include/cosa_x_cisco_com_devicecontrol_apis.h
++++ b/source/TR-181/include/cosa_x_cisco_com_devicecontrol_apis.h
+@@ -175,6 +175,18 @@ _COSA_DML_APPLYSETTING
+ }
+ COSA_DML_APPLYSETTING, *PCOSA_DML_APPLYSETTING;
+ 
++typedef struct _COSA_DML_WiFiReload
++{
++  BOOLEAN Enabled;
++  BOOLEAN MAP_Agent_reload; 
++}COSA_DML_IPQWiFiReload, *PCOSA_DML_IPQWiFiReload;
++
++typedef struct _COSA_DML_IPQ_WIFI_RELOAD
++{
++  BOOLEAN apply_Enabled;
++  BOOLEAN apply_MAP_Agent_reload;
++}COSA_DML_IPQWIFI_APPLYSETTING, *PCOSA_DML_IPQWIFI_APPLYSETTING;
++
+ typedef struct
+ _COSA_NOTIFY_WIFI
+ {
+diff --git a/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c b/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c
+index 71bff41..f5a20a9 100644
+--- a/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c
++++ b/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c
+@@ -2262,6 +2262,58 @@ IPQ_McProxy_Commit
+ 		return  ANSC_STATUS_SUCCESS;
+ 	return 0;
+ }
++
++COSA_DML_IPQWIFI_APPLYSETTING g_tmp_IPQWiFiReload;
++
++ULONG
++IPQ_WiFiReload_GetEntryCount
++(
++ ANSC_HANDLE                 hInsContext
++ )
++{
++    UNREFERENCED_PARAMETER(hInsContext);
++    return 1;
++}
++
++
++ULONG IPQ_WiFiReload_GetEntry
++(ANSC_HANDLE                 hInsContext,
++ ULONG                       nIndex,
++ ULONG*                      pInsNumber
++ )
++{
++    UNREFERENCED_PARAMETER(hInsContext);
++    PCOSA_DML_IPQWiFiReload pEntry = (PCOSA_DML_IPQWiFiReload)AnscAllocateMemory(sizeof(COSA_DML_IPQWiFiReload));
++    memset(pEntry, 0, sizeof(COSA_DML_IPQWiFiReload));
++
++    *pInsNumber = 1;
++    memcpy(&g_tmp_IPQWiFiReload, pEntry, sizeof(COSA_DML_IPQWiFiReload));
++    return pEntry;
++}
++
++
++BOOL
++IPQ_WiFiReload_SetParamBoolValue
++(ANSC_HANDLE hInsContext,
++ char* ParamName,
++ BOOL bValue
++ )
++{
++    if (strcmp(ParamName, "Enable") == 0) {
++      //Restart rdk_qca_wifi.sh script
++      system("sh /usr/bin/rdk_qca_wifi.sh restart &");
++      return TRUE;
++    }
++
++    else if (strncmp(ParamName, "MAP_Agent_reload", strlen(ParamName)) == 0) {
++      //Restart ezmesh and wsplcd service
++      system("wifi_api qca_mapAgentRestart &");
++      return TRUE;
++    }
++
++    return FALSE;
++}
++
+ ULONG
+ LanMngm_GetEntryCount
+     (

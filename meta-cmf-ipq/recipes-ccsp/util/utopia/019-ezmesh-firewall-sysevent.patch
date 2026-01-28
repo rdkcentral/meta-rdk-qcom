@@ -1,0 +1,38 @@
+Commit ID: 88541f031d1a0aa8a33932759a4aea0396509b3b
+From: rajka <rajka@qti.qualcomm.com>
+Date: Fri Oct 27 15:53:01 2023 +0530
+Subject: Captive portal Redirection Handling
+Signed-off-by: rajka <rajka@qti.qualcomm.com>
+
+---
+
+#diff --git a/source/scripts/init/c_registration/10_firewall.c b/source/scripts/init/c_registration/10_firewall.c
+#index ddd6937..0d828f9 100644
+#--- a/source/scripts/init/c_registration/10_firewall.c
+#+++ b/source/scripts/init/c_registration/10_firewall.c
+#@@ -51,6 +51,7 @@
+# const char* SERVICE_CUSTOM_EVENTS[] = {
+#                                         "firewall-restart|"SERVICE_DEFAULT_HANDLER"|"ACTION_FLAG_COLLAPSE_PENDING_QUEUE"|"TUPLE_FLAG_EVENT,
+#                                         "syslog-status|"SERVICE_DEFAULT_HANDLER,
+#+					 /*"firewall-restart|/sbin/rdk_helper.sh|NULL|"TUPLE_FLAG_EVENT,*/
+#                                         "firewall_trigger_monitor-start|/etc/utopia/service.d/service_firewall/trigger_monitor.sh|NULL|"TUPLE_FLAG_EVENT,
+#                                         "firewall_newhost_monitor-start|/etc/utopia/service.d/service_firewall/newhost_monitor.sh|"ACTION_FLAG_NOT_THREADSAFE"|"TUPLE_FLAG_EVENT,
+#                                         "syslog_rotated|/etc/utopia/service.d/service_firewall/newhost_monitor.sh|NULL|"TUPLE_FLAG_EVENT,
+diff --git a/source/firewall/firewall.c b/source/firewall/firewall.c
+index 22b567c..9975ef4 100644
+--- a/source/firewall/firewall.c
++++ b/source/firewall/firewall.c
+@@ -16319,6 +16319,13 @@ static int service_start ()
+    FIREWALL_DEBUG("started %s service\n" COMMA service_name);
+ //   pthread_mutex_unlock(&firewall_check);
+    FIREWALL_DEBUG("Exiting firewall service_start()\n");
++
++   memset(temp,0,sizeof(temp));
++   syscfg_get(NULL, "ezmesh.config.Enable", temp, sizeof(temp));
++   if (strncmp(temp, "1", 1) == 0) {
++          system("/sbin/rdk_helper.sh firewall-restart");
++   }
++
+  	return 0;
+ }
+ 

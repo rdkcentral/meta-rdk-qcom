@@ -1,0 +1,53 @@
+Commit ID: 543fa37d1c4a696d9e43db7408633c7c20f6c586
+From: prasathr <prasathr@qti.qualcomm.com>
+Date: Tue Feb 28 01:02:28 2023 +0530
+Subject: [recipes-ccsp] added retry check condtion for eth interface drop
+Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
+
+---
+
+diff --git a/source/scripts/init/service.d/service_lan.sh b/source/scripts/init/service.d/service_lan.sh
+index e0d8c45..0d5b68c 100755
+--- a/source/scripts/init/service.d/service_lan.sh
++++ b/source/scripts/init/service.d/service_lan.sh
+@@ -132,6 +132,16 @@ enslave_a_interface() {
+    brctl addif "$2" "$1"
+ }
+ 
++interface_check() {
++    for loop in $SYSCFG_lan_ethernet_physical_ifnames
++    do
++      lan_interface_check=`echo "\`ifconfig $loop \`" | awk '{print $1}'| sed -n '2p'`
++      if [ ! -n "$lan_interface_check" ]; then
++	  /etc/utopia/service.d/service_lan.sh lan-restart
++      fi
++    done
++
++}
+ #--------------------------------------------------------------
+ # Bring up the ethernet interfaces
+ #--------------------------------------------------------------
+@@ -784,6 +794,23 @@ case "$1" in
+       service_start
+       echo "service_init : setting lan-restarting to 0"
+       sysevent set lan-restarting 0
++      retry=3
++      while [ "$retry" -gt 0 ]; do
++            status=0
++            status=`sysevent get lan-restarting`
++            if [ "$status" != "1" ]; then
++                retry=$(($retry-1))
++                lan_check=`echo "\`ifconfig brlan0\`" | grep "inet addr" | cut -d ":" -f2 |cut -d " " -f1`
++                if [ ! -n "$lan_check" ]; then
++                    /etc/utopia/service.d/service_lan.sh lan-restart
++                else
++                    retry=0
++                fi
++		interface_check
++            else
++                sleep 1
++            fi
++      done
+       ;;
+    docsis-initialized)
+          # For USGv2 Only: allow LAN site access to CM Diagnostic IP 192.168.100.1

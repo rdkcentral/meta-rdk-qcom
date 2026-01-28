@@ -1,0 +1,21 @@
+Commit ID: bd6b21923038c9eaa8018a78899a60c589de560b
+From: krisa <krisa@qti.qualcomm.com>
+Date: Mon Apr 17 21:42:55 2023 +0530
+Subject: added a patch for CM variant
+Signed-off-by: krisa <krisa@qti.qualcomm.com>
+
+---
+
+diff --git a/source-arm/TR-181/board_sbapi/cosa_deviceinfo_apis.c b/source-arm/TR-181/board_sbapi/cosa_deviceinfo_apis.c
+index e721668..058e323 100755
+--- a/source-arm/TR-181/board_sbapi/cosa_deviceinfo_apis.c
++++ b/source-arm/TR-181/board_sbapi/cosa_deviceinfo_apis.c
+@@ -3968,7 +3968,7 @@ void FillPartnerIDValues(cJSON *json , char *partnerID , PCOSA_DATAMODEL_RDKB_UI
+ 					v_secure_system("sh /lib/rdk/wan_ssh.sh disable &");
+ 				}
+ 
+-#if defined(_COSA_BCM_ARM_) && !defined(_CBR_PRODUCT_REQ_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_ENABLE_DSL_SUPPORT_)
++#if defined(_COSA_BCM_ARM_) && !defined(_CBR_PRODUCT_REQ_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_ENABLE_DSL_SUPPORT_) && !defined(_PLATFORM_IPQ_)
+                                 paramObjVal = cJSON_GetObjectItem(cJSON_GetObjectItem( partnerObj, "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.CMVoiceImageSelect"), "ActiveValue");
+                                 if ( paramObjVal != NULL )
+                                 {

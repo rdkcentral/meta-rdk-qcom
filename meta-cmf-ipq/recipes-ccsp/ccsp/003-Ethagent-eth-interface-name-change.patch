@@ -1,0 +1,58 @@
+Commit ID: a2b1366cae5d6482bb6466eaac1e7116aa802d17
+From: prasathr <prasathr@qti.qualcomm.com>
+Date: Wed Jul 19 12:32:04 2023 +0530
+Subject: [recipes-ccsp] Added HK Eth Port Changes
+Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/board_sbapi/cosa_ethernet_apis.c b/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+index f1506c0..ca68dc9 100644
+--- a/source/TR-181/board_sbapi/cosa_ethernet_apis.c
++++ b/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+@@ -353,6 +353,8 @@ typedef enum WanMode
+ #define ETHWAN_DEF_INTF_NAME "eth5"
+ #elif defined (INTEL_PUMA7)
+ #define ETHWAN_DEF_INTF_NAME "nsgmii0"
++#elif defined(_PLATFORM_IPQ807x)
++#define ETHWAN_DEF_INTF_NAME "eth4"
+ #elif defined (_PLATFORM_TURRIS_)
+ #define ETHWAN_DEF_INTF_NAME "eth2"
+ #else
+diff --git a/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h b/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
+index 8469280..3eeb1db 100644
+--- a/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
++++ b/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
+@@ -41,10 +41,10 @@
+ #define COSA_ETH_INT_ID_SYSCFG_NAMESPACE COSA_ETH_INT_SYSCFG_NAMESPACE"IDs"
+ 
+ //$HL 4/24/2013
+-#define SWITCH_PORT_0_NAME "sw_1"
+-#define SWITCH_PORT_1_NAME "sw_2"
+-#define SWITCH_PORT_2_NAME "sw_3"
+-#define SWITCH_PORT_3_NAME "sw_4"
++#define SWITCH_PORT_0_NAME "eth1"
++#define SWITCH_PORT_1_NAME "eth2"
++#define SWITCH_PORT_2_NAME "eth3"
++#define SWITCH_PORT_3_NAME "eth4"
+ 
+ // Original Code Assumed Four Physical Ethernet Ports. Set to that for backwards compatibility.
+ #if !(defined (ETH_8_PORTS) || defined (ETH_6_PORTS) || defined (ETH_4_PORTS) || defined (ETH_2_PORTS) )
+@@ -55,12 +55,12 @@
+ #endif
+ 
+ #if defined (ETH_8_PORTS) || defined (ETH_6_PORTS) ||  ( defined(INTEL_PUMA7) && !defined(_ARRIS_XB6_PRODUCT_REQ_) )
+-    #define SWITCH_PORT_4_NAME "sw_5"
+-    #define SWITCH_PORT_5_NAME "sw_6"
+-    #define SWITCH_PORT_6_NAME "sw_7"
+-    #define SWITCH_PORT_7_NAME "sw_8"
++    #define SWITCH_PORT_4_NAME "eth5"
++    #define SWITCH_PORT_5_NAME "eth6"
++    #define SWITCH_PORT_6_NAME "eth7"
++    #define SWITCH_PORT_7_NAME "eth8"
+ #else
+-    #define SWITCH_PORT_MOCA_NAME "sw_5"
++    #define SWITCH_PORT_MOCA_NAME "eth5"
+ #endif
+ 
+ #define SWITCH_PORT_EWAN_NAME "ewan"

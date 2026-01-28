@@ -1,0 +1,109 @@
+Commit ID: a2b1366cae5d6482bb6466eaac1e7116aa802d17
+From: prasathr <prasathr@qti.qualcomm.com>
+Date: Wed Jul 19 12:32:04 2023 +0530
+Subject: [recipes-ccsp] Added HK Eth Port Changes
+Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
+
+---
+
+diff --git a/source/gw_prov_ethwan_sm.c b/source/gw_prov_ethwan_sm.c
+index fa43062..79ccf02 100644
+--- a/source/gw_prov_ethwan_sm.c
++++ b/source/gw_prov_ethwan_sm.c
+@@ -112,8 +112,8 @@ static uint32_t cb_registration_cnt;
+ #define ETHWAN_DEF_INTF_NAME "nsgmii0"
+ #elif defined(_PLATFORM_TURRIS_)
+ #define ETHWAN_DEF_INTF_NAME "eth2"
+-#elif defined(_CBR2_PRODUCT_REQ_)
+-#define ETHWAN_DEF_INTF_NAME "eth5"
++#elif defined(_CBR2_PRODUCT_REQ_) || defined(_PLATFORM_IPQ807x)
++#define ETHWAN_DEF_INTF_NAME "eth4"
+ #else
+ #define ETHWAN_DEF_INTF_NAME "eth0"
+ #endif
+@@ -366,7 +366,7 @@ int GWP_GetEthWanLinkStatus()
+ 	return -EINVAL;
+ }
+ #endif
+-#if !defined(FEATURE_RDKB_WAN_MANAGER)
++#if !defined(FEATURE_RDKB_WAN_MANAGER) || defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_IPQ_)
+ static int GWP_EthWanLinkDown_callback()
+ {
+ 	GWPROVETHWANLOG(" Entry %s \n", __FUNCTION__);
+@@ -454,7 +454,7 @@ static int ethGetPHYRate
+ }
+ #endif
+ #endif
+-#if !defined(FEATURE_RDKB_WAN_MANAGER)
++#if !defined(FEATURE_RDKB_WAN_MANAGER) || defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_IPQ_)
+ static int GWP_EthWanLinkUp_callback()
+ {
+ 	GWPROVETHWANLOG(" Entry %s \n", __FUNCTION__);
+@@ -609,11 +609,7 @@ static void *GWPEthWan_linkstate_threadfunc(void *data)
+ 
+         /* close */
+         pclose(fp);
+-        if(!strcmp(buff, (const char *)previousLinkStatus))
+-        {
+-            /*printf("Link status not changed\n");*/
+-        }
+-        else
++        if (strcmp(buff, (const char *)previousLinkStatus))
+         {
+             if(!strcmp(buff, "up"))
+             {
+@@ -712,11 +708,7 @@ static void *GWPEthWan_linkstate_threadfunc(void *data)
+ 
+         /* close */
+         pclose(fp);
+-        if(!strcmp(buff, (const char *)previousLinkDetected))
+-        {
+-            printf("Link status not changed\n");
+-        }
+-        else
++        if (strcmp(buff, (const char *)previousLinkDetected))
+         {
+             if(!strcmp(buff, "yes"))
+             {
+@@ -1217,26 +1209,30 @@ static void *GWPEthWan_sysevent_handler(void *data)
+             {
+ 		if(strcmp(val, "started") == 0)
+ 		{
+-                if ( ( strcmp(name, "bridge-status") ) == 0 && (!bridgeModeInBootup))
+-                {		    
+-                    GWPROVETHWANLOG("bridge-status = %s start webgui.sh \n", val );
+-                    system("/bin/sh /etc/webgui.sh &");
++                    if ((strcmp(name, "bridge-status") == 0) && (!bridgeModeInBootup))
++                    {
++                        GWPROVETHWANLOG("bridge-status = %s start webgui.sh \n", val);
++                        system("/bin/sh /etc/webgui.sh &");
++                    }
++                }
++
++                if (strcmp(name, "bridge-status") == 0)
++                {
++                    if (strcmp(val, "stopped") == 0)
++                    {
++                        system("sh /etc/utopia/service.d/service_lan.sh lan-restart");
++                    }
+                 }
+-		}
+                 bridgeModeInBootup = 0; // reset after lan/bridge status is received.
+             }
+ #endif
+             else if (strcmp(name, "lan-restart") == 0)
+             {
+-                if (strcmp(val, "1")==0)
++                if (strcmp(val, "1") == 0)
+                 {
+-                    //Need to Implement 
++                    system("sh /etc/utopia/service.d/service_lan.sh lan-restart");
+                 }
+             }
+-            else if (strcmp(name, "lan-stop") == 0)
+-            {
+-	        //Need to Implement 
+-            }
+             else if (strcmp(name, "pnm-status") == 0)
+             {
+              	if (strcmp(val, "up")==0)

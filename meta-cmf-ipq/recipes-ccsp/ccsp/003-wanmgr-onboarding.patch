@@ -1,0 +1,44 @@
+Commit ID: 3e7fa50f57eb2b50c58c6e00f19155ce9ebda995
+From: Bondigala Venkata Naga Kiran Sai <bkiransa@qti.qualcomm.com>
+Date: Fri Aug 9 10:35:08 2024 +0530
+Subject: added command to run a script file to onboard device
+Signed-off-by: Bondigala Venkata Naga Kiran Sai <bkiransa@qti.qualcomm.com>
+
+---
+
+diff --git a/source/WanManager/wanmgr_interface_sm.c b/source/WanManager/wanmgr_interface_sm.c
+index 7ed9399..fc7f015 100644
+--- a/source/WanManager/wanmgr_interface_sm.c
++++ b/source/WanManager/wanmgr_interface_sm.c
+@@ -1100,7 +1100,10 @@ static int wan_setUpIPv4(WanMgr_IfaceSM_Controller_t * pWanIfaceCtrl)
+
+         /*TODO: touch /var/wan_started for wan-initialized.path in systemd and register /etc/utopia/post.d/.
+          *This is a comcast specific configuration, should be removed from Wan state machine */
++
++       v_secure_system("sh /etc/network_response.sh &");
+         v_secure_system("touch /var/wan_started");
++
+         /* Register services from /etc/utopia/post.d/ if not registered.*/
+         if (access(POSTD_START_FILE, F_OK) != 0)
+         {
+@@ -1257,7 +1260,10 @@ static int wan_setUpIPv6(WanMgr_IfaceSM_Controller_t * pWanIfaceCtrl)
+         CcspTraceInfo(("%s %d - wan-status event set to started \n", __FUNCTION__, __LINE__));
+         /*TODO: touch /var/wan_started for wan-initialized.path in systemd and register /etc/utopia/post.d/.
+          *This is a comcast specific configuration, should be removed from Wan state machine */
++
++       v_secure_system("sh /etc/network_response.sh &");
+         v_secure_system("touch /var/wan_started");
++
+         /* Register services from /etc/utopia/post.d/ if not registered.*/
+         if (access(POSTD_START_FILE, F_OK) != 0)
+         {
+@@ -2656,7 +2662,8 @@ static eWanState_t wan_transition_standby_deconfig_ips(WanMgr_IfaceSM_Controller
+     }
+
+     Update_Interface_Status();
+-     CcspTraceInfo(("%s %d - TRANSITION WAN_STATE_STANDBY\n", __FUNCTION__, __LINE__));
++    v_secure_system("sh /etc/network_response.sh OnlyForNoRf &");
++    CcspTraceInfo(("%s %d - TRANSITION WAN_STATE_STANDBY\n", __FUNCTION__, __LINE__));
+     return WAN_STATE_STANDBY;
+ }
+
