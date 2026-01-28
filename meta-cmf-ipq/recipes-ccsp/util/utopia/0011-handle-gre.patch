@@ -1,0 +1,98 @@
+Commit ID: 5645cbbe1bbdbb60e4fe3c80079b06d6f489f048
+From: sriraama <sriraama@qti.qualcomm.com>
+Date: Mon May 20 20:52:38 2024 +0530
+Subject: [recipe-ccsp] Rebasing patches for 2024q1-dunfell migration.
+Signed-off-by: sriraama <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/scripts/init/service.d/service_multinet/handle_gre.sh b/source/scripts/init/service.d/service_multinet/handle_gre.sh
+index 7a03ca2..8b05b41 100755
+--- a/source/scripts/init/service.d/service_multinet/handle_gre.sh
++++ b/source/scripts/init/service.d/service_multinet/handle_gre.sh
+@@ -39,7 +39,6 @@
+ #------------------------------------------------------------------
+ 
+ TYPE=Gre
+-
+ GRE_IFNAME="gretap0"
+ GRE_IFNAME_DUMMY="gretap_0"
+ recover="false"
+@@ -265,11 +264,29 @@ create_tunnel () {
+         fi
+     fi
+     ifconfig $2 up
+-    if [ ! -f /tmp/.gre_flowmanager_enable ] && [ "$BOX_TYPE" != "VNTXER5" ] && [ "$BOX_TYPE" != "SCER11BEL" ]
+-    then
+-          echo addif $2 wan > /proc/driver/flowmgr/cmd
+-	  touch /tmp/.gre_flowmanager_enable
+-    fi
++    INST=`psmcli getallinst dmsb.l2net. | tr -d \n | sed ' s/./& /g'`
++    for i in $INST; do
++	GRE=`psmcli get dmsb.l2net.$i.Members.Gre | grep $2`
++	if [ "$GRE" != "" ]; then
++	    ENABLE=`dmcli eRT getv Device.Bridging.Bridge.$i.Enable`
++	    VALUE=`echo "$ENABLE" | grep value | cut -f3 -d : | cut -f2 -d " "`
++	    if [ "$VALUE" != "true" ]; then
++		continue
++	    else
++		STAT=`sysevent get multinet_$i-status`
++		if [[ $STAT != "" ]] && [[ $STAT != "stopped" ]] ; then
++		    sysevent set multinet-syncMembers $i
++		    sysevent set gre_"$i"_inst "1"
++		else
++		    sysevent set multinet-up $i
++		    sysevent set gre_"$i"_inst "1"
++		fi
++	    fi
++	else
++	    continue
++	fi
++    done
++
+     if [ "$BOX_TYPE" = "VNTXER5" ] || [ "$BOX_TYPE" = "SCER11BEL" ]; then
+ 	    INST=`psmcli getallinst dmsb.l2net. | tr -d \n | sed ' s/./& /g'`
+ 	    for i in $INST; do
+@@ -303,7 +320,7 @@ destroy_tunnel () {
+       touch "/tmp/destroy_tunnel_lock"
+    fi
+     echo "Destroying tunnel... remote"
+-    if [ "$BOX_TYPE" = "VNTXER5" ] || [ "$BOX_TYPE" = "SCER11BEL" ]; then
++    if [ "$BOX_TYPE" = "VNTXER5" ] || [ "$BOX_TYPE" = "SCER11BEL" ] || [ "$BOX_TYPE" = "ipq" ]; then
+ 	    INST=`psmcli getallinst dmsb.l2net. | tr -d \n | sed ' s/./& /g'`
+ 	    for i in $INST; do
+ 		    STAT=`sysevent get gre_"$i"_inst`
+@@ -505,7 +522,7 @@ update_bridge_config () {
+             continue
+         fi
+ 
+-    if [ "$BOX_TYPE" != "SCER11BEL" ]; then
++    if [ "$BOX_TYPE" != "SCER11BEL" ] && [ "$BOX_TYPE" != "ipq" ]; then
+         br_snoop_rule="`sysevent setunique GeneralPurposeFirewallRule " -A FORWARD -o $br -p udp --dport=67:68 -j NFQUEUE --queue-bypass --queue-num $[$br]"`"
+         sysevent set gre_${inst}_${br}_snoop_rule "$br_snoop_rule"
+     fi
+@@ -861,7 +878,6 @@ set_wecb_bridges() {
+     sysevent set wecb_hhs_bridges "$query"
+ }
+ 
+-
+ #service_init
+ case "$1" in
+ #  Synchronous calls from bridge
+@@ -902,7 +918,7 @@ case "$1" in
+             if [ "$BOX_TYPE" = "XF3" ] ; then
+             sleep 5
+             fi
+-	    if [ "$BOX_TYPE" != "SCER11BEL" ]; then
++	    if [ "$BOX_TYPE" != "SCER11BEL" ] && [ "$BOX_TYPE" != "ipq" ]; then
+ 		    arpFWrule=`sysevent setunique GeneralPurposeFirewallRule " -I OUTPUT -o $WAN_IF -p icmp --icmp-type 3 -j NFQUEUE --queue-bypass --queue-num $ARP_NFQUEUE"`
+ 		    sysevent set ${inst}_arp_queue_rule "$arpFWrule" > /dev/null
+ 	    fi
+@@ -1203,7 +1219,6 @@ case "$1" in
+         ;;
+ esac
+ 
+-
+ # TODO 
+ # modify hotspot params
+ # modify hotspot bridge structure

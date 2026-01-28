@@ -1,0 +1,36 @@
+From: kalag <kalag@qti.qualcomm.com>
+Date: Tue Nov 5 15:52:14 2024 +0530
+Subject: Split the llan0 and erouter0 removal from bridge
+Signed-off-by: kalag <kalag@qti.qualcomm.com>
+-----------------------------------
+
+Author: kalag <kalag@qti.qualcomm.com>
+Date:   Mon Nov 4 15:30:21 2024 +0530
+
+    Split the llan0 and erouter0 removal from bridge
+
+    Reason: during bootup when trying to remove the llan0
+    and erouter0 from bridge in router mode , the lack of
+    llan0 interface causes the cmd to fail and because of
+    that erouter0 is also not removed. this causes the
+    erouter0 to be in bridge.
+
+    Signed-off-by: kalag <kalag@qti.qualcomm.com>
+
+diff --git a/source/scripts/init/service.d/service_bridge_rpi.sh b/source/scripts/init/service.d/service_bridge_rpi.sh
+index 7e0e5c9..3bc0970 100644
+--- a/source/scripts/init/service.d/service_bridge_rpi.sh
++++ b/source/scripts/init/service.d/service_bridge_rpi.sh
+@@ -555,8 +555,10 @@ del_from_group()
+   cmdiag_if=`syscfg get cmdiag_ifname`
+   wan_if=`syscfg get wan_physical_ifname`
+
+-  echo "brctl delif brlan0 l$cmdiag_if $wan_if"
+-  brctl delif brlan0 l"$cmdiag_if" "$wan_if"
++  echo "brctl delif brlan0 l$cmdiag_if"
++  brctl delif brlan0 l"$cmdiag_if"
++  echo "brctl delif brlan0 $wan_if"
++  brctl delif brlan0 "$wan_if"
+ }
+
+ filter_local_traffic()

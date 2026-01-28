@@ -1,0 +1,70 @@
+Commit ID: 48f49aa1bd2cfe7c51b2c67363766fab0cc093a2
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Wed Feb 15 00:04:25 2023 +0530
+Subject: Ppe support in Ccsp Wifi Agent
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/config-atom/TR181-WiFi-USGv2.XML b/config-atom/TR181-WiFi-USGv2.XML
+index e74451b..6661075 100644
+--- a/config-atom/TR181-WiFi-USGv2.XML
++++ b/config-atom/TR181-WiFi-USGv2.XML
+@@ -1322,7 +1322,14 @@ INSTMSMT_PH2 -->
+                             <type>unsignedInt</type>
+                             <syntax>uint32</syntax>
+                             <writable>false</writable>
+-                        </parameter>
++                      </parameter>
++                        <parameter>
++                            <name>ppe_vp_mode</name>
++                            <type>string(256)</type>
++                            <syntax>string</syntax>
++                            <writable>true</writable>
++                       </parameter>
++
+                         <parameter>
+                             <name>X_COMCAST_COM_IGMPSnoopingEnable</name>
+                             <type>boolean</type>
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 4a59e40..1ae8a86 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -3911,7 +3911,22 @@ Radio_GetParamStringValue
+         }
+         return 0;
+     }
++    if (strcmp(ParamName, "ppe_vp_mode") == 0)
++    {
++	UINT wlanIndex = pWifiRadio->Radio.Cfg.InstanceNumber-1;
++	char buf[1024] = {0};
++        if(wifi_getPpeVpMode(wlanIndex,buf) == 0)
++            {
++                rc = strcpy_s(pValue, *pUlSize, buf);
++                ERR_CHK(rc);
++                CcspTraceInfo(("%s Radio %d has ppe_vp_mode - %s  \n", __FUNCTION__,radioIndex,pValue));
++            }
++        else
++            {
++                CcspTraceError(("%s:%d wifi_getPpeVpMode returning Error \n",__func__, __LINE__));
++            }
+ 
++    }
+     if (strcmp(ParamName, "PossibleChannels") == 0)
+     {
+         UINT wlanIndex = pWifiRadio->Radio.Cfg.InstanceNumber-1;
+@@ -5661,6 +5676,14 @@ Radio_SetParamStringValue
+         AnscCopyString( pWifiRadioFull->Cfg.X_RDK_DCS_Channels_Exclude, pString );
+         return TRUE;
+     }
++    if (strcmp(ParamName, "ppe_vp_mode") == 0)
++    {
++        UINT wlanIndex = pWifiRadioFull->Cfg.InstanceNumber - 1;
++
++        wifi_setPpeVpMode(wlanIndex, pString);
++        return TRUE;
++
++    }
+ 
+     /* CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName)); */
+     return FALSE;

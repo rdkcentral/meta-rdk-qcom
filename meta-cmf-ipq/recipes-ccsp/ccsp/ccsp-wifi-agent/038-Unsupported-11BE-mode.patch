@@ -1,0 +1,44 @@
+From: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+Date: Sat Mar 8 16:18:52 2025 +0530
+Subject: Restrict setting 11be mode for 2Ghz in RDP476
+Signed-off-by: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index c051b5f..1426a5c 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -98,7 +98,8 @@ extern ULONG g_currentBsUpdate;
+ # define WEPKEY_TYPE_SET 3
+ # define KEYPASSPHRASE_SET 2
+ # define MFPCONFIG_OPTIONS_SET 3
+-
++# define MAX_BUF_SIZE 256
++# define _PLATFORM_IPQ9574_AL06 "RDP476"
+ 
+ extern void* g_pDslhDmlAgent;
+ extern int gChannelSwitchingCount;
+@@ -4855,6 +4856,7 @@ Radio_SetParamStringValue
+     wifi_ieee80211Variant_t  tmpHalWifiStd = 0;
+     wifi_countrycode_type_t tmpCountryCode = 0;
+     UINT txRate = 0;
++    char platform_name[MAX_BUF_SIZE] = {0};
+ 
+     if ((instanceNumber == 0) || (instanceNumber > getNumberRadios()))
+     {
+@@ -4938,6 +4940,15 @@ Radio_SetParamStringValue
+ #ifdef WIFI_HAL_VERSION_3
+         UNREFERENCED_PARAMETER(isBeaconRateUpdate);
+ 
++        if (qca_GetModelName(platform_name) != ANSC_STATUS_SUCCESS){
++            return FALSE;
++        }
++
++        if ((strncmp(platform_name, _PLATFORM_IPQ9574_AL06, strlen(_PLATFORM_IPQ9574_AL06)) == 0) && (instanceNumber == 1) &&
++            (strncmp(pString, "be", strlen("be")) == 0)){
++            return FALSE;
++        }
++
+         if (wifiStdStrToEnum(pString, &tmpHalWifiStd) != ANSC_STATUS_SUCCESS)
+         {
+             return FALSE;

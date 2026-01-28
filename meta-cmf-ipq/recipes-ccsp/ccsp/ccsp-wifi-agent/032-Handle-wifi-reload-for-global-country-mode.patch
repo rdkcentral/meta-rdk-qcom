@@ -1,0 +1,27 @@
+From: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+Date: Fri Dec 6 12:28:42 2024 +0530
+Subject: Handle wifi reload for global mode country code
+Signed-off-by: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index 30c6151..62d3910 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -12681,6 +12681,13 @@ PCOSA_DML_WIFI_RADIO_CFG    pCfg        /* Identified by InstanceNumber */
+         radioGetCfgUpdateFromHalToDml(radioIndex, pCfg, &tmpWifiRadioOperParam);
+         ccspWifiDbgPrint(CCSP_WIFI_TRACE, " %s For Index %d Dml update done\n", __FUNCTION__, radioIndex);
+
++        if ((strcmp(pCfg->RegulatoryDomain, pStoredCfg->RegulatoryDomain) != 0) &&
++           ((strncmp(pCfg->RegulatoryDomain,"00", strlen("00")) == 0) ||
++           (strncmp(pStoredCfg->RegulatoryDomain,"00", strlen("00")) == 0))) {
++           CcspWifiTrace(("RDK_LOG_INFO, %s Calling SendWifiReloadEvent for RadioIndex %d \n", __FUNCTION__, radioIndex));
++           SendWifiReloadEvent();
++       }
++
+         getOperatingStandardString(pCfg, newStandard, sizeof(newStandard));
+         CcspWifiTrace(("RDK_LOG_DEBUG, %s For radioIndex:%d new operating standard is %s\n",
+                      __FUNCTION__, radioIndex, newStandard));
+--
+2.17.1
+

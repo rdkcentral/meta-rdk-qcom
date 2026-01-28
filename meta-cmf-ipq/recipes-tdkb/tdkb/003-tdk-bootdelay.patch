@@ -1,0 +1,28 @@
+Commit ID: 19fbabcc4c6915351605bef607af512e74851d86
+From: prasathr <prasathr@qti.qualcomm.com>
+Date: Fri Mar 3 16:01:23 2023 +0530
+Subject: [recipes-tdkb] Added delay for tdk init for wifi initialisation
+Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
+
+---
+
+diff --git a/agent/scripts/tdkb_launcher.sh b/agent/scripts/tdkb_launcher.sh
+index d4e2955..4d2f808 100644
+--- a/agent/scripts/tdkb_launcher.sh
++++ b/agent/scripts/tdkb_launcher.sh
+@@ -22,6 +22,15 @@
+ TDK_AGENT_RDM_PATH=/tmp/TDK/usr/ccsp/tdk/
+ TDK_AGENT_PATH=/usr/ccsp/tdk/
+ 
++while [ 1 ]; do
++        if [ -f "tmp/wifi_initialized" ]; then
++                sleep 10
++                break
++        else
++                sleep 5
++        fi
++done
++
+ if [ -f "$TDK_AGENT_PATH/StartTDK.sh" ]; then
+         echo "Found TDK-B Image but not RDM enabled"
+         echo "Invoking StartTDK.sh from $TDK_AGENT_PATH"

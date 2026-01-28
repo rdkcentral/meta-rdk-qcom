@@ -1,0 +1,26 @@
+Commit ID: 2fc698417b779ebfe6176ddcc4631a56bd31d6d4
+From: Kalaiselvan Ganesan <kalag@qti.qualcomm.com>
+Date: Thu Nov 16 16:49:13 2023 +0530
+Subject: This patch is to enable multicast snooping and querying in linux primary bridge during utopia. These lines are added to service_lan.sh which is part of Utopia service scripts
+Signed-off-by: Kalaiselvan Ganesan <kalag@qti.qualcomm.com>
+
+---
+
+diff --git a/source/scripts/init/service.d/service_lan.sh b/source/scripts/init/service.d/service_lan.sh
+index 4f6de16..baee9c7 100755
+--- a/source/scripts/init/service.d/service_lan.sh
++++ b/source/scripts/init/service.d/service_lan.sh
+@@ -332,6 +332,13 @@ do_start()
+    echo 1 > /proc/sys/net/ipv6/conf/"$SYSCFG_lan_ifname"/disable_ipv6
+    echo 0 > /proc/sys/net/ipv6/conf/"$SYSCFG_lan_ifname"/disable_ipv6
+ 
++   # multicast querier is used to send out IGMP queries to establish appropriate forwarding for multicast traffic.
++   echo 1 > /sys/devices/virtual/net/$SYSCFG_lan_ifname/bridge/multicast_querier
++   # multicast snooping is a feature for switches to listen to IGMP report messages to establish appropriate forwarding for multicast traffic.
++   echo 1 > /sys/devices/virtual/net/$SYSCFG_lan_ifname/bridge/multicast_snooping
++   # multicast query use ifaddr, When enabled the IP address of the outgoing interface is used as the source of the IGMP queries.
++   echo 1 > /sys/devices/virtual/net/$SYSCFG_lan_ifname/bridge/multicast_query_use_ifaddr
++
+    # For USGv2 Only: setup policy routing for packet to LAN interface (from eRouter WAN Interface IP address)
+    SUBNET=`subnet "$SYSCFG_lan_ipaddr" "$SYSCFG_lan_netmask"`
+    MASKBITS=`mask2cidr "$SYSCFG_lan_netmask"`

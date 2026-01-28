@@ -1,0 +1,25 @@
+From: kalag <kalag@qti.qualcomm.com>
+Date: Mon Oct 28 18:00:14 2024 +0530
+Subject: Alder wan port change to 10G eth5 port.
+Signed-off-by: kalag <kalag@qti.qualcomm.com>
+-----------------------------------
+
+Author: kalag <kalag@qti.qualcomm.com>
+Date:   Mon Oct 28 15:41:46 2024 +0530
+
+    Alder wan port change to 10G eth5 port
+
+diff --git a/source/TR-181/board_sbapi/cosa_ethernet_apis.c b/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+index 1ed53a1..00ca384 100644
+--- a/source/TR-181/board_sbapi/cosa_ethernet_apis.c
++++ b/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+@@ -588,6 +588,8 @@ typedef enum WanMode
+ #define ETHWAN_DEF_INTF_NAME "eth4"
+ #elif defined (_PLATFORM_TURRIS_)
+ #define ETHWAN_DEF_INTF_NAME "eth2"
++#elif defined (_PLATFORM_IPQ95xx)
++#define ETHWAN_DEF_INTF_NAME "eth5"
+ #else
+ #define ETHWAN_DEF_INTF_NAME "eth0"
+ #endif
+

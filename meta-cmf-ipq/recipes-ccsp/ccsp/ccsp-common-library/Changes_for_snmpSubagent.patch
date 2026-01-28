@@ -1,0 +1,20 @@
+Commit ID: bb92d90f3f7207be6097f8959942b73314240727
+From: Prasanna Krishnan P <prasp@qti.qualcomm.com>
+Date: Thu May 4 01:57:00 2023 +0530
+Subject: Fix for "boot_to_snmp_subagent_v2_uptime" BootTimeLog Marker
+Signed-off-by: Prasanna Krishnan P <prasp@qti.qualcomm.com>
+
+---
+
+diff --git a/systemd_units/snmpSubAgent.service b/systemd_units/snmpSubAgent.service
+index 5d2aecf..f2efa7c 100644
+--- a/systemd_units/snmpSubAgent.service
++++ b/systemd_units/snmpSubAgent.service
+@@ -31,6 +31,7 @@ Environment="MIBS=ALL"
+ WorkingDirectory=/usr/ccsp/snmp
+ #Note: Don't Uncomment Below Line: Each Device needs a conf file to attach to SNMP Master
+ #ExecStart=/usr/bin/snmp_subagent -x tcp:192.168.254.253:705
++ExecStart=/usr/bin/snmp_subagent &
+ ExecStopPost=/bin/sh -c 'echo "`date`: Stopping/Restarting snmp_v2_subagent" >> ${PROCESS_RESTART_LOG}'
+ Restart=always
+ 

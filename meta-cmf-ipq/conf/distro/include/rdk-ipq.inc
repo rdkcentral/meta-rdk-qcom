@@ -1,0 +1,31 @@
+DISTRO_FEATURES_append = " parodus"
+DISTRO_FEATURES_append = " webui_jst"
+DISTRO_FEATURES_append = " rdkb_wan_manager"
+DISTRO_FEATURES_append = " easymesh-controller"
+DISTRO_FEATURES_append = " rdkb_xdsl_ppp_manager"
+DISTRO_FEATURES_append = " telemetry"
+DISTRO_FEATURES_append = " crashupload"
+DISTRO_FEATURES_append = " ccsp-logagent"
+DISTRO_FEATURES_append = " fwupgrade_manager"
+DISTRO_FEATURES_append = " rdkb_gpon_manager"
+DISTRO_FEATURES_append = " WanManagerUnificationEnable"
+
+PREFERRED_VERSION_samba_dunfell = "${@bb.utils.contains('DISTRO_FEATURES', '', '4.10.18', '3.6.25', d)}"
+PREFERRED_VERSION_gnutls_dunfell = "${@bb.utils.contains('DISTRO_FEATURES', '', '3.6.14', '3.3.30', d)}"
+PREFERRED_VERSION_nettle_dunfell = "${@bb.utils.contains('DISTRO_FEATURES', '', '3.5.1', '2.7.1', d)}"
+PREFERRED_VERSION_gmp_dunfell = "${@bb.utils.contains('DISTRO_FEATURES', '', '6.2.0', '4.2.1', d)}"
+PREFERRED_VERSION_wireless-tools_dunfell = "${@bb.utils.contains('DISTRO_FEATURES', '', '29', '30.pre9', d)}"
+PREFERRED_VERSION_nghttp2_dunfell = "${@bb.utils.contains('DISTRO_FEATURES', '', '1.40.0', '1.31.1', d)}"
+PREFERRED_VERSION_iw_dunfell = "${@bb.utils.contains('DISTRO_FEATURES', '', '5.16', '4.7', d)}"
+
+DISTRO_FEATURES_remove = " bluetooth bluez5 "
+DISTRO_FEATURES_append = " webconfig_bin "
+
+DISTRO_FEATURES_append_broadband = " RbusBuildFlagEnable"
+DISTRO_FEATURES_append_broadband = " WanManagerUnificationEnable "
+
+#BB MASKS
+BBMASK += "libdacjwt"
+BBMASK += "libkwk-rdk"
+BBMASK += "libmntfsimg"
+BBMASK += "servicemanager"

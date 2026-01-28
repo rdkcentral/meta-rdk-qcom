@@ -1,0 +1,21 @@
+Commit ID: eaf73b9bc4a01c33c0ae39e7ba160cd84bb71c78
+From: kapale <kapale@qti.qualcomm.com>
+Date: Fri Sep 30 18:01:44 2022 +0530
+Subject: [meta-cmf-ipq] Fixing erouter ipv6 issue.
+Signed-off-by: kapale <kapale@qti.qualcomm.com>
+
+---
+
+diff --git a/prepare_dhcpv6_config.sh b/prepare_dhcpv6_config.sh
+index 94fdd27..77a9d3b 100644
+--- a/prepare_dhcpv6_config.sh
++++ b/prepare_dhcpv6_config.sh
+@@ -128,6 +128,8 @@ else
+ IPv6subPrefix=64
+ sed -i "8i { prefix ::/64 }" $DHCP_CONFIG_FILE_TMP
+ fi
++sed -i "7i  t2 2900 " $DHCP_CONFIG_FILE_TMP
++sed -i "7i  t1 1900 " $DHCP_CONFIG_FILE_TMP
+ #TCXB6-3863 add downlink-prefix-ifaces in client.conf
+ echo downlink-prefix-ifaces \"brlan0\" >> $DHCP_CONFIG_FILE_TMP
+ 

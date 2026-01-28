@@ -1,0 +1,21 @@
+Commit ID: b901d7752f4e64abeb8c3198a4086064914b55ad
+From: sreehari ramanjula <sramanju@qti.qualcomm.com>
+Date: Tue Dec 6 19:16:32 2022 +0530
+Subject: recipes-ccsp: changes to upgrade to 2022q3-dunfell branch
+Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
+
+---
+
+diff --git a/source/WanManager/wanmgr_net_utils.c b/source/WanManager/wanmgr_net_utils.c
+index 7b5d3aa..25464bc 100644
+--- a/source/WanManager/wanmgr_net_utils.c
++++ b/source/WanManager/wanmgr_net_utils.c
+@@ -1299,7 +1299,7 @@ int WanManager_GetBCastFromIpSubnetMask(const char* inIpStr, const char* inSubne
+    ip.s_addr = inet_addr(inIpStr);
+    subnetMask.s_addr = inet_addr(inSubnetMaskStr);
+    bCast.s_addr = ip.s_addr | ~subnetMask.s_addr;
+-   strncpy(outBcastStr, inet_ntoa(bCast),strlen(inet_ntoa(bCast))+1);
++   strlcpy(outBcastStr, inet_ntoa(bCast),strlen(inet_ntoa(bCast))+1);
+
+    return ret;
+ }

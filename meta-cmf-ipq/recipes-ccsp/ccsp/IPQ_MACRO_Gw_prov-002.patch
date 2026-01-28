@@ -1,0 +1,142 @@
+Commit ID: 724967c3ebd29eaafb50a21de4eb3150c20e5320
+From: rajka <rajka@qti.qualcomm.com>
+Date: Sun Aug 6 23:32:51 2023 +0530
+Subject: IPQ_MACRO handling for GWprovethwan
+Signed-off-by: rajka <rajka@qti.qualcomm.com>
+
+---
+
+diff --git a/source/autowan.c b/source/autowan.c
+index 5768b40..8df85fe 100644
+--- a/source/autowan.c
++++ b/source/autowan.c
+@@ -795,7 +795,7 @@ CosaDmlEthWanSetEnable
+         BOOL                       bEnable
+     )
+ {
+-#if ((defined (_COSA_BCM_ARM_) && !defined(_CBR_PRODUCT_REQ_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)) || defined(INTEL_PUMA7) || defined(_CBR2_PRODUCT_REQ_))
++#if ((defined (_COSA_BCM_ARM_) && !defined(_CBR_PRODUCT_REQ_) && !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_IPQ_) && !defined(_PLATFORM_TURRIS_)) || defined(INTEL_PUMA7) || defined(_CBR2_PRODUCT_REQ_))
+         //BOOL bGetStatus = FALSE;
+         //CcspHalExtSw_getEthWanEnable(&bGetStatus);
+     //if (bEnable != bGetStatus)
+diff --git a/source/gw_prov_ethwan_sm.c b/source/gw_prov_ethwan_sm.c
+index fa43062..9c06d17 100644
+--- a/source/gw_prov_ethwan_sm.c
++++ b/source/gw_prov_ethwan_sm.c
+@@ -188,7 +188,7 @@ unsigned char ethwan_ifname[ 64 ];
+ static unsigned char tftpserverStarted = FALSE;
+ #endif
+ #endif
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+ void SME_CreateEventHandler(appCallBack *pAppCallBack);
+ int
+ GwProvSetLED
+@@ -375,7 +375,7 @@ static int GWP_EthWanLinkDown_callback()
+ 	GWPROVETHWANLOG("\n GWP_EthWanLinkDown_callback \n");
+ 	GWPROVETHWANLOG("\n**************************\n\n");
+ 	GWPROVETHWANLOG(" Stopping wan service\n");
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+         #if defined (_CBR2_PRODUCT_REQ_)
+         GWPROVETHWANLOG("Stopping wan service, Setting LED to WHITE FAST BLINK\n");
+ 	GwProvSetLED(WHITE, BLINK, 5) ;
+@@ -501,7 +501,7 @@ static int GWP_EthWanLinkUp_callback()
+ 
+         printf("Starting wan service\n");
+         GWPROVETHWANLOG(" Starting wan service\n");
+-#if defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
++#if defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+ 	system("sysevent set wan-start;sysevent set sshd-restart");
+         sleep(50);
+         system("sysevent set current_ipv4_link_state up");
+@@ -658,7 +654,7 @@ static void *GWPEthWan_linkstate_threadfunc(void *data)
+ 
+     return 0;
+ }
+-#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
++#elif defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+ static void *GWPEthWan_linkstate_threadfunc(void *data)
+ {
+         char *temp;
+@@ -765,7 +757,7 @@ if(buff != NULL)
+ * 	     ENOTSUP: Registration count exceeds 32
+ * 	     EINVAL: NULL Function Pointers passed
+ */
+-#if defined(_PLATFORM_IPQ_)
++#if !defined(_PLATFORM_IPQ_)
+ int GWP_RegisterEthWan_Callback(appCallBack *pAppCallBack)
+  {
+ 	GWPROVETHWANLOG("Info: Entering into %s\n",__FUNCTION__);
+@@ -979,7 +971,7 @@ static void *GWPEthWan_sysevent_handler(void *data)
+     sysevent_setnotification(sysevent_fd, sysevent_token, "bridge-status",  &bridge_status_asyncid);
+     sysevent_set_options(sysevent_fd, sysevent_token, "bridge-status", TUPLE_FLAG_EVENT);
+ 
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+     GwProvSetLED(YELLOW, BLINK, 1);
+ #endif
+    sysevent_set(sysevent_fd, sysevent_token, "gw_prov-status", "up", 0);
+@@ -1082,7 +1074,7 @@ static void *GWPEthWan_sysevent_handler(void *data)
+                             GWPROVETHWANLOG("Connection failed, Setting LED to WHITE FAST BLINK\n");
+ 			 }
+ 			 GwProvSetLED(WHITE, BLINK, 5) ;
+-			 #elif !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++			 #elif !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+ 
+                          if ( PING_STATUS ==1 )
+ 			 {
+@@ -1140,7 +1132,7 @@ static void *GWPEthWan_sysevent_handler(void *data)
+          		GWPROVETHWANLOG("Device is not in Captive Portal, setting LED to SOLID WHITE\n");
+ 		    }
+ 
+-                    #if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++                    #if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+                       GwProvSetLED(Led_Color, Led_State, Led_Interval) ;
+                     #endif
+                 }
+@@ -1307,7 +1303,7 @@ static void *GWPEthWan_sysevent_handler(void *data)
+ 		 GWPROVETHWANLOG(" lan-status received \n");
+ 				if (strcmp(val, "started") == 0) {
+ 				    if (!webui_started) { 
+-#if defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
++#if defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+ 				       system("/bin/sh /etc/webgui.sh");
+ 				       // For other devices CcspWebUI.service launches the GUI processes
+ #elif defined(_CBR2_PRODUCT_REQ_)
+@@ -1406,7 +1402,7 @@ static int GWP_act_ProvEntry_callback()
+      * Invoking board specific configuration script to set the board related
+      * syscfg parameters.
+      */
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+     system("/usr/bin/apply_board_defaults.sh");
+ #endif
+     char command[100];
+@@ -1799,7 +1795,7 @@ static void daemonize(void)
+ 
+ static void LAN_start() {
+         GWPROVETHWANLOG("Utopia starting lan...\n");
+-#if defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_)
++#if defined(_PLATFORM_RASPBERRYPI_) || defined(_PLATFORM_TURRIS_) || defined(_PLATFORM_IPQ_)
+ 	int bridge_mode = 0;
+         bridge_mode = GWPEthWan_SysCfgGetInt("bridge_mode");
+         if(bridge_mode == 0)  // start the router mode set-up
+@@ -1922,7 +1918,7 @@ int main(int argc, char *argv[])
+ 	obj->pGWP_act_EthWanLinkDown =  (void *)GWP_EthWanLinkDown_callback;
+ 	obj->pGWP_act_EthWanLinkUP =  (void *)GWP_EthWanLinkUp_callback;
+ 	GWPROVETHWANLOG("GWP_ETHWAN Creating RegisterEthWan Handler\n");
+-#if !defined (_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined (_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined (_PLATFORM_IPQ_)  
+ 	GWP_RegisterEthWan_Callback ( obj );
+        //As per Broadcom Comments which mentioned in TCXB6-8538
+         //To get the CM console logs creation of tftpserver is required
+@@ -1975,7 +1971,7 @@ int main(int argc, char *argv[])
+ 
+             GWPROVETHWANLOG(" Creating Event Handler\n");
+ 
+-#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_)
++#if !defined(_PLATFORM_RASPBERRYPI_) && !defined(_PLATFORM_TURRIS_) && !defined(_PLATFORM_IPQ_)
+             /*appCallBack doesn't match with the one define in gw_prov_abstraction.h, pass NULL point just to start RPC tunnel. */
+             SME_CreateEventHandler(NULL);
+ #endif

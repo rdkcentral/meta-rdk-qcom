@@ -1,0 +1,21 @@
+From: sai Maddali <saimadda@qti.qualcomm.com>
+Date: Sat Jan 4 21:30:20 2025 +0530
+Subject: Correcting TransmitPower Default State Post Factory Reset
+Signed-off-by: sai Maddali <saimadda@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index f1201aa..f3b81dd 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -9831,6 +9831,10 @@ printf("%s: resetSSID[%d] = %d \n", __FUNCTION__, i-1,  resetSSID[i-1]);
+             ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(strValue);
+         } 
+     }    
++    for (i = 1; i <= MAX_NUM_RADIOS; i++) {
++            snprintf(recName, sizeof(recName), TransmitPower, i);
++            PSM_Del_Record(bus_handle,g_Subsystem,recName);
++    }
+ 
+     // Delete PSM entries for Wifi Primary SSIDs related values
+ #if 0

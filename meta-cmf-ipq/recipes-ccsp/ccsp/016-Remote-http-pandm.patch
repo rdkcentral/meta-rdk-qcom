@@ -1,0 +1,81 @@
+Commit ID: 999394b6f0bdbe5cad5bf6aaf36b7dbd2284bbd2
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Thu Aug 10 00:22:05 2023 +0530
+Subject: Remote Management http/https access fixed
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c b/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
+index 7f377a6..014beda 100755
+--- a/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
++++ b/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
+@@ -5036,3 +5036,55 @@ Cosa_Set_McProxy
+        vsystem("systemctl restart mcproxy.service");
+        return ANSC_STATUS_SUCCESS;
+ }
++
++ANSC_STATUS
++CosaDmlUISetRemotePorts()
++{
++        char buf[20];
++        int ret = 0;
++
++       /*Setting HTTP port*/
++        ret = syscfg_get(NULL, "mgmt_wan_httpaccess", buf, sizeof(buf));
++        if(ret !=0)
++        {
++            CcspTraceError(("Unable to get mgmt_wan_httpaccess from syscfg\n"));
++            return ANSC_STATUS_FAILURE;
++        }
++        if(!strcmp(buf,"1"))
++        {
++            int httpport = 8080;
++            memset(buf, 0, sizeof(buf));
++            ret = syscfg_get(NULL, "mgmt_wan_httpport_ert", buf, sizeof(buf));
++            if(ret !=0)
++            {
++                CcspTraceError(("Unable to get mgmt_wan_httpport_ert from syscfg\n"));
++                return ANSC_STATUS_FAILURE;
++            }
++            httpport = atoi(buf);
++            v_secure_system("sed -i '/SERVER/d' /etc/lighttpd/lighttpd.conf");
++            v_secure_system("echo '$SERVER[\"socket\"] == \":%d\" { server.use-ipv6 = \"enable\" }' >> /etc/lighttpd/lighttpd.conf", httpport);
++        }
++
++       /*Setting HTTPS port*/
++        memset(buf,0,sizeof(buf));
++        ret = syscfg_get(NULL, "mgmt_wan_httpsaccess", buf, sizeof(buf));
++        if(ret !=0)
++        {
++            CcspTraceError(("Unable to get mgmt_wan_httpsaccess from syscfg\n"));
++            return ANSC_STATUS_FAILURE;
++        }
++        if(!strcmp(buf,"1"))
++        {
++            int httpsport = 443;
++            memset(buf, 0, sizeof(buf));
++            ret = syscfg_get(NULL, "mgmt_wan_httpsport", buf, sizeof(buf));
++            if(ret !=0)
++            {
++                CcspTraceError(("Unable to get mgmt_wan_httpsport from syscfg\n"));
++                return ANSC_STATUS_FAILURE;
++            }
++            httpsport = atoi(buf);
++            v_secure_system("echo '$SERVER[\"socket\"] == \":%d\" { server.use-ipv6 = \"enable\" ssl.engine = \"enable\" ssl.pemfile = \"/etc/server.pem\"}' >> /etc/lighttpd/lighttpd.conf", httpsport);
++        }
++        return ANSC_STATUS_SUCCESS;
++}
+diff --git a/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c b/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c
+index 5728772..098fa44 100644
+--- a/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c
++++ b/source/TR-181/middle_layer_src/cosa_x_cisco_com_devicecontrol_dml.c
+@@ -1706,6 +1706,8 @@ X_CISCO_COM_DeviceControl_Commit
+         if (CosaDmlDcSetWebServer(pMyObject->HTTPEnable, pMyObject->HTTPSEnable,
+                 pMyObject->HTTPPort, pMyObject->HTTPSPort) != ANSC_STATUS_SUCCESS)
+             return FALSE;
++	if (ANSC_STATUS_SUCCESS != CosaDmlUISetRemotePorts())
++            return FALSE;
+     }
+ 
+     CosaDevCtrlReg_SetUserChangedParamsControl((ANSC_HANDLE)pMyObject);

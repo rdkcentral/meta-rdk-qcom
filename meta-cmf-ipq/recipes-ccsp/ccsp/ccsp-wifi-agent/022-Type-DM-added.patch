@@ -1,0 +1,74 @@
+Commit ID: 06ad2a3fc8453ee5903fd820a923687eca23395e
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Tue Nov 7 12:52:34 2023 +0530
+Subject: [recipes-ccsp] An new Device.WiFi.SSID.1.Type DM added.
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/config-atom/TR181-WiFi-USGv2.XML b/config-atom/TR181-WiFi-USGv2.XML
+index 4472f48..5ba8b41 100644
+--- a/config-atom/TR181-WiFi-USGv2.XML
++++ b/config-atom/TR181-WiFi-USGv2.XML
+@@ -1824,6 +1824,12 @@ INSTMSMT_PH2 -->
+                             <type>string(64)</type>
+                             <syntax>string</syntax>
+                         </parameter>
++                       <parameter>
++                            <name>Type</name>
++                            <type>string(64)</type>
++                            <syntax>string</syntax>
++                           <writable>true</writable>
++                        </parameter>
+                         <parameter>
+                             <name>LastChange</name>
+                             <type>unsignedInt</type>
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index b00249c..2876fe2 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -6629,6 +6629,24 @@ SSID_GetParamStringValue
+         return 0;
+     }
+
++    if (strcmp(ParamName, "Type") == 0)
++    {
++           /* collect value */
++           char rec[128];
++           char *sval = NULL;
++           snprintf(rec, sizeof(rec), "eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.SSID.%d.Type", pWifiSsid->SSID.Cfg.InstanceNumber);
++           if (PSM_Get_Record_Value2(bus_handle, g_Subsystem, rec, NULL, &sval) != CCSP_SUCCESS)
++           {
++                   CcspWifiTrace(("RDK_LOG_ERROR, %s: fail to get PSM record !\n", __FUNCTION__));
++                   return 1;
++           }
++           rc = strcpy_s(pValue, *pUlSize, (char*)sval);
++           ERR_CHK(rc);
++           ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(sval);
++
++           return 0;
++    }
++
+     if (strcmp(ParamName, "LowerLayers") == 0)
+     {
+         /* collect value */
+@@ -7117,6 +7135,19 @@ SSID_SetParamStringValue
+         return TRUE;
+     }
+
++    if (strcmp(ParamName, "Type") == 0)
++    {
++           char rec[128];
++
++           snprintf(rec, sizeof(rec), "eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.SSID.%d.Type", pWifiSsid->SSID.Cfg.InstanceNumber);
++           if (PSM_Set_Record_Value2(bus_handle, g_Subsystem, rec, ccsp_string, pString) != CCSP_SUCCESS)
++           {
++                   CcspWifiTrace(("RDK_LOG_ERROR, %s: fail to set PSM record !\n", __FUNCTION__));
++                   return FALSE;
++           }
++           return TRUE;
++    }
++
+     if (strcmp(ParamName, "LowerLayers") == 0)
+     {
+         /* save update to backup */

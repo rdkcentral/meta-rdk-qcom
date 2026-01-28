@@ -1,0 +1,227 @@
+Commit ID: 6780022f0083a7b75b7f294c03adbb51d8c1e41e
+From: Venkatesh Perumal <venkperu@qti.qualcomm.com>
+Date: Tue Apr 4 02:07:36 2023 +0530
+Subject: Fix for fwupgrade tftp failure and root perm daemon restart issue
+Signed-off-by: Venkatesh Perumal <venkperu@qti.qualcomm.com>
+
+---
+
+diff --git a/fwupgrade_hal.c b/fwupgrade_hal.c
+index 160325a..0347854 100644
+--- a/fwupgrade_hal.c
++++ b/fwupgrade_hal.c
+@@ -50,6 +50,7 @@
+ #define REBOOT_REASON_SW_UPGRADE    "Software_upgrade"
+ 
+ static int gDwdInProgressFlag = 0; /* flag to set dload inprogress */
++static int gDwdtftpflag = 0;
+ 
+ static INT fwupgrade_hal_util_get_syscmd_output( char *pCmd, char *pOutput, int iOutputSize );
+ 
+@@ -101,8 +102,8 @@ static INT download_image_from_server(char *httpUrl, char* fileName)
+ 
+ 	// TBD need to append entire args from input except the local download location
+ 	snprintf(cmd, sizeof(cmd),
+-			"rm -rf /tmp/xconf /firmware;  mkdir -p /tmp/xconf /firmware/imagedwld; \
+-			curl -fgLo /firmware/imagedwld/%s %s; \
++			"rm -rf /tmp/xconf /firmware;  mkdir -p /tmp/xconf; \
++			curl -fgLo /tmp/%s %s; \
+ 			echo $? > /tmp/xconf/dload_status",
+ 			fileName,httpUrl);
+ 	system(cmd);
+@@ -131,6 +132,66 @@ static INT download_image_from_server(char *httpUrl, char* fileName)
+ 	return RETURN_OK;
+ }
+ 
++static int _syscmd(char *cmd, char *retBuf, int retBufSize)
++{
++    FILE *f;
++    char *ptr = retBuf;
++    int bufSize=retBufSize, bufbytes=0, readbytes=0, cmd_ret=0;
++
++    if((f = popen(cmd, "r")) == NULL)
++    {
++        fprintf(stderr,"\npopen %s error\n", cmd);
++        return RETURN_ERR;
++    }
++    while(!feof(f))
++    {
++        *ptr = 0;
++        if(bufSize>=128)
++        {
++            bufbytes=128;
++        }
++        else
++        {
++            bufbytes=bufSize-1;
++        }
++        fgets(ptr,bufbytes,f);
++        readbytes=strlen(ptr);
++        if(!readbytes)
++        {
++            break;
++        }
++        bufSize-=readbytes;
++        ptr += readbytes;
++    }
++
++    cmd_ret = pclose(f);
++    retBuf[retBufSize-1]=0;
++    return cmd_ret >> 8;
++}
++
++
++
++static INT download_image_from_tftp(char *ipaddr, char* fileName)
++{
++        char cmd[256] = {0};
++        char buf[256] = {0};
++        char res[16] = {0};
++        FILE* fp = NULL;
++        int ret = 0;
++        gDwdtftpflag = 0; chdir("/tmp");
++        snprintf(cmd, sizeof(cmd), "tftp -g -r %s %s", fileName, ipaddr);
++        ret = _syscmd(cmd, buf, sizeof(buf));
++        if ((ret != 0) || !strcmp(buf, "timeout"))
++        {
++                gDwdtftpflag == 2;
++                return RETURN_ERR;
++        }
++        gDwdtftpflag = 1;
++        fprintf(stderr,"### Debug ### Image download successful%s \n", fileName);
++
++        return RETURN_OK; 
++}
++
+ /* FW Download HAL API Prototype */
+ /* fwupgrade_hal_set_download_url  - 1 */
+ /* Description: Set Download Settings
+@@ -303,16 +364,26 @@ INT fwupgrade_hal_download ()
+     unsigned char ipAddrInt[4] = {0};
+     char cmd[512] = {0};
+ 
+-    if( fwupgrade_hal_get_download_url(dlHttpUrl, dlFilename) != RETURN_OK)
++         if( fwupgrade_hal_get_download_url(dlHttpUrl, dlFilename) != RETURN_OK)
+     {
+-        return RETURN_ERR;
++            return RETURN_ERR;
+     }
+-
++	 
+     if( strstr(dlHttpUrl, "http://") == NULL && strstr(dlHttpUrl, "https://") == NULL && strstr(dlHttpUrl, "www.") == NULL )
+     {
+-        return 400;
++        char *saveptr; char * token = strtok_r(dlHttpUrl, " ' ",&saveptr);
++        char* pos = strstr(token,"/"); //IP: the original string
++        char newIP[50];
++        if(pos != NULL)
++        {
++        memcpy(newIP,token,pos-token); newIP[pos-token] = 0;
++        }
++        if(RETURN_OK != download_image_from_tftp(newIP, dlFilename))
++        {
++        return RETURN_ERR;
++        }
++        return RETURN_OK;
+     }
+-
+     if((pstr = strstr(dlHttpUrl, "http://")))
+     {
+         pstr += strlen("http://");
+@@ -383,7 +454,6 @@ INT fwupgrade_hal_download ()
+         return RETURN_ERR;
+     }
+     //flash the image to the device
+-    system("/lib/rdk/rpi_image_Flasher.sh");
+     return RETURN_OK;
+ }
+ 
+@@ -425,7 +495,16 @@ INT fwupgrade_hal_get_download_status()
+ 		}
+ 		return 200;
+ 	}
+-	if ( gDwdInProgressFlag == 1 )
++	if( gDwdtftpflag == 1)
++        {
++
++        return 200;
++        }
++        else if(gDwdtftpflag == 2)
++        {
++        return 500;
++        }
++	if (gDwdInProgressFlag == 1 )
+ 	{
+ 		return 100;
+ 	}
+@@ -467,8 +546,14 @@ INT fwupgrade_hal_download_reboot_now()
+ 	fprintf(stderr,"Entering %s\n", __func__);
+ 	int rebootCount=1,
+ 	    IsNeeds2Configure = 1;
+-	char cmd[128]={0},
+-	     acOutput[64] = { 0 };
++	char cmd[128]={0}, acOutput[64] = { 0 };
++	char filename[256] = {0};
++        char dlHttpUrl[256] = {0};
++
++        if( fwupgrade_hal_get_download_url(dlHttpUrl, filename) != RETURN_OK)
++        {
++        return RETURN_ERR;
++        }
+ 
+ 	system("touch /nvram/reboot_due_to_sw_upgrade");
+ 
+@@ -491,10 +576,10 @@ INT fwupgrade_hal_download_reboot_now()
+ 	}
+ 
+         fprintf(stderr,"### reboot now ###\n");
+-	system("/rdklogger/backupLogs.sh true");
+-
+ 	// reboot the device
+-	system("reboot");
++	memset(cmd,0,sizeof(cmd));
++	chdir("/tmp"); snprintf(cmd, sizeof(cmd), "sysupgrade -v %s", filename);
++        system(cmd);
+ 	return RETURN_OK;
+ }
+ 
+diff --git a/fwupgrade_hal.c b/fwupgrade_hal.c
+index 160325a..0347854 100644
+--- a/fwupgrade_hal.c
++++ b/fwupgrade_hal.c
+@@ -51,6 +51,7 @@
+ 
+ static int gDwdInProgressFlag = 0; /* flag to set dload inprogress */
+ static int gDwdtftpflag = 0;
++int g_uid;
+ 
+ static INT fwupgrade_hal_util_get_syscmd_output( char *pCmd, char *pOutput, int iOutputSize );
+ 
+@@ -178,12 +179,27 @@
+         char res[16] = {0};
+         FILE* fp = NULL;
+         int ret = 0;
++	int retry = 0;
++
++retry: 
++	fprintf(stderr,"### Debug ### Image download successful %s \n", fileName);
+         gDwdtftpflag = 0; chdir("/tmp");
+         snprintf(cmd, sizeof(cmd), "tftp -g -r %s %s", fileName, ipaddr);
+         ret = _syscmd(cmd, buf, sizeof(buf));
+         if ((ret != 0) || !strcmp(buf, "timeout"))
+         {
++		while (retry < 15) {
++			fprintf(stderr,"### Debug ### tftp image retrying... #%d times\n", retry);
++			retry++;
++			goto retry;
++		}
+                 gDwdtftpflag == 2;
++		if (seteuid(g_uid) != 0) {
++			fprintf(stderr,"### Debug ### tftp seteuid %d failed \n", (int) g_uid);
++		} else {
++			fprintf(stderr,"### Debug ### tftp get uid after set :%d \n", (int ) geteuid());
++		}
++		fprintf(stderr,"### Debug ### tftp image tried #%d, return err \n", retry);
+                 return RETURN_ERR;
+         }
+         gDwdtftpflag = 1;

@@ -1,0 +1,41 @@
+Commit ID: 143aeb0fbac6dd617a3ea94e878d061f7e7ca4ec
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Mon Mar 25 22:08:43 2024 +0530
+Subject: [recipes-ccsp] changes to migrate to 2023q4-dunfell branch
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c b/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+index 843fb49..d4b4053 100644
+--- a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
++++ b/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+@@ -269,6 +269,7 @@ PppMgr_StartPppClient (UINT InstanceNumber)
+     char VLANInterfaceName[32] = { 0 };
+     char command[1024] = { 0 };
+     char config_command[1024] = { 0 };
++    char syscfg_command[1024] = { 0 };
+     char acTmpQueryParam[256] = {0};
+     int WanIfaceInstance  = -1;
+     int WanVirtIfaceInstance  = -1;
+@@ -364,6 +365,12 @@ PppMgr_StartPppClient (UINT InstanceNumber)
+                     system(config_command);
+                 }
+ 
++		 ret = snprintf(syscfg_command, sizeof(config_command), "syscfg set pppoe_enable 1");
++		 if(ret > 0 && ret <= sizeof(config_command))
++                {
++                    system(syscfg_command);
++                }
++
+                 /* start rp-pppoe */
+                 ret = snprintf(command, sizeof(command), "/usr/sbin/pppoe-start");
+                 if(ret > 0 && ret <= sizeof(command))
+@@ -732,6 +739,7 @@ ANSC_STATUS PppMgr_stopPppProcess(pid_t pid)
+ 
+ ANSC_STATUS PppMgr_stopPppoe(void)
+ {
++    system("syscfg set pppoe_enable 0");
+     system("/usr/sbin/pppoe-stop");
+ 
+     return ANSC_STATUS_SUCCESS;

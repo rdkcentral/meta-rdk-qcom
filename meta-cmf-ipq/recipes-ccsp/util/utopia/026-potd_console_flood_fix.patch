@@ -1,0 +1,30 @@
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Wed Jan 22 12:27:34 2025 +0530
+Subject: [recipes-ccsp] Added support needed to add/modify firewall rules on runtime via omci scripts handled via firewall_log_handle.sh.
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/scripts/init/service.d/service_potd.sh b/source/scripts/init/service.d/service_potd.sh
+index e174813..b36b642 100755
+--- a/source/scripts/init/service.d/service_potd.sh
++++ b/source/scripts/init/service.d/service_potd.sh
+@@ -44,7 +44,9 @@ source /etc/device.properties
+ SERVICE_NAME="potd"
+ SELF_NAME="`basename "$0"`"
+
+-POTD=/usr/sbin/sa_potd
++# removing this line, replacing with necessary binary available in qrdk build
++#POTD=/usr/sbin/sa_potd
++POTD=/usr/bin/26_potd
+
+ service_start() {
+     ulog ${SERVICE_NAME} status "starting ${SERVICE_NAME} service"
+@@ -59,7 +61,8 @@ service_start() {
+        fi
+ #done
+     if [ "$BOX_TYPE" != "HUB4" ]; then
+-        killall sa_potd
++       # suppress the console output
++        killall 26_potd > /dev/null 2>&1
+         $POTD &
+     fi

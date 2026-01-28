@@ -1,0 +1,37 @@
+Commit ID: fe33b16f2a854441eff6aac1066baf71770ebe6d
+From: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+Date: Wed May 10 15:47:31 2023 +0530
+Subject: [recipes-ccsp]RegulatoryDomain_fix
+Signed-off-by: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+
+---
+
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index 530a737..cdf0ffc 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -2204,7 +2204,7 @@ struct wifiCountryEnumStrMap wifiCountryMap[] =
+     {wifi_countrycode_JM,"JM"}, /**< JAMAICA */
+     {wifi_countrycode_JP,"JP"}, /**< JAPAN */
+     {wifi_countrycode_JE,"JE"}, /**< JERSEY */
+-    {wifi_countrycode_JO,"jo"}, /**< JORDAN */
++    {wifi_countrycode_JO,"JO"}, /**< JORDAN */
+     {wifi_countrycode_KE,"KE"}, /**< KENYA */
+     {wifi_countrycode_KG,"KG"}, /**< KYRGYZSTAN */
+     {wifi_countrycode_KH,"KH"}, /**< CAMBODIA */
+@@ -2338,7 +2338,14 @@ struct wifiCountryEnumStrMap wifiCountryMap[] =
+     {wifi_countrycode_YU,"YU"}, /**< YUGOSLAVIA */
+     {wifi_countrycode_ZA,"ZA"}, /**< SOUTH AFRICA */
+     {wifi_countrycode_ZM,"ZM"}, /**< ZAMBIA */
+-    {wifi_countrycode_ZW,"ZW"} /**< ZIMBABWE */
++    {wifi_countrycode_ZW,"ZW"}, /**< ZIMBABWE */
++    {wifi_countrycode_AX,"AX"}, /**< ALAND_ISLANDS */
++    {wifi_countrycode_BL,"BL"}, /**< SAINT_BARTHELEMY */
++    {wifi_countrycode_CW,"CW"}, /**< CURACAO */
++    {wifi_countrycode_MF,"MF"}, /**< SAINT_MARTIN */
++    {wifi_countrycode_SX,"SX"}, /**< SINT_MAARTEN */
++    {wifi_countrycode_BQ,"BQ"}, /**< BONAIRE_SINT_EUSTATIUS_AND_SABA */
++    {wifi_countrycode_00,"00"} /**< GLOBAL_CC */
+ };
+
+ struct wifiWPSCosaHalMap wifiWPSMap[] =

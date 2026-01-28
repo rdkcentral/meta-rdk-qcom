@@ -1,0 +1,18 @@
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Thu Dec 5 18:58:57 2024 +0530
+Subject: [recipes-ccsp] 6G Applysettings takes mo time to complete and wifi-agent is failing in Miami Pebble.
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/systemd_units/ccspwifiagent.service b/systemd_units/ccspwifiagent.service
+index 4053ed2..b0ddaaa 100644
+--- a/systemd_units/ccspwifiagent.service
++++ b/systemd_units/ccspwifiagent.service
+@@ -30,6 +30,7 @@ EnvironmentFile=/etc/device.properties
+ ExecStart=/usr/bin/CcspWifiSsp -subsys $Subsys
+ ExecStopPost=/bin/sh -c 'echo "`date`: Stopping/Restarting CcspWifiSsp" >> ${PROCESS_RESTART_LOG}'
+ Restart=always
++TimeoutStartSec=180
+ 
+ [Install]
+ WantedBy=multi-user.target

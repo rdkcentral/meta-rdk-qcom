@@ -1,0 +1,151 @@
+Commit ID: 552e979834be9d3ea31880fe72f002cc757deacd
+From: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
+Date: Thu Mar 2 22:53:33 2023 +0530
+Subject: Data Model support to WiFi Component
+Signed-off-by: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
+
+---
+
+diff --git a/config-atom/TR181-WiFi-USGv2.XML b/config-atom/TR181-WiFi-USGv2.XML
+index e74451b..8419edc 100644
+--- a/config-atom/TR181-WiFi-USGv2.XML
++++ b/config-atom/TR181-WiFi-USGv2.XML
+@@ -1009,8 +1009,26 @@ INSTMSMT_PH2 -->
+                             <type>string(1024)</type>
+                             <syntax>string</syntax>
+                             <notify>off</notify>
+-                        </parameter>
+-                        <parameter>
++                   </parameter>
++                   <parameter>
++                           <name>TxChainmask</name>
++                           <type>int</type>
++                           <syntax>int</syntax>
++                           <writable>true</writable>
++                   </parameter>
++                   <parameter>
++                           <name>RxChainmask</name>
++                           <type>int</type>
++                           <syntax>int</syntax>
++                           <writable>true</writable>
++                   </parameter>
++                   <parameter>
++                           <name>BeaconRate</name>
++                           <type>string</type>
++                           <syntax>string</syntax>
++                           <writable>true</writable>
++                   </parameter>
++                   <parameter>
+                             <name>X_CISCO_COM_ApChannelScan</name>
+                             <type>string(16384)</type>
+                             <syntax>string</syntax>
+@@ -2056,8 +2119,15 @@ INSTMSMT_PH2 -->
+                             <type>string(256)</type>
+                             <syntax>string</syntax>
+                             <writable>true</writable>
++                   </parameter>
++                   <parameter>
++                            <name>Kickmac</name>
++                            <type>string(256)</type>
++                            <syntax>string</syntax>
++                            <writable>true</writable>
+                         </parameter>
+-                        <parameter>
++
++                       <parameter>
+                             <name>SSIDAdvertisementEnabled</name>
+                             <type>boolean</type>
+                             <syntax>bool</syntax>
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 0759e02..d29dd07 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -3212,6 +3223,21 @@ Radio_GetParamIntValue
+         return TRUE;
+     }
+ 
++    if (strcmp(ParamName, "TxChainmask") == 0)
++    {
++
++	    ULONG instanceNumber = pWifiRadioFull->Cfg.InstanceNumber;
++	    wifi_getRadioTxChainMask(instanceNumber-1,pInt);
++	    return TRUE;
++    }
++    if (strcmp(ParamName, "RxChainmask") == 0)
++    {
++	    ULONG instanceNumber = pWifiRadioFull->Cfg.InstanceNumber;
++	    wifi_getRadioRxChainMask(instanceNumber-1,pInt);
++	    return TRUE;
++    }
++
++
+     if (strcmp(ParamName, "X_CISCO_COM_MbssUserControl") == 0)
+     {
+         *pInt = pWifiRadioFull->Cfg.MbssUserControl; 
+@@ -4202,6 +4243,14 @@ Radio_GetParamStringValue
+         return 0;
+     }
+ 
++
++    if(AnscEqualString(ParamName, "BeaconRate", TRUE))
++    {
++	    ULONG apIndex = pWifiRadioFull->Cfg.InstanceNumber;
++	    wifi_getApBeaconRate(apIndex-1, pValue);
++	    return TRUE;
++    }
++
+     /* CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName)); */
+     return -1;
+ }
+@@ -4689,6 +4738,20 @@ Radio_SetParamIntValue
+         return TRUE;
+     }
+ 
++    if (strcmp(ParamName, "TxChainmask") == 0)
++    {
++	    ULONG instanceNumber = pWifiRadioFull->Cfg.InstanceNumber;
++	    wifi_setRadioTxChainMask(instanceNumber-1, iValue);
++	    return TRUE;
++
++    }
++    if (strcmp(ParamName, "RxChainmask") == 0)
++    {
++	    ULONG instanceNumber = pWifiRadioFull->Cfg.InstanceNumber;
++	    wifi_setRadioRxChainMask(instanceNumber-1, iValue);
++	    return TRUE;
++    }
++
+     if (strcmp(ParamName, "X_CISCO_COM_MbssUserControl") == 0)
+     {
+         if ( pWifiRadioFull->Cfg.MbssUserControl == iValue )
+@@ -5578,6 +5641,13 @@ Radio_SetParamStringValue
+         return TRUE;
+     }
+ 
++   if (strcmp(ParamName, "BeaconRate") == 0)
++    {
++           ULONG instanceNumber = pWifiRadioFull->Cfg.InstanceNumber;
++           wifi_setApBeaconRate(instanceNumber-1, pString);
++           return TRUE;
++    }
++
+     if (strcmp(ParamName, "BasicDataTransmitRates") == 0)
+     {
+         if(isValidTransmitRate(pString))
+@@ -10494,7 +11245,15 @@ AccessPoint_SetParamStringValue
+         return FALSE;
+     #endif
+     }
+-	
++
++    rc = strcmp_s("Kickmac", strlen("Kickmac"), ParamName, &ind);
++    ERR_CHK(rc);
++    if((rc == EOK) && (!ind))
++    {
++	    ULONG  apIndex = pWifiAp->AP.Cfg.InstanceNumber;
++	    wifi_kickApAssociatedDevice(apIndex-1 , pString);
++	    return TRUE;
++    }
+     rc = strcmp_s("X_RDKCENTRAL-COM_BeaconRate", strlen("X_RDKCENTRAL-COM_BeaconRate"), ParamName, &ind);
+     ERR_CHK(rc);
+     if((rc == EOK) && (!ind))

@@ -1,0 +1,43 @@
+From: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+Date: Tue Mar 4 16:41:49 2025 +0530
+Subject: [recipes-ccsp]: Add missing headers for PppManager
+Signed-off-by: Shreshtha Chourasia <schouras@qti.qualcomm.com>
+-----------------------------------
+
+Index: git/source/PppManager/pppmgr_ipc.c
+===================================================================
+--- git.orig/source/PppManager/pppmgr_ipc.c
++++ git/source/PppManager/pppmgr_ipc.c
+@@ -41,6 +41,8 @@
+ #include "pppmgr_dml.h"
+ #include <ipc_msg.h> 
+ #include "pppmgr_dml_ppp_apis.h"
++#include <syscfg/syscfg.h>
++#include <sysevent/sysevent.h>
+ 
+ #define PPP_MGR_IPC_SERVER    1
+ #define PROC_UUID_PATH        "/proc/sys/kernel/random/uuid"
+Index: git/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+===================================================================
+--- git.orig/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
++++ git/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
+@@ -37,6 +37,7 @@
+ #include "pppmgr_dml_ppp_apis.h"
+ #include "pppmgr_dml.h"
+ #include <regex.h>
++#include <syscfg/syscfg.h>
+ 
+ #define NET_STATS_FILE "/proc/net/dev"
+ #define PPPoE_VLAN_IF_NAME  "erouter0"
+Index: git/source/TR-181/middle_layer_src/pppmgr_utils.c
+===================================================================
+--- git.orig/source/TR-181/middle_layer_src/pppmgr_utils.c
++++ git/source/TR-181/middle_layer_src/pppmgr_utils.c
+@@ -37,6 +37,7 @@
+ #include "pppmgr_dml_ppp_apis.h"
+ #include "pppmgr_dml.h"
+ #include <syscfg/syscfg.h>
++#include <sysevent/sysevent.h>
+ #include <dirent.h>
+ 
+ extern  ANSC_HANDLE bus_handle;

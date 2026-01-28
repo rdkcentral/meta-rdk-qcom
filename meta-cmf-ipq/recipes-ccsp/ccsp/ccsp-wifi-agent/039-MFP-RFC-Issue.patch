@@ -1,0 +1,88 @@
+From: sanknata <sanknata@qti.qualcomm.com>
+Date: Tue Mar 18 20:19:32 2025 +0530
+Subject: MFP should be enabled as 1 by default, observing ieee80211w as 0 in WPA2-PSK mode at bootup
+Signed-off-by: sanknata <sanknata@qti.qualcomm.com>
+-----------------------------------
+
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index b97ee5d..4db2b8a 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -945,35 +945,50 @@ static ANSC_STATUS CosaDmlWiFi_CheckAndConfigureMFPConfig( BOOLEAN bFeatureMFPCo
+ 					    
+ 					if( TRUE == bFeatureMFPConfig )
+ 					{
+-						if( ( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_WPA2_Personal ) || 
+-							( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_WPA2_Enterprise )
++						if (( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_WPA2_Personal ) || 
++							( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_WPA2_Enterprise ) ||
++							( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_WPA3_Personal_Transition)
+ 						  )
+ 						{
+ 							if ( ANSC_STATUS_SUCCESS != CosaDmlWiFiApSecsetMFPConfig( iLoopCount, "Optional" ) )
+ 							{
+-								return ANSC_STATUS_FAILURE;
++								//return ANSC_STATUS_FAILURE;
++								continue;
+ 							}
+ 
+ 							rc = strcpy_s( pWifiAp->SEC.Cfg.MFPConfig, sizeof(pWifiAp->SEC.Cfg.MFPConfig), "Optional");
+ 							ERR_CHK(rc);
+ 						}
+-
+-						if( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_None )
++						else if( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_None )
+ 						{
+ 							if ( ANSC_STATUS_SUCCESS != CosaDmlWiFiApSecsetMFPConfig( iLoopCount, "Disabled" ) )
+ 							{
+-								return ANSC_STATUS_FAILURE;
++								//return ANSC_STATUS_FAILURE;
++								continue;
+ 							}
+ 
+ 							rc = strcpy_s( pWifiAp->SEC.Cfg.MFPConfig, sizeof(pWifiAp->SEC.Cfg.MFPConfig), "Disabled" );
+ 							ERR_CHK(rc);
+ 						}
++						else if( pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_WPA3_Personal)
++						{
++							if ( ANSC_STATUS_SUCCESS != CosaDmlWiFiApSecsetMFPConfig( iLoopCount, "Required" ) )
++							{
++								continue;
++							}
++						}
++						else {
++							continue;
++						}
+ 					}
+ 					else
+ 					{
+-						if ( ANSC_STATUS_SUCCESS != CosaDmlWiFiApSecsetMFPConfig( iLoopCount, "Disabled" ) )
+-						{
+-							return ANSC_STATUS_FAILURE;
++						if( !(pWifiAp->SEC.Cfg.ModeEnabled & COSA_DML_WIFI_SECURITY_WPA3_Personal)) {
++							if ( ANSC_STATUS_SUCCESS != CosaDmlWiFiApSecsetMFPConfig( iLoopCount, "Disabled" ) )
++							{
++								//return ANSC_STATUS_FAILURE;
++								continue;
++							}
+ 						}
+ 						
+ 						rc = strcpy_s( pWifiAp->SEC.Cfg.MFPConfig, sizeof(pWifiAp->SEC.Cfg.MFPConfig), "Disabled" );
+@@ -1104,7 +1119,7 @@ WiFi_SetParamBoolValue
+             attrp = &attr;
+             pthread_attr_init(&attr);
+             pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_DETACHED );
+-            int err = pthread_create(&mfp_thread, attrp, mfp_concheck_thread, (void *)&bval);
++            int err = pthread_create(&mfp_thread, attrp, mfp_concheck_thread, (void *) (intptr_t) bval);
+             if(attrp != NULL)
+                 pthread_attr_destroy( attrp );
+             if(0 != err)
+@@ -12965,7 +12980,7 @@ Security_SetParamStringValue
+             case wifi_security_mode_wpa2_personal:
+             case wifi_security_mode_wpa_wpa2_personal:
+                 vapInfo->u.bss_info.security.u.key.type = wifi_security_key_type_pass;
+-                vapInfo->u.bss_info.security.mfp = wifi_mfp_cfg_disabled;
++                vapInfo->u.bss_info.security.mfp = wifi_mfp_cfg_optional;
+                 break;
+             case wifi_security_mode_wpa3_personal:
+                 vapInfo->u.bss_info.security.u.key.type = wifi_security_key_type_sae;

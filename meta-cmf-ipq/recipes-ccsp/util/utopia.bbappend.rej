@@ -1,0 +1,17 @@
+--- meta-cmf-ipq/recipes-ccsp/util/utopia.bbappend
++++ meta-cmf-ipq/recipes-ccsp/util/utopia.bbappend
+@@ -19,6 +21,14 @@ SRC_URI_append = " \
+     file://0003-service-bridge.patch \
+     file://0001-interface-functions.patch \
+     file://system_defaults \
++    file://ipq53xx_64_system_defaults \
++    file://ipq53xx_system_defaults \
++    file://ipq54xx_64_system_defaults \
++    file://ipq54xx_system_defaults \
++    file://ipq807x_64_system_defaults \
++    file://ipq807x_system_defaults \
++    file://ipq95xx_64_system_defaults \
++    file://ipq95xx_system_defaults \
+     file://0001-utopia-wlan.patch \
+     file://0001-ipq-service-routed.patch \
+     file://0001-service-dhcp-server.patch \

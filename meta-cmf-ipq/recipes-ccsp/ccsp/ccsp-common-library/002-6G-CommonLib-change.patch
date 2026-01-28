@@ -1,0 +1,35 @@
+Commit ID: 6891a4471a2424ffd1314b622d54c1ccd54a3447
+From: kalag <kalag@qti.qualcomm.com>
+Date: Fri Jun 28 17:05:56 2024 +0530
+Subject: reason for change: adding this g_TraceLevelStr variable to solve compilation issues .
+Signed-off-by: kalag <kalag@qti.qualcomm.com>
+
+---
+
+diff --git a/source/ccsp/components/common/MessageBusHelper/helper/messagebus_interface_helper.c b/source/ccsp/components/common/MessageBusHelper/helper/messagebus_interface_helper.c
+index 5b47e0f..18ad13b 100755
+--- a/source/ccsp/components/common/MessageBusHelper/helper/messagebus_interface_helper.c
++++ b/source/ccsp/components/common/MessageBusHelper/helper/messagebus_interface_helper.c
+@@ -78,7 +78,7 @@
+ #include "messagebus_interface_global.h"
+ #include "slap_vco_internal_api.h"
+ 
+-static ULONG g_uMaxParamInResponse = 20000; /* DSLH_WMPDO_MAX_PARAM_VALUES_IN_RESPONSE */
++static ULONG g_uMaxParamInResponse = 40000; /* DSLH_WMPDO_MAX_PARAM_VALUES_IN_RESPONSE */
+ static int g_currentSessionID = 0;
+ 
+ ULONG    g_lastWriteEntity       = 0;
+ diff --git a/source/debug_api/ansc_debug.c b/source/debug_api/ansc_debug.c
+index 1256f424..8bf3503f 100644
+--- a/source/debug_api/ansc_debug.c
++++ b/source/debug_api/ansc_debug.c
+@@ -91,6 +91,8 @@ typedef struct loglevel_pair {
+ **********************************************************************/
+ INT  g_iTraceLevel = CCSP_TRACE_LEVEL_WARNING;
+
++char *g_TraceLevelStr[] = {"EMERGENCY", "ALERT", "CRITICAL", "ERROR", "WARNING", "NOTICE", "INFO", "DEBUG"};
++
+ static void
+ AnscSetTraceLevel_ccsp
+     (
+

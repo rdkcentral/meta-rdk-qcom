@@ -1,0 +1,21 @@
+Commit ID: afadda92ce65636ce68ecfb3416f6645010582be
+From: Sriraaman C <sriraama@qti.qualcomm.com>
+Date: Fri Jun 9 14:52:08 2023 +0530
+Subject: [recipes-tdkb] Makefile changes for IPQ specific macros
+Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
+
+---
+
+diff --git a/WIFIHAL_stub/Makefile.am b/WIFIHAL_stub/Makefile.am
+index 8d2c97b..0cf602f 100644
+--- a/WIFIHAL_stub/Makefile.am
++++ b/WIFIHAL_stub/Makefile.am
+@@ -17,7 +17,7 @@
+ # limitations under the License.
+ ##########################################################################
+ ACLOCAL_AMFLAGS = -Im4 --install
+-AM_CPPFLAGS = ${COPTS} -fPIC -DDEBUG_LEVEL_TRACE -Wall
++AM_CPPFLAGS = ${COPTS} -fPIC -DDEBUG_LEVEL_TRACE -Wall -D_PLATFORM_IPQ_ -DWIFI_HAL_VERSION_3
+ AM_CXXFLAGS = -I${PKG_CONFIG_SYSROOT_DIR}$(includedir) -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/ccsp -I${top_srcdir}/WIFIHAL_stub/include -I${top_srcdir}/agent/include
+
+ lib_LTLIBRARIES = libwifihalstub.la

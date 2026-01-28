@@ -1,0 +1,108 @@
+Commit ID: dc7620891c3c257bb661d9c1e7990f3bc258c05d
+From: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+Date: Tue Jul 4 09:29:26 2023 +0530
+Subject: [recipes-ccsp]Fix for 2G Dynamic VAPs
+Signed-off-by: Madumithra Gobalakrishnan <mgobalak@qti.qualcomm.com>
+
+---
+
+diff --git a/config-atom/TR181-WiFi-USGv2.XML b/config-atom/TR181-WiFi-USGv2.XML
+index eeeff43..469dc34 100644
+--- a/config-atom/TR181-WiFi-USGv2.XML
++++ b/config-atom/TR181-WiFi-USGv2.XML
+@@ -2106,7 +2106,12 @@ INSTMSMT_PH2 -->
+                             <syntax>string</syntax>
+                             <writable>true</writable>
+                         </parameter>
+-
++			<parameter>
++                              <name>BridgingHostapd</name>
++                              <type>string(256)</type>
++			      <syntax>string</syntax>
++			       <writable>true</writable>
++                      </parameter>
+                        <parameter>
+                             <name>SSIDAdvertisementEnabled</name>
+                             <type>boolean</type>
+diff --git a/source/TR-181/ml/cosa_wifi_dml.c b/source/TR-181/ml/cosa_wifi_dml.c
+index 188427a..606ac2c 100755
+--- a/source/TR-181/ml/cosa_wifi_dml.c
++++ b/source/TR-181/ml/cosa_wifi_dml.c
+@@ -103,7 +103,7 @@ extern ULONG g_currentBsUpdate;
+ extern void* g_pDslhDmlAgent;
+ extern int gChannelSwitchingCount;
+ extern BOOL isWifiApplyLibHostapRunning;
+-
++extern vlan_ipc_reload;
+ /***********************************************************************
+  IMPORTANT NOTE:
+ 
+@@ -10437,6 +10441,7 @@ AccessPoint_SetParamStringValue
+     errno_t                         rc           =  -1;
+     int                             ind          =  -1;
+ 
++    CcspTraceInfo(("RDK_LOG_ERROR, %s %s:%d\n Input str pString %s ",__FILE__, __FUNCTION__,__LINE__,pString));
+ #ifdef WIFI_HAL_VERSION_3
+         UINT beaconIndex = 0;
+         ULONG apIndex = pWifiAp->AP.Cfg.InstanceNumber;
+@@ -10519,6 +10524,18 @@ AccessPoint_SetParamStringValue
+ 	    wifi_kickApAssociatedDevice(apIndex-1 , pString);
+ 	    return TRUE;
+     }
++    rc = strcmp_s("BridgingHostapd", strlen("BridgingHostapd"), ParamName, &ind);
++    ERR_CHK(rc);
++   if((rc == EOK) && (!ind))
++    {
++          ULONG  apIndex = pWifiAp->AP.Cfg.InstanceNumber;
++          CcspTraceInfo(("parameter '%s' vlaues passed to hal apIndex-1 %d , pString %s\n", ParamName,apIndex-1,pString));
++	  vlan_ipc_reload =1;
++          wifi_setApBridgeInfo(apIndex-1 , pString,NULL,NULL);
++	  vlan_ipc_reload =0;
++          return TRUE;
++    }
++
+     rc = strcmp_s("X_RDKCENTRAL-COM_BeaconRate", strlen("X_RDKCENTRAL-COM_BeaconRate"), ParamName, &ind);
+     ERR_CHK(rc);
+     if((rc == EOK) && (!ind))
+diff --git a/source/TR-181/sbapi/cosa_wifi_apis.c b/source/TR-181/sbapi/cosa_wifi_apis.c
+index 28bb2fe..cdb7675 100644
+--- a/source/TR-181/sbapi/cosa_wifi_apis.c
++++ b/source/TR-181/sbapi/cosa_wifi_apis.c
+@@ -478,6 +478,8 @@ static void get_uptime(int *uptime)
+     sysinfo( &info );
+     *uptime= info.uptime;
+ }
++
++extern vlan_ipc_reload;
+ ANSC_STATUS
+ CosaLoadBridgeInf()
+ {
+@@ -522,7 +524,14 @@ CosaLoadBridgeInf()
+ 				       else if (strstr(port_name, "ath"))
+                                        {
+                                                vlan_hal_addInterface(brg_name,port_name,port_pvid);
+-                                               ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(port_name);
++					       int apindex;
++					       char *ind = ((char *)(port_name))+3;
++					       apindex = atoi(ind);
++					       vlan_ipc_reload = 1;
++					       wifi_setApBridgeInfo(apindex,brg_name,NULL,NULL);
++					       vlan_ipc_reload = 0;
++					       CcspWifiTrace(("RDK_LOG_WARN, %s Reload of HAL interfaces  apind %d brg %s \n",__FUNCTION__,apindex,brg_name));
++					       ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(port_name);
+                                                ((CCSP_MESSAGE_BUS_INFO *)bus_handle)->freefunc(port_pvid);
+                                                continue;
+                                        }
+@@ -18666,6 +18675,12 @@ ANSC_STATUS CosaDmlWiFi_setCreateVAP(PCOSA_DML_WIFI_CREATE_VAP_CFG pCfg)
+ 			CcspTraceInfo(("\n%s : wifi_additionalVapInfoMap Failed\n", __func__));
+ 			return ANSC_STATUS_FAILURE;
+ 		}
++		ret = qca_setAdditionalVAP_RadioParam(apIndex);
++		if(ret == RETURN_ERR)
++		{
++			CcspTraceInfo(("\n%s : qca_setAdditionalVAP_RadioParam Failed\n", __func__));
++			return ANSC_STATUS_FAILURE;
++		}
+ 		radioIndex = vapInfo->radio_index;
+ 		vapArrayIndex = getVapArrayIndex(apIndex, radioIndex);
+ 		memcpy(&gRadioCfg[radioIndex].vaps.vap_array[vapArrayIndex], vapInfo, sizeof(wifi_vap_info_t));
