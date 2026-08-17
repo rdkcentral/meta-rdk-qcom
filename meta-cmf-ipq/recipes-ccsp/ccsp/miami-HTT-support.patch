@@ -1,0 +1,90 @@
+Index: git/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+===================================================================
+--- git.orig/source/TR-181/board_sbapi/cosa_ethernet_apis.c
++++ git/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+@@ -3355,6 +3355,15 @@ CosaDmlEthInit(
+         return ANSC_STATUS_FAILURE;
+     }
+ #endif
++#if defined(_PLATFORM_IPQ53xx)
++    /*
++     * FEATURE_RDKB_WAN_MANAGER / WAN_AGENT builds take this initialization
++     * path, so board-specific lanX -> ethX/erouter0 renames must happen here
++     * before eth-agent reads PSM and builds its Ethernet interface table.
++     */
++    CcspHalEthSwRenameInterfaces();
++    CcspHalEthSwUpdatePsmForVariant();
++#endif
+     //ETH Port Init.
+     CosaDmlEthPortInit((PANSC_HANDLE)pMyObject);
+ 
+@@ -3471,11 +3480,51 @@ CosaDmlEthInit(
+     {
+         CcspTraceInfo(("Failed to down the interface %s\n",ETHWAN_DEF_INTF_NAME));
+     }
++#if defined(_PLATFORM_IPQ53xx) || defined(_PLATFORM_IPQ54xx)
++    CcspTraceInfo(("%s:%d Renaming Ethernet interfaces based on board name\n",
++                   __FUNCTION__, __LINE__));
++    if (CcspHalEthSwRenameInterfaces() != RETURN_OK)
++    {
++        CcspTraceWarning(("%s:%d CcspHalEthSwRenameInterfaces failed \n",
++                          __FUNCTION__, __LINE__));
++    }
++#endif
++#if defined(_PLATFORM_IPQ53xx)
++    if (CcspHalEthSwSkipEth0Rename())
++    {
++        CcspTraceInfo(("%s:%d Skipping eth0->erouter0 rename for this board variant\n",
++                    __FUNCTION__, __LINE__));
++        status = interface_up(wanPhyName);
++        if (status != CNL_STATUS_SUCCESS)
++       {
++            CcspTraceInfo(("Failed to up the interface %s\n", wanPhyName));
++        }
++    }
++    else
++    {
++        status=interface_down(ETHWAN_DEF_INTF_NAME);
++        if(status != CNL_STATUS_SUCCESS)
++        {
++            CcspTraceInfo(("Failed to down the interface %s\n",ETHWAN_DEF_INTF_NAME));
++        }
++        status=interface_rename(ETHWAN_DEF_INTF_NAME,wanPhyName);
++        if(status != CNL_STATUS_SUCCESS)
++        {
++            CcspTraceInfo(("Failed to rename the interface %s with %s\n",ETHWAN_DEF_INTF_NAME,wanPhyName));
++        }
++        status=interface_up(wanPhyName);
++        if(status != CNL_STATUS_SUCCESS)
++        {
++            CcspTraceInfo(("Failed to up the interface %s\n",wanPhyName));
++        }
++    }
++#else
+     status=interface_rename(ETHWAN_DEF_INTF_NAME,wanPhyName);
+     if(status != CNL_STATUS_SUCCESS) 
+     {
+         CcspTraceInfo(("Failed to rename the interface %s with %s\n",ETHWAN_DEF_INTF_NAME,wanPhyName));
+     }
++#endif
+     status=interface_up(wanPhyName);
+     if(status != CNL_STATUS_SUCCESS) 
+     {
+Index: git/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
+===================================================================
+--- git.orig/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
++++ git/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
+@@ -435,7 +435,12 @@ Interface_GetParamStringValue
+         * Interface.4 is eth2-port3
+         * Interface.5 is eth2-port4
+         */
+-
++#if defined(_PLATFORM_IPQ53xx) || defined(_PLATFORM_IPQ54xx)
++       if (CcspHalEthSwGetEthInterfaceNameForInstance(instance, pValue, *pUlSize) == RETURN_OK)
++       {
++           return 0;
++       }
++#endif
+ #if defined(_PLATFORM_IPQ53xx)
+        strlcpy(sw_port_name, "eth1", sizeof(sw_port_name));
+        if ((instance == 1) || (instance == 2) || (instance == 3) || (instance == 4))

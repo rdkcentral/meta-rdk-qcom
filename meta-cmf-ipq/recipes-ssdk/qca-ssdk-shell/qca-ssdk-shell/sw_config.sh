@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
-# Licensed under the ISC License
 
 . /lib/ipq.sh
 

@@ -1,9 +1,3 @@
-From: kalag <kalag@qti.qualcomm.com>
-Date: Mon Oct 28 18:00:14 2024 +0530
-Subject: Alder wan port change to 10G eth5 port.
-Signed-off-by: kalag <kalag@qti.qualcomm.com>
------------------------------------
-
 diff --git a/source/TR-181/board_sbapi/cosa_ethernet_apis.c b/source/TR-181/board_sbapi/cosa_ethernet_apis.c
 index d173281..f049478 100755
 --- a/source/TR-181/board_sbapi/cosa_ethernet_apis.c

@@ -1,11 +1,3 @@
-Commit ID: 6891a4471a2424ffd1314b622d54c1ccd54a3447
-From: kalag <kalag@qti.qualcomm.com>
-Date: Fri Jun 28 17:05:56 2024 +0530
-Subject: reason for change: adding this g_TraceLevelStr variable to solve compilation issues .
-Signed-off-by: kalag <kalag@qti.qualcomm.com>
-
----
-
 diff --git a/source/ccsp/components/common/MessageBusHelper/helper/messagebus_interface_helper.c b/source/ccsp/components/common/MessageBusHelper/helper/messagebus_interface_helper.c
 index 5b47e0f..18ad13b 100755
 --- a/source/ccsp/components/common/MessageBusHelper/helper/messagebus_interface_helper.c

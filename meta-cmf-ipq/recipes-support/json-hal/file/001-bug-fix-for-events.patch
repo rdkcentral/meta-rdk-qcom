@@ -1,11 +1,3 @@
-Commit ID: 52da09ff25da9cacd54e67f9e156fb4704026094
-From: sreehari ramanjula <sramanju@qti.qualcomm.com>
-Date: Sat Aug 31 12:15:44 2024 +0530
-Subject: json-hal-lib:Handle the synchronization between data models
-Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
-
----
-
 diff --git a/json_hal_client.c b/json_hal_client.c
 index f39d5d8..af2e2fe 100644
 --- a/json_hal_client.c

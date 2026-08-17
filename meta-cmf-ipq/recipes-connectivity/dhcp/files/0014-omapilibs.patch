@@ -1,11 +1,3 @@
-Commit ID: dd7d90a8ac1ad004b0f4b72d4abe54e739824f0c
-From: sreehari ramanjula <sramanju@qti.qualcomm.com>
-Date: Wed Jun 8 15:08:54 2022 +0530
-Subject: dhcp_4.4.2: Fix undefined symbols in libomapi.so.0
-Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
-
----
-
 Index: dhcp-4.4.2/omapip/Makefile.am.in
 ===================================================================
 --- dhcp-4.4.2.orig/omapip/Makefile.am.in

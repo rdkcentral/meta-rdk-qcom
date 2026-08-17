@@ -1,0 +1,224 @@
+
+diff --git a/config-arm/TR181-USGv2.XML b/config-arm/TR181-USGv2.XML
+index 58f3895..72b2966 100644
+--- a/config-arm/TR181-USGv2.XML
++++ b/config-arm/TR181-USGv2.XML
+@@ -4581,7 +4581,32 @@
+           </parameters>
+ 
+         </object>
+-
++       <object>
++          <name>X_RDK_RemoteProc</name>
++          <objectType>staticTable</objectType>
++          <maxInstance>2</maxInstance>
++          <functions>
++            <func_GetEntryCount>RemoteProc_GetEntryCount</func_GetEntryCount>
++            <func_GetEntry>RemoteProc_GetEntry</func_GetEntry>
++            <func_GetParamBoolValue>RemoteProc_GetParamBoolValue</func_GetParamBoolValue>
++            <func_SetParamBoolValue>RemoteProc_SetParamBoolValue</func_SetParamBoolValue>
++            <func_GetParamStringValue>RemoteProc_GetParamStringValue</func_GetParamStringValue>
++          </functions>
++          <parameters>
++            <parameter>
++              <name>Enable</name>
++              <type>boolean</type>
++              <syntax>bool</syntax>
++              <writable>true</writable>
++            </parameter>
++            <parameter>
++              <name>Status</name>
++              <type>string(16)</type>
++              <syntax>string</syntax>
++              <writable>false</writable>
++            </parameter>
++          </parameters>
++        </object>
+         <object>
+ 
+           <name>X_RDKCENTRAL-COM_WIFI_TELEMETRY</name>
+diff --git a/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c b/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c
+index 5fed92b..19922df 100644
+--- a/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c
++++ b/source/TR-181/middle_layer_src/cosa_deviceinfo_dml.c
+@@ -24647,4 +24647,177 @@ LatencyMeasureTcpSetupIPv6_SetParamBoolValue
+     return FALSE;
+ 
+ }
++ULONG
++RemoteProc_GetEntryCount
++    (
++        ANSC_HANDLE                 hInsContext
++    )
++{
++    DIR           *dir;
++    struct dirent *entry;
++    int            count = 0;
++
++    dir = opendir("/sys/class/remoteproc");
++    if (dir == NULL)
++    {
++        return 0;
++    }
++
++    while ((entry = readdir(dir)) != NULL)
++    {
++        /* Count only entries named "remoteproc0", "remoteproc1", etc. */
++        if (strncmp(entry->d_name, "remoteproc", 10) == 0)
++            count++;
++    }
++
++    closedir(dir);
++
++    return (ULONG)count;
++}
++
++/**
++ * RemoteProc_GetEntry
++ * Returns context handle for each instance.
++ * Instance number (1-based) is stored as context.
++ * instance=1 → remoteproc0, instance=2 → remoteproc1
++ */
++ANSC_HANDLE
++RemoteProc_GetEntry
++    (
++        ANSC_HANDLE                 hInsContext,
++        ULONG                       nIndex,
++        ULONG*                      pInsNumber
++    )
++{
++    char path[64];
++    snprintf(path, sizeof(path),
++             "/sys/class/remoteproc/remoteproc%lu", nIndex);
++
++    if (access(path, F_OK) != 0)
++        return NULL;
++
++    *pInsNumber = nIndex + 1;
++    return (ANSC_HANDLE)(uintptr_t)(nIndex + 1);
++}
++
++/**
++ * RemoteProc_GetParamBoolValue
++ * Enable: reads state from sysfs — "running"=TRUE, else FALSE
++ */
++BOOL
++RemoteProc_GetParamBoolValue
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       ParamName,
++        BOOL*                       pBool
++    )
++{
++    int   instance = (int)(uintptr_t)hInsContext;
++    int   idx      = instance - 1;
++    char  path[64];
++    char  buf[32]  = {0};
++    FILE *fp;
++
++    if (AnscEqualString(ParamName, "Enable", TRUE))
++    {
++        snprintf(path, sizeof(path),
++                 "/sys/class/remoteproc/remoteproc%d/state", idx);
++
++        fp = fopen(path, "r");
++        if (fp)
++        {
++            fgets(buf, sizeof(buf), fp);
++            fclose(fp);
++        }
++
++        *pBool = (strncmp(buf, "running", 7) == 0) ? TRUE : FALSE;
++        return TRUE;
++    }
++    return FALSE;
++}
++
++/**
++ * RemoteProc_GetParamStringValue
++ * Status: reads state from sysfs — "Running" or "Stopped"
++ */
++ULONG
++RemoteProc_GetParamStringValue
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       ParamName,
++        char*                       pValue,
++        ULONG*                      pUlSize
++    )
++{
++    int   instance = (int)(uintptr_t)hInsContext;
++    int   idx      = instance - 1;
++    char  path[64];
++    char  buf[32]  = {0};
++    FILE *fp;
++
++    if (AnscEqualString(ParamName, "Status", TRUE))
++    {
++        snprintf(path, sizeof(path),
++                 "/sys/class/remoteproc/remoteproc%d/state", idx);
++
++        fp = fopen(path, "r");
++        if (fp)
++        {
++            fgets(buf, sizeof(buf), fp);
++            fclose(fp);
++        }
++
++        AnscCopyString(pValue,
++            (strncmp(buf, "running", 7) == 0) ? "Running" : "Stopped");
++        return 0;
++    }
++
++    return -1;
++}
++
++/**
++ * RemoteProc_SetParamBoolValue
++ * Enable: true=start, false=stop via v_secure_system
++ */
++BOOL
++RemoteProc_SetParamBoolValue
++    (
++        ANSC_HANDLE                 hInsContext,
++        char*                       ParamName,
++        BOOL                        bValue
++    )
++{
++    int   instance = (int)(uintptr_t)hInsContext;
++    int   idx      = instance - 1;
++    char  path[64] = {0};
++    FILE *fp       = NULL;
++
++    if (AnscEqualString(ParamName, "Enable", TRUE))
++    {
++        snprintf(path, sizeof(path),
++                 "/sys/class/remoteproc/remoteproc%d/state", idx);
++
++        fp = fopen(path, "w");
++        if (fp != NULL)
++        {
++            if (bValue)
++            {
++                fprintf(fp, "start");
++            }
++            else
++            {
++                fprintf(fp, "stop");
++            }
++            fclose(fp);
++        }
++        else
++        {
++            CcspTraceError(("%s - %d - Failed to set value \n", __FUNCTION__, __LINE__));
++        }
++
++        return TRUE;
++    }
++
++    return FALSE;
++}
+ 
+-- 
+2.34.1
+

@@ -1,9 +1,3 @@
-From: Krishna Kumar A <krisa@qti.qualcomm.com>
-Date: Mon Aug 14 01:08:43 2023 +0530
-Subject: log_agent service file change
-Signed-off-by: Krishna Kumar A <krisa@qti.qualcomm.com>
------------------------------------
-
 diff --git a/source/LogComponent/cosa_apis_logagentplugin.c b/source/LogComponent/cosa_apis_logagentplugin.c
 index 67fbb82..ae1c908 100644
 --- a/source/LogComponent/cosa_apis_logagentplugin.c
@@ -223,9 +217,9 @@ index 0000000..4ec6976
 +++ b/source/LogComponent/logagent.h
 @@ -0,0 +1,57 @@
 +/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ * Licensed under the Apache License, Version 2.0.
-+ * 
++ * Copyright (c) 2023 Qualcomm Technologies, Inc. 
++ * All Rights Reserved.
++ * Licensed under the Apache License, Version 2.0
 + */
 +
 +#ifndef LOGAGENT_H

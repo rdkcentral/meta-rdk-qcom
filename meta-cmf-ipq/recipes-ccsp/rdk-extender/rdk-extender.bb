@@ -5,7 +5,7 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/${LICENSE};md5
 
 DEPENDS = " \
            ccsp-common-library dbus rdk-logger rbus libnl utopia \
-           ${@bb.utils.contains('DISTRO_FEATURES', 'safec', ' safec', " ", d)} \
+           ${@bb.utils.contains('DISTRO_FEATURES', 'safec', ' safec', ' ', d)} \
           "
 
 require recipes-ccsp/ccsp/ccsp_common.inc
@@ -18,7 +18,7 @@ SRC_URI = " \
 
 S = "${WORKDIR}/rdk-extender"
 
-inherit autotools pkgconfig ${@bb.utils.contains("DISTRO_FEATURES", "kirkstone", "python3native", "pythonnative", d)} systemd
+inherit autotools pkgconfig ${@bb.utils.contains('DISTRO_FEATURES', 'kirkstone', 'python3native', 'pythonnative', d)} systemd
 
 CFLAGS_append = " \
            -Wall -Werror -Wextra -Wno-pointer-sign -Wno-sign-compare \

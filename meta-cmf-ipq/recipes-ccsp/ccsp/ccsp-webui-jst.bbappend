@@ -20,18 +20,21 @@ inherit systemd
 do_install_append () {
 		install -d ${D}${sysconfdir}
 		install -d ${D}${systemd_unitdir}/system/
+		install -d ${D}${base_libdir}/rdk
 
 		# delete wan0 reference for R-Pi
 		sed -i "/wan0:80/a  echo \"This interface is not available in RPI\""  ${D}${sysconfdir}/webgui.sh
 		sed -i "/wan0:443/a  echo \"This interface is not available in RPI\""  ${D}${sysconfdir}/webgui.sh
 		sed -i "s/if \[ \"\$BOX_TYPE\" == \"HUB4\" \]/if \[ \"\$BOX_TYPE\" = \"HUB4\" \]/g" ${D}${sysconfdir}/webgui.sh
 		sed -i '/wan0/d' ${D}${sysconfdir}/webgui.sh
+        sed -i '/^[[:space:]]*fi[[:space:]]*$/a INTERFACE="erouter0"' ${D}${sysconfdir}/webgui_config.sh
 
 		#delete server.pem reference for R-Pi
 	        sed -e '/\$INTERFACE:10443/ s/^#*/echo "Removed server.pem references for R-pi"\n#/' -i ${D}${sysconfdir}/webgui.sh
                 sed -e '/\$INTERFACE:18080/ s/^#*/echo "Removed server.pem references for R-pi"\n#/' -i ${D}${sysconfdir}/webgui.sh
 
 		install -m 644 ${WORKDIR}/CcspWebUI.service ${D}${systemd_unitdir}/system/
+		install -m 0755 ${WORKDIR}/CcspWebUI.sh ${D}${base_libdir}/rdk/
 
                 sed -i "s/'20MHz', '40MHz', '80MHz'/'20MHz', '40MHz', '80MHz', '160MHz'/g"  ${D}/usr/www2/actionHandler/ajaxSet_wireless_network_configuration_edit.jst
                 sed -i "s/g,n/g,n,ax/g"  ${D}/usr/www2/actionHandler/ajaxSet_wireless_network_configuration_edit.jst
@@ -56,21 +59,6 @@ do_install_append () {
 SYSTEMD_SERVICE_${PN} += "CcspWebUI.service"
 FILES_${PN} += "${systemd_unitdir}/system/CcspWebUI.service ${base_libdir}/rdk/*"
 
-do_mypatch(){
-            if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/webui/source/.001-webui-patched ]; then
-                  patch ${TOPDIR}/../rdkb/components/opensource/ccsp/webui/source/Styles/xb3/config/webgui.sh < ${WORKDIR}/001-webui.patch
-                  patch ${TOPDIR}/../meta-cmf-broadband/recipes-ccsp/ccsp/files/webgui_config.sh < ${WORKDIR}/002-webui.patch
-                  touch ${TOPDIR}/../rdkb/components/opensource/ccsp/webui/source/.001-webui-patched
-            fi
-
-	    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/webui/source/.001-Captive_Portal_webui.patched ]; then
-                  patch ${TOPDIR}/../rdkb/components/opensource/ccsp/webui/source/Styles/xb3/config/webgui.sh < ${WORKDIR}/001-Captive_Portal_webui.patch
-
-                  touch ${TOPDIR}/../rdkb/components/opensource/ccsp/webui/source/.001-Captive_Portal_webui.patched
-            fi
-
-}
-
 do_install_append_aarch64 () {
      sed -i "s/count(\$IDs)-1/count(\$IDs)-2/g"  ${D}/usr/www2/actionHandler/ajax_managed_devices.jst
      sed -i "s/count(\$IDs)-1/count(\$IDs)-2/g"  ${D}/usr/www2/actionHandler/ajax_managed_services.jst
@@ -80,10 +68,8 @@ do_install_append_aarch64 () {
      sed -i "/getInstanceIDs(\"Device.Hosts.Host.\")/a \$hostIDs=\$hostIDs[count(\$hostIDs)-2];" ${D}/usr/www2/managed_devices_add_computer_blocked.jst
 }
 
-addtask mypatch after do_unpack before do_compile
 
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
 SRC_URI += " file://001-webui.patch \
-	     file://002-webui.patch \
-	     file://001-Captive_Portal_webui.patch \
-   	   "
+             file://001-Captive_Portal_webui.patch \
+           "

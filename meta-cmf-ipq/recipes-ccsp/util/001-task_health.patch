@@ -1,37 +1,31 @@
-Commit ID: 22f4045cb1f5e86e768cb7f7c6cd91ceec796695
-From: Dinesh Yoganandam <dyoganan@qti.qualcomm.com>
-Date: Mon Sep 4 23:25:37 2023 +0530
-Subject: tdk script changes for Telemetry 2 missing markers
-Signed-off-by: Dinesh Yoganandam <dyoganan@qti.qualcomm.com>
-
----
-
---- a/scripts/task_health_monitor.sh	2023-09-04 23:13:09.371226674 +0530
-+++ b/scripts/task_health_monitor.sh	2023-09-04 23:12:39.711116413 +0530
-@@ -920,6 +920,12 @@
+Index: git/scripts/task_health_monitor.sh
+===================================================================
+--- git.orig/scripts/task_health_monitor.sh
++++ git/scripts/task_health_monitor.sh
+@@ -1162,6 +1162,13 @@ case $SELFHEAL_TYPE in
          fi
  
          # Checking Lan Manager PID
-+	offline_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_Offline_Clients=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
-+        connected_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_Clients_Connected=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
-+        wifi_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_WiFi_Clients=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
-+	t2ValNotify "Total_offline_clients_split" "$offline_clients"
-+        t2ValNotify "Total_devices_connected_split" "$connected_clients"
-+        t2ValNotify "Total_wifi_clients_split" "$wifi_clients"
-         LM_PID=$(busybox pidof CcspLMLite)
-         if [ "$LM_PID" = "" ]; then
-             echo_t "RDKB_PROCESS_CRASHED : LanManager_process is not running, need restart"
-@@ -1304,6 +1310,13 @@
-         fi
- 
-         # Checking Lan Manager PID
-+	offline_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_Offline_Clients=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
++        offline_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_Offline_Clients=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
 +        connected_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_Clients_Connected=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
 +        wifi_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_WiFi_Clients=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
 +        t2ValNotify "Total_offline_clients_split" "$offline_clients"
 +        t2ValNotify "Total_devices_connected_split" "$connected_clients"
 +        t2ValNotify "Total_wifi_clients_split" "$wifi_clients"
 +
+         LM_PID=$(busybox pidof CcspLMLite)
+         if [ "$LM_PID" = "" ]; then
+             echo_t "RDKB_PROCESS_CRASHED : LanManager_process is not running, need restart"
+@@ -1583,6 +1590,12 @@ case $SELFHEAL_TYPE in
+         fi
+ 
+         # Checking Lan Manager PID
++        offline_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_Offline_Clients=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
++        connected_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_Clients_Connected=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
++        wifi_clients=$(cat /rdklogs/logs/LM.txt.0 | grep 'Total_WiFi_Clients=' | awk '{print $5}' | tail -1 | cut -d '=' -f 2)
++        t2ValNotify "Total_offline_clients_split" "$offline_clients"
++        t2ValNotify "Total_devices_connected_split" "$connected_clients"
++        t2ValNotify "Total_wifi_clients_split" "$wifi_clients"
          LM_PID=$(busybox pidof CcspLMLite)
          if [ "$LM_PID" = "" ]; then
              echo_t "RDKB_PROCESS_CRASHED : LanManager_process is not running, need restart"

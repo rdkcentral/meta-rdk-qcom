@@ -1,11 +1,3 @@
-Commit ID: 2f4c8f61b739c5ff60e03cf68a4d6113f3a5c63b
-From: Kalag <kalag@qti.qualcomm.com>
-Date: Sun May 19 21:21:14 2024 +0530
-Subject: [recipes-ccsp] Enable Vanilla controller on 12.5 Miami RDK
-Signed-off-by: Kalag <kalag@qti.qualcomm.com>
-
----
-
 diff --git a/scripts/RdkEasyMeshController.service b/scripts/RdkEasyMeshController.service
 index 42a6261..733007c 100644
 --- a/scripts/RdkEasyMeshController.service

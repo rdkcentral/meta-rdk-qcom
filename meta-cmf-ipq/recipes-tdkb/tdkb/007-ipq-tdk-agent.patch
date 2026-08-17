@@ -1,0 +1,13 @@
+Index: git/platform/raspberrypi/agent/scripts/TDKagentMonitor.sh
+===================================================================
+--- git.orig/platform/raspberrypi/agent/scripts/TDKagentMonitor.sh
++++ git/platform/raspberrypi/agent/scripts/TDKagentMonitor.sh
+@@ -35,7 +35,7 @@ fi
+ # To monitor TDK Agent process and reboot box on its crash
+ while [ $loop -eq 1 ]
+ do
+-   status=`ps | grep tdk_agent_monitor | grep -v grep`
++   status=`ps -ef | grep tdk_agent_monitor | grep -v grep`
+    agentPort=`netstat -tupln | grep "8087" | awk {'print$7'}`
+    devicePort=`netstat -tupln | grep "8088" | awk {'print$7'}`
+    if [[ ! "$status" ]] || [[ $agentPort != *"tdk_agent"* ]] || [[ $devicePort != *"tdk_agent"* ]]

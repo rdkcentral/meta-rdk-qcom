@@ -1,18 +1,12 @@
-Commit ID: 88dc45051f460b5aff868ebcbeb10824d00afd09
-From: rajka <rajka@qti.qualcomm.com>
-Date: Mon Nov 27 17:29:01 2023 +0530
-Subject: Dslite Reboot Dibbler Fix
-Signed-off-by: rajka <rajka@qti.qualcomm.com>
-
----
-
---- a/source/scripts/init/service.d/service_wan.sh	2023-11-27 17:11:58.302703439 +0530
-+++ b/source/scripts/init/service.d/service_wan_updated.sh	2023-11-27 17:14:00.057876891 +0530
-@@ -81,6 +81,12 @@
+Index: git/source/scripts/init/service.d/service_wan.sh
+===================================================================
+--- git.orig/source/scripts/init/service.d/service_wan.sh
++++ git/source/scripts/init/service.d/service_wan.sh
+@@ -81,6 +81,12 @@ SERVICE_NAME=wan
  case "$1" in
      "${SERVICE_NAME}-start")
-         service_wan start
-+	DSLITE_ENABLED=`syscfg get dslite_enable`
+         nice -n -5 service_wan start
++        DSLITE_ENABLED=`syscfg get dslite_enable`
 +        if [ "x1" = "x$DSLITE_ENABLED" ]; then
 +            service_dslite start
 +            dibbler-client stop

@@ -1,11 +1,3 @@
-Commit ID: d7c9e525c7d68d3d5bd07180b86badcf3408d920
-From: delango <delango@qti.qualcomm.com>
-Date: Tue Aug 20 16:27:17 2024 +0530
-Subject: [recipes-ccsp] ezmesh and wsplcd restart is handled in Background for delay in helper script
-Signed-off-by: delango <delango@qti.qualcomm.com>
-
----
-
 diff --git a/source/TR-181/include/cosa_x_cisco_com_devicecontrol_apis.h b/source/TR-181/include/cosa_x_cisco_com_devicecontrol_apis.h
 index 3645103..f510824 100644
 --- a/source/TR-181/include/cosa_x_cisco_com_devicecontrol_apis.h

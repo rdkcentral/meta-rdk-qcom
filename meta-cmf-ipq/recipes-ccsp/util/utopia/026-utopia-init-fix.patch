@@ -1,38 +1,30 @@
-From: sanknata <sanknata@qti.qualcomm.com>
-Date: Thu Jan 2 12:24:11 2025 +0530
-Subject: Reason for change : To remove sed commands used in utopia.bbappend
-Signed-off-by: sanknata <sanknata@qti.qualcomm.com>
------------------------------------
-
-diff --git a/source/scripts/init/system/utopia_init.sh b/source/scripts/init/system/utopia_init.sh
-index 32ab244..1b0aead 100755
---- a/source/scripts/init/system/utopia_init.sh
-+++ b/source/scripts/init/system/utopia_init.sh
-@@ -45,6 +45,15 @@ CCSPPATH="/usr/ccsp"
- ls /tmp/pam_initialized* > /tmp/pam_init_status
+Index: git/source/scripts/init/system/utopia_init.sh
+===================================================================
+--- git.orig/source/scripts/init/system/utopia_init.sh
++++ git/source/scripts/init/system/utopia_init.sh
+@@ -46,9 +46,12 @@ BINPATH="/usr/bin"
+ CCSPPATH="/usr/ccsp"
  
+ ls /tmp/pam_initialized* > /tmp/pam_init_status
+-
  source $UTOPIA_PATH/log_capture_path.sh
+ 
 +mkdir -p /nvram
-+touch /nvram/rbus_support utopia_init.sh
-+rm -f /nvram/dnsmasq.leases
-+cp /usr/ccsp/ccsp_msg.cfg /tmp
-+touch /tmp/cp_subsys_ert
-+ln -s /var/spool/cron/crontabs /
 +mkdir -p /var/run/firewall
 +mkdir -p /opt/secure
 +touch /nvram/ETHWAN_ENABLE
- source /etc/device.properties
  
  dmesg -n 5
-@@ -443,6 +452,7 @@ syseventd
- sleep 1 
+ 
+@@ -479,6 +482,7 @@ fi
+ 
  echo_t "[utopia][init] Setting any unset system values to default"
  apply_system_defaults
 +/usr/bin/apply_board_defaults.sh
  changeFilePermissions $SYSCFG_BKUP_FILE 400
  if [ "$ENCRYPT_SYSCFG" = false ] ; then
     echo "[utopia][init] SEC: Syscfg stored in $SYSCFG_BKUP_FILE"
-@@ -704,7 +714,7 @@ else
+@@ -763,7 +767,7 @@ else
        fi
  fi
  
@@ -41,7 +33,7 @@ index 32ab244..1b0aead 100755
      if [ -f /nvram/restore_reboot ];then
  	syscfg set X_RDKCENTRAL-COM_LastRebootReason "restore-reboot"
  	syscfg set X_RDKCENTRAL-COM_LastRebootCounter "1"
-@@ -726,6 +736,8 @@ if [ "$MODEL_NUM" = "DPC3939B" ] || [ "$MODEL_NUM" = "DPC3941B" ]; then
+@@ -785,6 +789,8 @@ if [ "$MODEL_NUM" = "DPC3939B" ] || [ "$
      rm -f /nvram/restore_reboot
      rm -f /nvram/bbhm_bak_cfg.xml.prev
      rm -f /nvram/syscfg.db.prev
@@ -50,7 +42,7 @@ index 32ab244..1b0aead 100755
  fi
  
  CBF_Defaulted=`syscfg get CodeBigFirstDefaulted`
-@@ -773,9 +785,21 @@ syscfg set ntp_status 2
+@@ -832,9 +838,21 @@ syscfg set ntp_status 2
  echo_t "[utopia][init] setting Multicast MAC before any switch configs"
  $UTOPIA_PATH/service_multinet_exec set_multicast_mac &
  
@@ -72,4 +64,4 @@ index 32ab244..1b0aead 100755
 +echo 1 > /proc/sys/net/ipv4/ip_forward
  fi
  
- 
+ if [ "$BOX_TYPE" = "VNTXER5" ]; then

@@ -1,0 +1,10 @@
+[Unit]
+Description=OneWiFi WIFI Initialized Path
+
+[Path]
+PathExists=/tmp/wifi_driver_initialized
+Unit=onewifi.service
+
+[Install]
+WantedBy=multi-user.target
+

@@ -16,9 +16,15 @@ inherit systemd
 
 SOC="${@d.getVar('SOC_FAMILY', d, 1).split(':')[1]}"
 export SOC_T = "${@d.getVar('SOC', d, 0).split('_')[0]}"
-CFLAGS_append = "${@bb.utils.contains('SOC_T', "ipq807x", " -D_PLATFORM_IPQ807x", " ", d)}"
-CFLAGS_append = "${@bb.utils.contains('SOC_T', "ipq807x", " -DMAX_NUM_RADIOS=2", " ", d)}"
-CFLAGS_append = "${@bb.utils.contains('SOC_T', "ipq95xx", " -D_PLATFORM_IPQ95xx", " ", d)}"
+NUM_OF_RADIOS = "${@d.getVar('NUM_RADIOS', d, 1).split(':')[1]}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq807x', ' -D_PLATFORM_IPQ807x', ' ', d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq807x', ' -DMAX_NUM_RADIOS=2', ' ', d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq54xx', ' -DMAX_NUM_RADIOS=${NUM_OF_RADIOS}', ' ', d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq53xx', ' -DMAX_NUM_RADIOS=${NUM_OF_RADIOS}', ' ', d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq95xx', ' -DMAX_NUM_RADIOS=${NUM_OF_RADIOS}', ' ', d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq95xx', ' -D_PLATFORM_IPQ95xx', ' ', d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq96xx', ' -DMAX_NUM_RADIOS=${NUM_OF_RADIOS}', ' ', d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq96xx', ' -D_PLATFORM_IPQ96xx', ' ', d)}"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
 SRC_URI += " file://gw_prov_ethwan_sm-001.patch "
@@ -46,24 +52,3 @@ do_install_append () {
 	sed -i "s/#ExecStartPre=\/bin\/sh \/usr\/ccsp\/utopia_init.sh/ExecStartPre=\/bin\/sh \/etc\/utopia\/utopia_init.sh/g" ${D}${systemd_unitdir}/system/gwprovethwan.service
 #        sed -i "/gw_prov_ethwan/a ExecStartPost=/bin/sh -c 'cd /lib/systemd/system; sleep 10; systemctl restart ccspwifiagent.service'" ${D}${systemd_unitdir}/system/gwprovethwan.service
 }
-
-do_mypatch(){
-            if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/.gw_prov_ethwan_sm.c.patched ]; then
-                  patch ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/gw_prov_ethwan_sm.c < ${TOPDIR}/../meta-rdk-qcom/meta-cmf-ipq/recipes-ccsp/ccsp/gw_prov_ethwan_sm-001.patch
-                  touch ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/.gw_prov_ethwan_sm.c.patched
-            fi
-	    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/.IPQ_MACRO_Gw_prov-002.patched ]; then
-	          cd ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/
-	          patch -p2 < ${WORKDIR}/IPQ_MACRO_Gw_prov-002.patch
-                  cd -
-                  touch ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/.IPQ_MACRO_Gw_prov-002.patched
-            fi
-            
-            if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/.020-10G_wan_port_change_alder_gw_prov.patched ]; then
-                  patch ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/gw_prov_ethwan_sm.c < ${TOPDIR}/../meta-rdk-qcom/meta-cmf-ipq/recipes-ccsp/ccsp/020-10G_wan_port_change_alder_gw_prov.patch
-                  touch ${TOPDIR}/../rdkb/components/opensource/ccsp/GwProvApp-EthWan/source/020-10G_wan_port_change_alder_gw_prov.patched
-            fi
-
-}
-
-addtask mypatch after do_unpack before do_compile

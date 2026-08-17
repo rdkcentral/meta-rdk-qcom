@@ -1,5 +1,10 @@
 ####################################################################################
-# If not stated otherwise in this file or this component's LICENSE file the
+# Copyright (c) 2022 Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Licensed under the Apache License, Version 2.0
+#
+# Not a contribution.
+# If not stated otherwise in this file or this component's Licenses.txt file the
 # following copyright and licenses apply:
 #
 # Copyright 2018 RDK Management
@@ -16,7 +21,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ##################################################################################
-
 [Unit]
 Description=Parodus
 After=PsmSsp.service CcspPandMSsp.service ccspwifiagent.service CcspLMLite.service

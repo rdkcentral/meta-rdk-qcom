@@ -1,11 +1,3 @@
-Commit ID: be70cd84dbd82c51ec8cc0845386fa6acd767213
-From: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
-Date: Sun Aug 21 10:28:28 2022 +0530
-Subject: RDKB - Patch for sysevent ping failure
-Signed-off-by: Sarath Babu Shanmugam <ssarathb@qti.qualcomm.com>
-
----
-
 diff --git a/source/sysevent/server/syseventd_main.c b/source/sysevent/server/syseventd_main.c
 index 821278c..05407da 100644
 --- a/source/sysevent/server/syseventd_main.c

@@ -1,16 +1,8 @@
-Commit ID: a2b1366cae5d6482bb6466eaac1e7116aa802d17
-From: prasathr <prasathr@qti.qualcomm.com>
-Date: Wed Jul 19 12:32:04 2023 +0530
-Subject: [recipes-ccsp] Added HK Eth Port Changes
-Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
-
----
-
-diff --git a/source/TR-181/board_sbapi/cosa_ethernet_apis.c b/source/TR-181/board_sbapi/cosa_ethernet_apis.c
-index 15e7fd3..0219426 100755
---- a/source/TR-181/board_sbapi/cosa_ethernet_apis.c
-+++ b/source/TR-181/board_sbapi/cosa_ethernet_apis.c
-@@ -584,6 +584,8 @@ COSA_DML_IF_STATUS getIfStatus(const PUCHAR name, struct ifreq *pIfr)
+Index: git/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+===================================================================
+--- git.orig/source/TR-181/board_sbapi/cosa_ethernet_apis.c
++++ git/source/TR-181/board_sbapi/cosa_ethernet_apis.c
+@@ -641,6 +641,8 @@ COSA_DML_IF_STATUS getIfStatus(const PUC
  #define ETHWAN_DEF_INTF_NAME "eth4"
  #elif defined (INTEL_PUMA7)
  #define ETHWAN_DEF_INTF_NAME "nsgmii0"
@@ -18,15 +10,15 @@ index 15e7fd3..0219426 100755
 +#define ETHWAN_DEF_INTF_NAME "eth4"
  #elif defined (_PLATFORM_TURRIS_)
  #define ETHWAN_DEF_INTF_NAME "eth2"
- #else
-diff --git a/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h b/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
-index 7f15fa4..ff5f96a 100644
---- a/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
-+++ b/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
+ #elif defined (_PLATFORM_BANANAPI_R4_)
+Index: git/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
+===================================================================
+--- git.orig/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
++++ git/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_ext_arm.h
 @@ -45,18 +45,18 @@
  #define ETH_4_PORTS
  #endif
-
+ 
 -#define SWITCH_PORT_0_NAME "sw_1"
 -#define SWITCH_PORT_1_NAME "sw_2"
 -#define SWITCH_PORT_2_NAME "sw_3"
@@ -35,7 +27,7 @@ index 7f15fa4..ff5f96a 100644
 +#define SWITCH_PORT_1_NAME "eth2"
 +#define SWITCH_PORT_2_NAME "eth3"
 +#define SWITCH_PORT_3_NAME "eth4"
-
+ 
  #if defined (ETH_5_PORTS) || defined (ETH_6_PORTS) || defined (ETH_8_PORTS) || (defined(INTEL_PUMA7) && !defined(_ARRIS_XB6_PRODUCT_REQ_))
 -    #define SWITCH_PORT_4_NAME "sw_5"
 -    #define SWITCH_PORT_5_NAME "sw_6"
@@ -49,5 +41,5 @@ index 7f15fa4..ff5f96a 100644
 -    #define SWITCH_PORT_MOCA_NAME "sw_5"
 +    #define SWITCH_PORT_MOCA_NAME "eth5"
  #endif
-
+ 
  #define SWITCH_PORT_EWAN_NAME "ewan"

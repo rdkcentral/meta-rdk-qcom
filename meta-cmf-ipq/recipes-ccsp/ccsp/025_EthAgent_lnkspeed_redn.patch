@@ -1,0 +1,107 @@
+Index: git/config/TR181-EthAgent.xml
+===================================================================
+--- git.orig/config/TR181-EthAgent.xml
++++ git/config/TR181-EthAgent.xml
+@@ -201,7 +201,15 @@
+          <type>boolean</type>
+          <syntax>bool</syntax>
+          <writable>true</writable>
+-       </parameter>
++ </parameter>
++
++ 	<parameter>
++	<name>AdvertiseModes</name>
++         <type>string</type>
++         <syntax>string</syntax>
++         <writable>true</writable>
++ 	</parameter>
++
+        <parameter>
+          <name>Status</name>
+          <type>string: Up(1),Down(2),Unknown(3),Dormant(4),NotPresent(5),LowerLayerDown(6),Error(7)</type>
+Index: git/source/TR-181/include/cosa_ethernet_apis.h
+===================================================================
+--- git.orig/source/TR-181/include/cosa_ethernet_apis.h
++++ git/source/TR-181/include/cosa_ethernet_apis.h
+@@ -411,6 +411,8 @@ _COSA_DML_ETH_PORT_CFG
+     BOOLEAN                         bEnabled;
+     LONG                            MaxBitRate;
+     COSA_DML_ETH_DUPLEX_MODE        DuplexMode;
++
++    char                            AdvertiseModes[256];
+ }
+ COSA_DML_ETH_PORT_CFG,  *PCOSA_DML_ETH_PORT_CFG;
+ 
+Index: git/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
+===================================================================
+--- git.orig/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
++++ git/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
+@@ -49,8 +49,6 @@
+ #endif
+ #endif
+ #include "safec_lib_common.h"
+-
+-
+ /***********************************************************************
+ 
+  APIs for Object:
+@@ -409,6 +407,18 @@ Interface_GetParamStringValue
+         return 0;
+     }
+ 
++    if (strcmp(ParamName, "AdvertiseModes") == 0)
++     {
++        int instance = pEthernetPortFull->Cfg.InstanceNumber;
++        if(EthHal_GetAdvertisedModes(instance,pEthernetPortFull->StaticInfo.Name,pValue,pUlSize) != ANSC_STATUS_SUCCESS)
++	{
++             return -1;
++	}
++        strcpy(pEthernetPortFull->Cfg.AdvertiseModes,pValue);
++        return 0;
++
++     }
++    
+     if (strcmp(ParamName, "Name") == 0)
+     {
+ #if defined(_PLATFORM_IPQ53xx) || defined(_PLATFORM_IPQ54xx)
+@@ -437,8 +447,8 @@ Interface_GetParamStringValue
+        strlcpy(sw_port_name, "eth2", sizeof(sw_port_name));
+        if ((instance == 2) || (instance == 3) || (instance == 4) || (instance == 5))
+        {
+-           AnscCopyString(pValue, sw_port_name);
+-           return 0;
++          AnscCopyString(pValue, sw_port_name);
++          return 0;
+        }
+ #endif
+         /* collect value */
+@@ -541,6 +551,10 @@ Interface_GetParamStringValue
+             return 1;
+         }
+     }
++    
++    
++
++
+     /* CcspTraceWarning(("Unsupported parameter '%s'\n", ParamName)); */
+     return -1;
+ }
+@@ -764,6 +778,18 @@ Interface_SetParamStringValue
+ 	    return TRUE;
+ 	}
+     }
++    
++    if (strcmp(ParamName, "AdvertiseModes") == 0)
++     {
++
++        int  instance = pEthernetPortFull->Cfg.InstanceNumber;
++        if(EthHal_SetAdvertisedModes(instance,pEthernetPortFull->StaticInfo.Name,pString) != ANSC_STATUS_SUCCESS)
++        {
++            return FALSE;
++        }
++
++        return TRUE;
++      }
+ 
+     if (strcmp(ParamName, "LowerLayers") == 0)
+     {

@@ -15,21 +15,16 @@ SRC_URI_append = " \
     file://ipq807x_system_defaults \
     file://ipq95xx_64_system_defaults \
     file://ipq95xx_system_defaults \
-    file://0004-service-wan.patch \
+    file://ipq96xx_64_system_defaults \
+    file://ipq96xx_system_defaults \
+    file://ipq52xx_64_system_defaults \
+    file://ipq52xx_system_defaults \
     file://005-lan-handler-dhcp-server-functions.patch \
     file://0006-sysevetd-main.patch \
     file://0007-firewall.patch \
     file://0008-geneiacs-server.patch \
     file://0009-lan-handler-psm-rpi-ipq.patch \
-    file://0010-service-multinet.patch \
-    file://0011-handle-gre.patch \
-    file://0005-service-lan.patch \
-    file://0012-service-gre-route-add.patch \
-    file://0013-service-dhcp-for-four-bridge.patch \
-    file://0014-service-dhcp-server-fix.patch \
-    file://015_PPPoE_SNAT-in-Firewall.patch \
     file://016_power_save.patch \
-    file://multiple_reboot.patch \
     file://019-ezmesh-firewall-sysevent.patch \
     file://020-Captive_Portal_dhcp_server_function.patch \
     file://021-dibbler_restart_for_dslite_tunnel_creation.patch \
@@ -39,8 +34,9 @@ SRC_URI_append = " \
     file://025-dropbear-enablement-fix.patch \
     file://026-utopia-init-fix.patch \
     file://025-dhcp_mode_and_ppp_trafficflow_fix.patch  \
-    file://026-potd_console_flood_fix.patch  \
-    file://027-syscfg_init_fix.patch \
+    file://026-potd_console_flood_fix.patch \
+    file://028-qca-multinet-bringup.patch \
+    file://029-multinet-binary-enable.patch \
 "
 
 SSTATE_ALLOW_OVERLAP_FILES += "${STAGING_DIR_TARGET}${includedir}/utctx/autoconf.h"
@@ -53,7 +49,6 @@ LDFLAGS_append = " \
     -lbreakpadwrapper \
     -lhal_platform \
 "
-
 CFLAGS_append = " -Wno-format-extra-args -Wno-error "
 
 do_install_append() {
@@ -96,6 +91,7 @@ do_install_append() {
     install -m 755 ${S}/source/scripts/init/service.d/service_wan/*.sh ${D}${sysconfdir}/utopia/service.d/service_wan
     install -m 755 ${S}/source/scripts/init/service.d/service_firewall/firewall_log_handle.sh ${D}${sysconfdir}/utopia/service.d/
     install -m 644 ${S}/source/igd/src/inc/*.xml ${D}${sysconfdir}/IGD
+    install -m 644 ${S}/source/scripts/init/syslog_conf/syslog.conf_default ${D}${sysconfdir}/
     install -D -m 644 ${S}/source/scripts/init/syslog_conf/syslog.conf_default ${D}/fss/gw/${sysconfdir}/syslog.conf.${BPN}
     install -m 755 ${S}/source/scripts/init/syslog_conf/log_start.sh ${D}${sbindir}/
     install -m 755 ${S}/source/scripts/init/syslog_conf/log_handle.sh ${D}${sbindir}/
@@ -122,7 +118,6 @@ do_install_append() {
     ln -sf /usr/bin/02_lanHandler ${D}${sysconfdir}/utopia/registration.d/02_lanHandler
     ln -sf /usr/bin/02_multinet ${D}${sysconfdir}/utopia/registration.d/02_multinet
     ln -sf /usr/bin/02_wan ${D}${sysconfdir}/utopia/registration.d/02_wan
-    ln -sf /usr/bin/02_wlan ${D}${sysconfdir}/utopia/registration.d/02_wlan
     ln -sf /usr/bin/15_ccsphs ${D}${sysconfdir}/utopia/registration.d/15_ccsphs
     ln -sf /usr/bin/15_ddnsclient ${D}${sysconfdir}/utopia/registration.d/15_ddnsclient
     ln -sf /usr/bin/15_dhcp_server ${D}${sysconfdir}/utopia/registration.d/15_dhcp_server
@@ -142,8 +137,8 @@ do_install_append() {
     ln -sf /usr/bin/syseventd_fork_helper ${D}/fss/gw/usr/bin/syseventd_fork_helper
     ln -sf /usr/sbin/log_start.sh ${D}/fss/gw/usr/sbin/log_start.sh
     ln -sf /usr/sbin/log_handle.sh ${D}/fss/gw/usr/sbin/log_handle.sh
-    ln -sf /etc/syslog.conf.utopia ${D}/fss/gw/etc/syslog.conf.utopia
     ln -sf /etc/utopia/service.d/misc_handler.sh ${D}/fss/gw/etc/utopia/service.d/misc_handler.sh
+    ln -sf /usr/bin/15_dynamic_dns ${D}${sysconfdir}/utopia/registration.d/15_dynamic_dns
 
     install -m 755 ${WORKDIR}/system_defaults ${D}${sysconfdir}/utopia/system_defaults
 
@@ -162,140 +157,6 @@ do_install_append() {
 
 do_install_append() {
      cp ${WORKDIR}/${SOC}_system_defaults ${D}${sysconfdir}/utopia/system_defaults
-}
-
-do_utopia_patches_append() {
-    cd ${S}
-    if [ ! -e .0004-service-wan-patched ]; then
-        patch -p1 < ${WORKDIR}/0004-service-wan.patch
-        touch .0004-service-wan-patched
-    fi
-
-    if [ ! -e .005-lan-handler-dhcp-server-functions-patched ]; then
-        patch -l -p1 < ${WORKDIR}/005-lan-handler-dhcp-server-functions.patch
-        touch .005-lan-handler-dhcp-server-functions-patched
-    fi
-
-    if [ ! -e .0006-sysevetd-main.patched ]; then
-        patch -p1 < ${WORKDIR}/0006-sysevetd-main.patch
-        touch .0006-sysevetd-main.patched
-    fi
-
-    if [ ! -e .0007-firewall.patched ]; then
-        patch -l -p1 < ${WORKDIR}/0007-firewall.patch
-        touch .0007-firewall.patched
-    fi
-
-    if [ ! -e .0008-geneiacs-server.patched ]; then
-        patch -p1 < ${WORKDIR}/0008-geneiacs-server.patch
-        touch .0008-geneiacs-server.patched
-    fi
-
-    if [ ! -e .0009-lan-handler-psm-rpi-ipq.patched ]; then
-        patch -p1 < ${WORKDIR}/0009-lan-handler-psm-rpi-ipq.patch
-        touch .0009-lan-handler-psm-rpi-ipq.patched
-    fi
-
-    if [ ! -e .0010-service-multinet.patched ]; then
-        patch -p1 < ${WORKDIR}/0010-service-multinet.patch
-        touch .0010-service-multinet.patched
-    fi
-
-    if [ ! -e .0011-handle-gre.patched ]; then
-        patch -p1 < ${WORKDIR}/0011-handle-gre.patch
-        touch .0011-handle-gre.patched
-    fi
-
-    if [ ! -e .0005-service-lan.patched ]; then
-        patch -p1 < ${WORKDIR}/0005-service-lan.patch
-        touch .0005-service-lan.patched
-    fi
-
-    if [ ! -e .0012-service-gre-route-add.patched ]; then
-        patch -p1 < ${WORKDIR}/0012-service-gre-route-add.patch
-        touch .0012-service-gre-route-add.patched
-    fi
-
-    if [ ! -e .0013-service-dhcp-for-four-bridge.patched ]; then
-        patch -p1 -l < ${WORKDIR}/0013-service-dhcp-for-four-bridge.patch
-        touch .0013-service-dhcp-for-four-bridge.patched
-    fi
-
-    if [ ! -e .0014-service-dhcp-server-fix.patched ]; then
-	patch -p1 < ${WORKDIR}/0014-service-dhcp-server-fix.patch
-	touch .0014-service-dhcp-server-fix.patched
-    fi
-
-    if [ ! -e .015_PPPoE_SNAT-in-Firewall.patched ]; then
-	patch -p1 < ${WORKDIR}/015_PPPoE_SNAT-in-Firewall.patch
-	touch .015_PPPoE_SNAT-in-Firewall.patched
-    fi
-
-     if [ ! -e .016_power_save.patched ]; then
-         patch -p1 < ${WORKDIR}/016_power_save.patch
-         touch .016_power_save.patched
-     fi
-
-     if [ ! -e .multiple_reboot.patched ]; then
-        patch -p1 < ${WORKDIR}/multiple_reboot.patch
-        touch .multiple_reboot.patched
-    fi
-
-     if [ ! -e .019-ezmesh-firewall-sysevent.patched ]; then
-         patch -p1 < ${WORKDIR}/019-ezmesh-firewall-sysevent.patch
-         touch .019-ezmesh-firewall-sysevent.patched
-     fi
-
-     if [ ! -e .020-Captive_Portal_dhcp_server_function.patched ]; then
-         patch -p1 < ${WORKDIR}/020-Captive_Portal_dhcp_server_function.patch
-         touch .020-Captive_Portal_dhcp_server_function.patched
-     fi
-
-     if [ ! -e .021-dibbler_restart_for_dslite_tunnel_creation.patched ]; then
-         patch -p1 < ${WORKDIR}/021-dibbler_restart_for_dslite_tunnel_creation.patch
-         touch .021-dibbler_restart_for_dslite_tunnel_creation.patched
-     fi
-
-     if [ ! -e .022-enable_bridge_multicast.patched ]; then
-         patch -p1 < ${WORKDIR}/022-enable_bridge_multicast.patch
-	 touch .022-enable_bridge_multicast.patched
-     fi
-
-     if [ ! -e .023-IPv6_GRETAP_Tunnel_Interface_fix.patched ]; then
-         patch -p1 < ${WORKDIR}/023-IPv6_GRETAP_Tunnel_Interface_fix.patch
-         touch .023-IPv6_GRETAP_Tunnel_Interface_fix.patched
-     fi
-
-     if [ ! -e .0015-service-bridge_wan_fix.patched ]; then
-         patch -p1 < ${WORKDIR}/0015-service-bridge_wan_fix.patch
-         touch .0015-service-bridge_wan_fix.patched
-     fi
-
-     if [ ! -e .025-dropbear-enablement-fix.patched ]; then
-         patch -p1 < ${WORKDIR}/025-dropbear-enablement-fix.patch
-         touch .025-dropbear-enablement-fix.patched
-     fi
-
-     if [ ! -e .026-utopia-init-fix.patched ]; then
-         patch -p1 < ${WORKDIR}/026-utopia-init-fix.patch
-         touch .026-utopia-init-fix.patched
-     fi
-
-     if [ ! -e .025-dhcp_mode_and_ppp_trafficflow_fix.patched ]; then
-         patch -p1 < ${WORKDIR}/025-dhcp_mode_and_ppp_trafficflow_fix.patch
-         touch .025-dhcp_mode_and_ppp_trafficflow_fix.patched
-     fi
-
-     if [ ! -e .026-potd_console_flood_fix.patched ]; then
-         patch -p1 < ${WORKDIR}/026-potd_console_flood_fix.patch
-         touch .026-potd_console_flood_fix.patched
-      fi
-
-     if [ ! -e .027-syscfg_init_fix.patched ]; then
-         patch -p1 < ${WORKDIR}/027-syscfg_init_fix.patch
-         touch .027-syscfg_init_fix.patched
-     fi
-    cd -
 }
 
 FILES_${PN} += " \

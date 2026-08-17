@@ -1,6 +1,11 @@
 ###########################################################################
-# If not stated otherwise in this file or this component's LICENSE file the
-# following copyright and licenses apply:
+# Copyright (c) 2022 Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Licensed under the Apache License, Version 2.0
+#
+# Not a contribution.
+# If not stated otherwise in this file or this component's Licenses.txt
+# file the following copyright and licenses apply:
 #
 # Copyright 2019 RDK Management
 #
@@ -19,12 +24,13 @@
 
 [Unit]
 Description=CcspWebUI service
-After=gwprovethwan.service
-wants=gwprovethwan.service
+After=CcspLMLite.service
+Wants=CcspLMLite.service
 
 [Service]
 Type=forking
 WorkingDirectory=/usr/www2
+ExecStartPre=/bin/rm -f /tmp/webgui.lock
 ExecStart=/bin/sh /lib/rdk/CcspWebUI.sh
 Restart=always
 StandardOutput=journal

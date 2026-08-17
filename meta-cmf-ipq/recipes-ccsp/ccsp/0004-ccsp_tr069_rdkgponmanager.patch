@@ -1,16 +1,8 @@
-Commit ID: 9439f1ceeb2c89e639f06079a724073b75d2f0ed
-From: sreehari ramanjula <sramanju@qti.qualcomm.com>
-Date: Thu Feb 22 22:03:21 2024 +0530
-Subject: recipes-ccsp: add missing datamodels
-Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
-
----
-
-diff --git a/config/ccsp_tr069_pa_mapper_arm.xml b/config/ccsp_tr069_pa_mapper_arm.xml
-index e0f302b..831e041 100644
---- a/config/ccsp_tr069_pa_mapper_arm.xml
-+++ b/config/ccsp_tr069_pa_mapper_arm.xml
-@@ -7461,6 +7461,323 @@
+Index: git/config/ccsp_tr069_pa_mapper_arm.xml
+===================================================================
+--- git.orig/config/ccsp_tr069_pa_mapper_arm.xml
++++ git/config/ccsp_tr069_pa_mapper_arm.xml
+@@ -7514,6 +7514,323 @@
              <Name>Device.DynamicDNS.Client.{i}.Hostname.{i}.LastUpdate</Name>
          </Param>
  

@@ -1,39 +1,3 @@
-####################################################################################
-# If not stated otherwise in this file or this component's LICENSE file the
-# following copyright and licenses apply:
-#
-# Copyright 2018 RDK Management
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-##################################################################################
-
-##################################################################################
-# Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
-# Copyright (c) 2017, 2024 Qualcomm Innovation Center, Inc. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-##################################################################################
-
 ################################################################################
 # This file contains system defaults which will be used
 # if, and only if, the value has not yet been set
@@ -66,20 +30,6 @@ $$Version=11
 # wan_ifname is the name (as known to the OS) of the wan interface
 @wan_ifname=erouter0
 
-$ap-dk01.1-c1-wanports=0t 5
-$ap-dk01.1-c1-lanports=0t 1 2 3 4
-$ap-dk04.1-c1-wanports=0t 5
-$ap-dk04.1-c1-lanports=0t 1 2 3 4
-$ap-dk04.1-c2-wanports=0t 5
-$ap-dk04.1-c2-lanports=0t 1 2 3 4
-$ap-dk04.1-c3-wanports=0t 5
-$ap-dk04.1-c3-lanports=0t 1 2 3 4
-$ap-dk04.1-c4-wanports=0t 4 5
-$ap-dk04.1-c4-lanports=0t 1 2 3
-$ap-dk07.1-c1-wanports=0t 5
-$ap-dk07.1-c1-lanports=0t 1 2 3 4
-$ap-dk07.1-c2-wanports=0t 5
-$ap-dk07.1-c2-lanports=0t 1 2 3 4
 # model_name          - display friendly model name of this device
 @model_name=USGv2 0x00000004
 
@@ -399,6 +349,10 @@ $$enable_rps=1
 # $wl_wmm_support=enabled
 # $wl_no_acknowledgement=disabled
 
+# WiFi Band Steering
+$band_steering_enable=0
+$RssiThreshold0=-100
+$RssiThreshold1=-100
 # lan_ipaddr          - the ip address to assign the lan_ifname
 # lan_netmask         - the netmask to assign the lan_ifname
 $lan_ipaddr=192.168.1.1
@@ -560,6 +514,9 @@ $user_name_3=admin
 $user_password_1=W2402
 $user_password_2=WebUI
 $user_password_3=password
+$hash_password_1=
+$hash_password_2=
+$hash_password_3=
 $user_insNum_1=1
 $user_insNum_2=2
 $user_insNum_3=3
@@ -576,6 +533,7 @@ $mgmt_https_enable=0
 $mgmt_wifi_access=1
 
 $mgmt_wan_access=1
+$mgmt_wan_httpaccess_ert=1
 $mgmt_wan_httpaccess=1
 $mgmt_wan_httpsaccess=0
 $mgmt_wan_sshaccess=1
@@ -722,13 +680,10 @@ $6rd_enable=0
 $ipv6_static_enable=0
 
 # WAN static interface configuration (optional when SLAAC is used)
-#$wan_ipv6addr=2001:db8:cafe:baba::1
-#$wan_ipv6_prefix=64
+#$wan_ipv6addr=2001:db8:cafe:baba::1/64
 #$wan_ipv6_default_gateway=fe80::bad:babe
-
 # LAN static interface configuration MANDATORY when ipv6_static_enable == 1
-#$lan_ipv6addr=2001:db8:f00::1
-#$lan_ipv6_prefix=64
+#$lan_ipv6addr=2001:db8:f00::1/64
 
 # router advertisement provisioning on LAN side
 # $router_adv_enable= 0|1
@@ -795,7 +750,7 @@ $log_level=2
 $log_remote=0
 
 # Samba usb storage filesystem
-$samba_server_enabled=1
+#$samba_server_enabled=0
 
 # Quality of Service
 #------------------
@@ -822,11 +777,6 @@ $bridge_ipaddr=192.168.1.1
 $bridge_netmask=255.255.255.0
 $bridge_default_gateway=0.0.0.0
 
-$bridge_ipv6addr=2001:db8:f00::1/64
-$bridge_ipv6_default_gateway=fe80::bad:babe
-
-# Specifies the mode of operation(IPV4(1), IPV6(2), mix(3)) in pure bridge
-$bridge_ip_mode=1
 
 # Wifi Bridge Mode Settings
 #------------------
@@ -905,6 +855,10 @@ $dhcpv6spool0option1::bEnabled=1
 $dhcpv6spool0option1::Tag=24
 $dhcpv6spool0option1::PassthroughClient=Device.DHCPv6.Client.1.
 
+#CAPTIVE PORTAL
+$CaptivePortal_Enable=true
+$redirection_flag=true
+
 #CCSP RECOVERY MONITOR
 $ccsp_recovery_enable=1
 
@@ -926,7 +880,7 @@ $ManagedServiceTrustCount=0
 $ManagedDeviceCount=0
 
 #HS Port Forward Defaults
-$CosaNAT::port_trigger_enabled=1
+$CosaNAT::port_trigger_enabled=0
 $CosaNAT::port_forward_enabled=1
 $CosaNAT::port_hs_forward_enabled=1
 
@@ -944,7 +898,8 @@ $rlog_host=192.168.0.120
 $rlog_port=514
 
 #Firewall log settings
-$FW_LOG_FILE_PATH=/nvram2/log/firewall
+$FW_LOG_FILE_PATH=/nvram/log/firewall
+@FW_LOG_FILE_PATH_V2=/nvram/log/firewall
 $$FW_LOG_COMPRESSED_FILE_SIZE=10
 
 #SYSTEM log settings
@@ -996,387 +951,36 @@ $wan_netmask=0.0.0.0
 $wan_default_gateway=0.0.0.0
 $nameserver1=0.0.0.0
 $nameserver2=0.0.0.0
-
-#Hostname Default
 $hostname=ipq40xx
+$ems_server_url=dummyurl
 
-# mcs settings
-$mcsd_Enable=1
-$mcsd_SwitchLanVid=1
-$mcsd_SwitchInterface=auto
+#self heal
+$todays_reset_count=0
+$todays_reboot_count=0
+$lastActiontakentime=0
+$last_router_reboot_time=0
+$router_reboot_Interval=28800
+$ConnTest_PingInterval=60
+$selfheal_ping_DataBlockSize=56
+$selfheal_dns_pingtest_enable=true
+$selfheal_dns_pingtest_url=www.google.com
+$ConnTest_CorrectiveAction=true
+$selfheal_enable=true
+$max_reset_count=3
+$max_reboot_count=3
+$highloadavg_reboot_count=0
+$avg_cpu_threshold=100
+$avg_memory_threshold=100
+$resource_monitor_interval=15
+$ConnTest_NumPingsPerServer=3
+$ConnTest_MinNumPingServer=1
+$ConnTest_PingRespWaitTime=1000
+$AggressiveInterval=5
 
-#mcproxy settings
-$mcproxy.name=mcproxy
-$mcproxy.upstream=erouter0
-$mcproxy.downstream=brlan0
-$mcproxy.protocol=IGMPv3
+#Enable IPv6 prefix
+$IPv6subPrefix=true
 
-# dummy values
-@hotspotfd-primary=127.0.0.1
-@hotspotfd-secondary=127.0.0.1
-@hotspotfd-keep-alive=1
-@hotspotfd-threshold=12
-@hotspotfd-max-secondary=1
-@hotspotfd-count=10
-
-# WiFi Configuration
-$X_RDKCENTRAL-COM_TR69_LoggerEnable=1
-$X_RDKCENTRAL-COM_EthAgent_LoggerEnable=1
-$X_RDKCENTRAL-COM_WiFi_LoggerEnable=1
-$X_RDKCENTRAL-COM_PSM_LoggerEnable=1
-$X_RDKCENTRAL-COM_PAM_LoggerEnable=1
-$nl80211-phyMode-ath0-mode=11GHE20
-$nl80211-phyMode-ath1-mode=11AHE160
-$nl80211-phyMode-ath2-mode=11GHE20
-$nl80211-phyMode-ath3-mode=11AHE160
-$nl80211-phyMode-ath4-mode=11GHE20
-$nl80211-phyMode-ath5-mode=11AHE160
-$nl80211-phyMode-ath6-mode=11GHE20
-$nl80211-phyMode-ath7-mode=11AHE160
-$nl80211-phyMode-ath8-mode=11GHE20
-$nl80211-phyMode-ath9-mode=11AHE160
-$nl80211-phyMode-ath10-mode=11GHE20
-$nl80211-phyMode-ath11-mode=11AHE160
-$nl80211-phyMode-ath12-mode=11GHE20
-$nl80211-phyMode-ath13-mode=11AHE160
-$nl80211-phyMode-ath14-mode=11GHE20
-$nl80211-phyMode-ath15-mode=11AHE160
-$nl80211-phyMode-ath16-mode=11AHE80
-$nl80211-phyMode-ath17-mode=11AHE80
-$nl80211-phyMode-ath18-mode=11AHE80
-$nl80211-phyMode-ath19-mode=11AHE80
-$nl80211-phyMode-ath20-mode=11AHE80
-$nl80211-phyMode-ath21-mode=11AHE80
-$nl80211-phyMode-ath22-mode=11AHE80
-$nl80211-phyMode-ath23-mode=11AHE80
-$nl80211-vap-ath0-shortgi=1
-$nl80211-vap-ath1-shortgi=1
-$nl80211-vap-ath2-shortgi=1
-$nl80211-vap-ath3-shortgi=1
-$nl80211-vap-ath4-shortgi=1
-$nl80211-vap-ath5-shortgi=1
-$nl80211-vap-ath6-shortgi=1
-$nl80211-vap-ath7-shortgi=1
-$nl80211-vap-ath8-shortgi=1
-$nl80211-vap-ath9-shortgi=1
-$nl80211-vap-ath10-shortgi=1
-$nl80211-vap-ath11-shortgi=1
-$nl80211-vap-ath12-shortgi=1
-$nl80211-vap-ath13-shortgi=1
-$nl80211-vap-ath14-shortgi=1
-$nl80211-vap-ath15-shortgi=1
-$nl80211-vap-ath16-shortgi=1
-$nl80211-vap-ath17-shortgi=1
-$nl80211-vap-ath18-shortgi=1
-$nl80211-vap-ath19-shortgi=1
-$nl80211-vap-ath20-shortgi=1
-$nl80211-vap-ath21-shortgi=1
-$nl80211-vap-ath22-shortgi=1
-$nl80211-vap-ath23-shortgi=1
-#$nl80211-vap-ath0-he_rtsthrshld=1023
-#$nl80211-vap-ath1-he_rtsthrshld=1023
-#$nl80211-vap-ath2-he_rtsthrshld=1023
-#$nl80211-vap-ath3-he_rtsthrshld=1023
-#$nl80211-vap-ath4-he_rtsthrshld=1023
-#$nl80211-vap-ath5-he_rtsthrshld=1023
-#$nl80211-vap-ath14-he_rtsthrshld=1023
-#$nl80211-vap-ath15-he_rtsthrshld=1023
-#$nl80211-vap-ath16-he_rtsthrshld=1023
-$iwconfig-ath0-txpower=30
-$iwconfig-ath1-txpower=24
-$iwconfig-ath2-txpower=24
-$nl80211-vap-ath0-set_bcn_rate=1000
-$nl80211-vap-ath1-set_bcn_rate=6000
-$nl80211-vap-ath2-set_bcn_rate=1000
-$nl80211-vap-ath3-set_bcn_rate=6000
-$nl80211-vap-ath4-set_bcn_rate=1000
-$nl80211-vap-ath5-set_bcn_rate=6000
-$nl80211-vap-ath6-set_bcn_rate=1000
-$nl80211-vap-ath7-set_bcn_rate=6000
-$nl80211-vap-ath8-set_bcn_rate=1000
-$nl80211-vap-ath9-set_bcn_rate=6000
-$nl80211-vap-ath10-set_bcn_rate=1000
-$nl80211-vap-ath11-set_bcn_rate=6000
-$nl80211-vap-ath12-set_bcn_rate=1000
-$nl80211-vap-ath13-set_bcn_rate=6000
-$nl80211-vap-ath14-set_bcn_rate=1000
-$nl80211-vap-ath15-set_bcn_rate=6000
-$nl80211-vap-ath16-set_bcn_rate=1000
-$nl80211-vap-ath17-set_bcn_rate=1000
-$nl80211-vap-ath18-set_bcn_rate=1000
-$nl80211-vap-ath19-set_bcn_rate=1000
-$nl80211-vap-ath20-set_bcn_rate=1000
-$nl80211-vap-ath21-set_bcn_rate=1000
-$nl80211-vap-ath22-set_bcn_rate=1000
-$nl80211-vap-ath23-set_bcn_rate=1000
-#$nl80211-vap-ath0-amsdu=1
-#$nl80211-vap-ath1-amsdu=1
-#$nl80211-vap-ath2-amsdu=1
-#$nl80211-vap-ath3-amsdu=1
-#$nl80211-vap-ath4-amsdu=1
-#$nl80211-vap-ath5-amsdu=1
-#$nl80211-vap-ath14-amsdu=1
-#$nl80211-vap-ath15-amsdu=1
-#$nl80211-vap-ath16-amsdu=1
-#$nl80211-vap-ath0-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath1-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath2-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath3-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath4-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath5-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath14-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath15-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath16-s_txpow_mgmt-0x80=255
-#$nl80211-vap-ath0-vlan_tag=0
-#$nl80211-vap-ath1-vlan_tag=0
-#$nl80211-vap-ath2-vlan_tag=0
-#$nl80211-vap-ath3-vlan_tag=0
-#$nl80211-vapl-ath4-vlan_tag=0
-#$nl80211-vap-ath5-vlan_tag=0
-#$nl80211-vap-ath14-vlan_tag=0
-#$nl80211-vap-ath15-vlan_tag=0
-#$nl80211-vap-ath16-vlan_tag=0
-#$nl80211-vap-ath0-setaddbaoper=1
-#$nl80211-vap-ath1-setaddbaoper=1
-#$nl80211-vap-ath2-setaddbaoper=1
-#$nl80211-vap-ath3-setaddbaoper=1
-#$nl80211-vap-ath4-setaddbaoper=1
-#$nl80211-vap-ath5-setaddbaoper=1
-#$nl80211-vap-ath14-setaddbaoper=1
-#$nl80211-vap-ath15-setaddbaoper=1
-#$nl80211-vap-ath16-setaddbaoper=1
-$nl80211-vap-ath0-disablecoext=0
-$nl80211-vap-ath1-disablecoext=0
-$nl80211-vap-ath2-disablecoext=0
-$nl80211-vap-ath3-disablecoext=0
-$nl80211-vap-ath4-disablecoext=0
-$nl80211-vap-ath5-disablecoext=0
-$nl80211-vap-ath6-disablecoext=0
-$nl80211-vap-ath7-disablecoext=0
-$nl80211-vap-ath8-disablecoext=0
-$nl80211-vap-ath9-disablecoext=0
-$nl80211-vap-ath10-disablecoext=0
-$nl80211-vap-ath11-disablecoext=0
-$nl80211-vap-ath12-disablecoext=0
-$nl80211-vap-ath13-disablecoext=0
-$nl80211-vap-ath14-disablecoext=0
-$nl80211-vap-ath15-disablecoext=0
-$nl80211-vap-ath16-disablecoext=0
-$nl80211-vap-ath17-disablecoext=0
-$nl80211-vap-ath18-disablecoext=0
-$nl80211-vap-ath19-disablecoext=0
-$nl80211-vap-ath20-disablecoext=0
-$nl80211-vap-ath21-disablecoext=0
-$nl80211-vap-ath22-disablecoext=0
-$nl80211-vap-ath23-disablecoext=0
-#$nl80211-vap-ath0-protmode=0
-#$nl80211-vap-ath1-protmode=0
-#$nl80211-vap-ath2-protmode=0
-#$nl80211-vap-ath3-protmode=0
-#$nl80211-vap-ath4-protmode=0
-#$nl80211-vap-ath5-protmode=0
-#$nl80211-vap-ath14-protmode=0
-#$nl80211-vap-ath15-protmode=0
-#$nl80211-vap-ath16-protmode=0
-$nl80211-radio-wifi0-enable_ol_stats=1
-$nl80211-radio-wifi1-enable_ol_stats=1
-$nl80211-radio-wifi2-enable_ol_stats=1
-$nl80211-radio-wifi0-blockdfslist=0
-$nl80211-radio-wifi1-blockdfslist=0
-$nl80211-radio-wifi2-blockdfslist=0
-$nl80211-vap-ath0-tx_stbc=1
-$nl80211-vap-ath1-tx_stbc=1
-$nl80211-vap-ath2-tx_stbc=1
-$nl80211-vap-ath3-tx_stbc=1
-$nl80211-vap-ath4-tx_stbc=1
-$nl80211-vap-ath5-tx_stbc=1
-$nl80211-vap-ath6-tx_stbc=1
-$nl80211-vap-ath7-tx_stbc=1
-$nl80211-vap-ath8-tx_stbc=1
-$nl80211-vap-ath9-tx_stbc=1
-$nl80211-vap-ath10-tx_stbc=1
-$nl80211-vap-ath11-tx_stbc=1
-$nl80211-vap-ath12-tx_stbc=1
-$nl80211-vap-ath13-tx_stbc=1
-$nl80211-vap-ath14-tx_stbc=1
-$nl80211-vap-ath15-tx_stbc=1
-$nl80211-vap-ath16-tx_stbc=1
-$nl80211-vap-ath17-tx_stbc=1
-$nl80211-vap-ath18-tx_stbc=1
-$nl80211-vap-ath19-tx_stbc=1
-$nl80211-vap-ath20-tx_stbc=1
-$nl80211-vap-ath21-tx_stbc=1
-$nl80211-vap-ath22-tx_stbc=1
-$nl80211-vap-ath23-tx_stbc=1
-$nl80211-vap-ath0-rx_stbc=1
-$nl80211-vap-ath1-rx_stbc=1
-$nl80211-vap-ath2-rx_stbc=1
-$nl80211-vap-ath3-rx_stbc=1
-$nl80211-vap-ath4-rx_stbc=1
-$nl80211-vap-ath5-rx_stbc=1
-$nl80211-vap-ath6-rx_stbc=1
-$nl80211-vap-ath7-rx_stbc=1
-$nl80211-vap-ath8-rx_stbc=1
-$nl80211-vap-ath9-rx_stbc=1
-$nl80211-vap-ath10-rx_stbc=1
-$nl80211-vap-ath11-rx_stbc=1
-$nl80211-vap-ath12-rx_stbc=1
-$nl80211-vap-ath13-rx_stbc=1
-$nl80211-vap-ath14-rx_stbc=1
-$nl80211-vap-ath15-rx_stbc=1
-$nl80211-vap-ath16-rx_stbc=1
-$nl80211-vap-ath17-rx_stbc=1
-$nl80211-vap-ath18-rx_stbc=1
-$nl80211-vap-ath19-rx_stbc=1
-$nl80211-vap-ath20-rx_stbc=1
-$nl80211-vap-ath21-rx_stbc=1
-$nl80211-vap-ath22-rx_stbc=1
-$nl80211-vap-ath23-rx_stbc=1
-#$nl80211-vap-ath0-he_mcs=11
-#$nl80211-vap-ath1-he_mcs=11
-#$nl80211-vap-ath2-he_mcs=11
-#$nl80211-vap-ath3-he_mcs=11
-#$nl80211-vap-ath4-he_mcs=11
-#$nl80211-vap-ath5-he_mcs=11
-#$nl80211-vap-ath14-he_mcs=11
-#$nl80211-vap-ath15-he_mcs=11
-#$nl80211-vap-ath16-he_mcs=11
-#$nl80211-vap-ath0-wps=0
-#$nl80211-vap-ath1-wps=0
-#$nl80211-vap-ath2-wps=0
-#$nl80211-vap-ath3-wps=0
-#$nl80211-vap-ath4-wps=0
-#$nl80211-vap-ath5-wps=0
-#$nl80211-vap-ath14-wps=0
-#$nl80211-vap-ath15-wps=0
-#$nl80211-vap-ath16-wps=0
-$nl80211-vap-ath0-bintval=100
-$nl80211-vap-ath1-bintval=100
-$nl80211-vap-ath2-bintval=100
-$nl80211-vap-ath3-bintval=100
-$nl80211-vap-ath4-bintval=100
-$nl80211-vap-ath5-bintval=100
-$nl80211-vap-ath6-bintval=100
-$nl80211-vap-ath7-bintval=100
-$nl80211-vap-ath8-bintval=100
-$nl80211-vap-ath9-bintval=100
-$nl80211-vap-ath10-bintval=100
-$nl80211-vap-ath11-bintval=100
-$nl80211-vap-ath12-bintval=100
-$nl80211-vap-ath13-bintval=100
-$nl80211-vap-ath14-bintval=100
-$nl80211-vap-ath15-bintval=100
-$nl80211-vap-ath16-bintval=100
-$nl80211-vap-ath17-bintval=100
-$nl80211-vap-ath18-bintval=100
-$nl80211-vap-ath19-bintval=100
-$nl80211-vap-ath20-bintval=100
-$nl80211-vap-ath21-bintval=100
-$nl80211-vap-ath22-bintval=100
-$nl80211-vap-ath23-bintval=100
-#$nl80211-vap-ath0-doth=1
-#$nl80211-vap-ath1-doth=1
-#$nl80211-vap-ath2-doth=1
-#$nl80211-vap-ath3-doth=1
-#$nl80211-vap-ath4-doth=1
-#$nl80211-vap-ath5-doth=1
-#$nl80211-vap-ath14-doth=1
-#$nl80211-vap-ath15-doth=1
-#$nl80211-vap-ath16-doth=1
-$nl80211-country-wifi0-setCountry=US
-$nl80211-country-wifi1-setCountry=US
-$nl80211-country-wifi2-setCountry=US
-#$nl80211-vap-ath0-dtim_period=1
-#$nl80211-vap-ath1-dtim_period=1
-#$nl80211-vap-ath2-dtim_period=1
-#$nl80211-vap-ath3-dtim_period=1
-#$nl80211-vap-ath4-dtim_period=1
-#$nl80211-vap-ath5-dtim_period=1
-#$nl80211-vap-ath14-dtim_period=1
-#$nl80211-vap-ath15-dtim_period=1
-#$nl80211-vap-ath16-dtim_period=1
-#$nl80211-vap-ath0-chutil_enab=0
-#$nl80211-vap-ath1-chutil_enab=0
-#$nl80211-vap-ath2-chutil_enab=0
-#$nl80211-vap-ath3-chutil_enab=0
-#$nl80211-vap-ath4-chutil_enab=0
-#$nl80211-vap-ath5-chutil_enab=0
-#$nl80211-vap-ath14-chutil_enab=0
-#$nl80211-vap-ath15-chutil_enab=0
-#$nl80211-vap-ath16-chutil_enab=0
-$nl80211-vap-ath0-set_traf_rate=300
-$nl80211-vap-ath1-set_traf_rate=300
-$nl80211-vap-ath2-set_traf_rate=300
-$nl80211-vap-ath3-set_traf_rate=300
-$nl80211-vap-ath4-set_traf_rate=300
-$nl80211-vap-ath5-set_traf_rate=300
-$nl80211-vap-ath6-set_traf_rate=300
-$nl80211-vap-ath7-set_traf_rate=300
-$nl80211-vap-ath8-set_traf_rate=300
-$nl80211-vap-ath9-set_traf_rate=300
-$nl80211-vap-ath10-set_traf_rate=300
-$nl80211-vap-ath11-set_traf_rate=300
-$nl80211-vap-ath12-set_traf_rate=300
-$nl80211-vap-ath13-set_traf_rate=300
-$nl80211-vap-ath14-set_traf_rate=300
-$nl80211-vap-ath15-set_traf_rate=300
-$nl80211-vap-ath16-set_traf_rate=300
-$nl80211-vap-ath17-set_traf_rate=300
-$nl80211-vap-ath18-set_traf_rate=300
-$nl80211-vap-ath19-set_traf_rate=300
-$nl80211-vap-ath20-set_traf_rate=300
-$nl80211-vap-ath21-set_traf_rate=300
-$nl80211-vap-ath22-set_traf_rate=300
-$nl80211-vap-ath23-set_traf_rate=300
-$nl80211-vap-ath0-set_traf_int=1800
-$nl80211-vap-ath1-set_traf_int=1800
-$nl80211-vap-ath2-set_traf_int=1800
-$nl80211-vap-ath3-set_traf_int=1800
-$nl80211-vap-ath4-set_traf_int=1800
-$nl80211-vap-ath5-set_traf_int=1800
-$nl80211-vap-ath6-set_traf_int=1800
-$nl80211-vap-ath7-set_traf_int=1800
-$nl80211-vap-ath8-set_traf_int=1800
-$nl80211-vap-ath9-set_traf_int=1800
-$nl80211-vap-ath10-set_traf_int=1800
-$nl80211-vap-ath11-set_traf_int=1800
-$nl80211-vap-ath12-set_traf_int=1800
-$nl80211-vap-ath13-set_traf_int=1800
-$nl80211-vap-ath14-set_traf_int=1800
-$nl80211-vap-ath15-set_traf_int=1800
-$nl80211-vap-ath16-set_traf_int=1800
-$nl80211-vap-ath17-set_traf_int=1800
-$nl80211-vap-ath18-set_traf_int=1800
-$nl80211-vap-ath19-set_traf_int=1800
-$nl80211-vap-ath20-set_traf_int=1800
-$nl80211-vap-ath21-set_traf_int=1800
-$nl80211-vap-ath22-set_traf_int=1800
-$nl80211-vap-ath23-set_traf_int=1800
-#$nl80211-vap-ath0-mcastenhance=0
-#$nl80211-vap-ath1-mcastenhance=0
-#$nl80211-vap-ath2-mcastenhance=0
-#$nl80211-vap-ath3-mcastenhance=0
-#$nl80211-vap-ath4-mcastenhance=0
-#$nl80211-vap-ath5-mcastenhance=0
-#$nl80211-vap-ath14-mcastenhance=0
-#$nl80211-vap-ath15-mcastenhance=0
-#$nl80211-vap-ath16-mcastenhance=0
-#$iwconfig-ath0-frag=2346
-#$iwconfig-ath1-frag=2346
-#$iwconfig-ath2-frag=2346
-#$iwconfig-ath3-frag=2346
-#$iwconfig-ath4-frag=2346
-#$iwconfig-ath5-frag=2346
-#$iwconfig-ath14-frag=2346
-#$iwconfig-ath15-frag=2346
-#$iwconfig-ath16-frag=2346
-#$dml-wifi0-variant=g,ax
-#$dml-wifi1-variant=a,ax
-#$dml-wifi2-variant=ax
-$wifi0-ppe_vp=ds
-$wifi1-ppe_vp=ds
-$wifi2-ppe_vp=ds
-$crashupload-server-url=
+$crashupload-server-url=http://10.242.189.26:8000/
 #DSLite
 #dslite_enable - Enable/disable DS-Lite
 $dslite_enable=0
@@ -1388,13 +992,13 @@ $dslite_count=1
 $dslite_InsNum_1=1
 
 #dslite_active - Enable or disable this 1st ipv6 tunnel
-$dslite_active_1=1
+$dslite_active_1=0
 
 #dslite_alias - The alias of the 1st ipv6 tunnel
 $dslite_alias_1=Dslite.Tunnel.1
 
 #dslite_mode - The preferred method to be used for EndpointName: DHCPv6(1), Static(2)
-$dslite_mode_1=2
+$dslite_mode_1=1
 
 #dslite_addr_type - The preferred method to be used for the DS-Lite Endpoint: FQDN(1) IPv6Address(2)
 $dslite_addr_type_1=2
@@ -1414,106 +1018,154 @@ $dslite_tcpmss_1=1420
 #dslite_ipv6_frag_enable - Enable/disable dslite IPv6 frag
 $dslite_ipv6_frag_enable_1=0
 
-#telemetry
-$T2Enable=false
+# Dynamic DNS
+$dynamic_dns_enable=0
+$ddns_service_providers_list=no-ip,dyndns,duckdns,afraid,easydns
+$ddns_server_checkinterval_1=0
+$ddns_server_maxretries_1=10
+$ddns_server_retryinterval_1=660
+$ddns_server_checkinterval_2=0
+$ddns_server_maxretries_2=10
+$ddns_server_retryinterval_2=660
+$ddns_server_checkinterval_3=0
+$ddns_server_maxretries_3=10
+$ddns_server_retryinterval_3=660
+$ddns_server_checkinterval_4=0
+$ddns_server_maxretries_4=10
+$ddns_server_retryinterval_4=660
+$ddns_server_checkinterval_5=0
+$ddns_server_maxretries_5=10
+$ddns_server_retryinterval_5=660
 
-#MessageBusSource
-$MessageBusSource=false
+# RDK log level
 
-#AFC 
-$afc-server-afc_timeout=5.0
-$afc-server-serial_number=0xABCD1234
-$afc-server-certificate_id=FCC_CERT_ID
-$afc-server-rulesetid=US_47_CFR_PART_15_SUBPART_E
-$afc-server-log_level=3
-$afc-server-ca_path=/etc/afc/cert.pem
-$afc-location-location_object_ellipse=1
-$afc-location-location_object_linear_polygon=0
-$afc-location-location_object_radial_polygon=0
-$afc-location-location_height=7
-$afc-location-location_height_type=AMSL
-$afc-location-location_vertical_uncertainity=2
-$afc-location-location_indoordep=2
-$afc-location-ellipse_minor_axis=18
-$afc-location-ellipse_major_axis=15
-$afc-location-ellipse_orientation=27
-$afc-location-ellipse_longitude=-121.9149914479106
-$afc-location-ellipse_latitude=37.364992615471664
-$afc-location-linear_polygon_longitude=-102.23787512897941,-102.23787512897941,-102.23787512897941
-$afc-location-linear_polygon_latitude=30.570949418926617,30.570949418926617,30.570949418926617
-$afc-location-radial_polygon_longitude=-102.2303611111111
-$afc-location-radial_polygon_lattitude=30.571694444444447
-$afc-location-radial_polygon_length=50,50,50,50
-$afc-location-radial_polygon_angle=0,90,180,270
-$afc-location-gps=0
-$afc-location-valid=0
-$afc-dcs_afc_chan_sel_config=7
-$afc-dcs_afc_random_chan_en=0
-$afc-daemon-server-serial_number=0xABCD1234
-$afc-daemon-server-certificate_id=FCC_CERT_ID
-$afc-daemon-server-rulesetid=US_47_CFR_PART_15_SUBPART_E
-$afc-daemon-server-forced_time_to_live=0
-$afc-daemon-server-log_level=3
-#ACS
-$ACS_global_Enable-wifi0-mode=0
-$ACS_global_Enable-wifi1-mode=0
-$ACS_global_Enable-wifi2-mode=0
-#CAPTIVE PORTAL
-$CaptivePortal_Enable=true
-$redirection_flag=true
-#Easy Mesh
-$Easy-Mesh-PrimaryVlan=-1
-$Easy-Mesh-ProfileVlan-1-Id=-1
-$Easy-Mesh-ProfileVlan-2-Id=-1
-$Easy-Mesh-ProfileVlan-3-Id=-1
-$Easy-Mesh-ProfileVlan-4-Id=-1
-$Easy-Mesh-ProfileVlan-5-Id=-1
-$Easy-Mesh-ProfileVlan-6-Id=-1
-$Easy-Mesh-ProfileVlan-7-Id=-1
-$Easy-Mesh-ProfileVlan-8-Id=-1
-$Easy-Mesh-ProfileVlan-9-Id=-1
-$Easy-Mesh-ProfileVlan-10-Id=-1
-$Easy-Mesh-ProfileVlan-11-Id=-1
-$Easy-Mesh-ProfileVlan-12-Id=-1
-$Easy-Mesh-ProfileVlan-13-Id=-1
-$Easy-Mesh-ProfileVlan-14-Id=-1
-$Easy-Mesh-ProfileVlan-15-Id=-1
-$Easy-Mesh-ProfileVlan-16-Id=-1
+$X_RDKCENTRAL-COM_LogLevel=4
+$X_RDKCENTRAL-COM_TR69_LogLevel=4
+$X_RDKCENTRAL-COM_PAM_LogLevel=4
+$X_RDKCENTRAL-COM_PSM_LogLevel=4
+$X_RDKCENTRAL-COM_WiFi_LogLevel=4
+$X_RDKCENTRAL-COM_CR_LogLevel=4
+$X_RDKCENTRAL-COM_Harvester_LogLevel=4
+$X_RDKCENTRAL-COM_NotifyComp_LogLevel=4
+$X_RDKCENTRAL-COM_EthAgent_LogLevel=4
+$X_RDKCENTRAL-COM_FwUpgradeManager_LogLevel=4
 
-#Default Vap BSSType
-$wireless.ath0.MapBSSType=32
-$wireless.ath1.MapBSSType=32
-$wireless.ath2.MapBSSType=16
-$wireless.ath3.MapBSSType=16
-$wireless.ath4.MapBSSType=16
-$wireless.ath5.MapBSSType=16
-$wireless.ath6.MapBSSType=16
-$wireless.ath7.MapBSSType=16
-$wireless.ath12.MapBSSType=16
-$wireless.ath13.MapBSSType=16
-#enabled by default for ezmesh colocated and backhaul association
-$wireless.ath14.MapBSSType=32
-$wireless.ath15.MapBSSType=32
+# RDK LogEnable
 
-#easyMesh config
-$ezmesh.config.Enable=0
+$X_RDKCENTRAL-COM_LoggerEnable=1
+$X_RDKCENTRAL-COM_TR69_LoggerEnable=1
+$X_RDKCENTRAL-COM_PAM_LoggerEnable=1
+$X_RDKCENTRAL-COM_PSM_LoggerEnable=1
+$X_RDKCENTRAL-COM_WiFi_LoggerEnable=1
+$X_RDKCENTRAL-COM_CR_LoggerEnable=1
+$X_RDKCENTRAL-COM_Harvester_LoggerEnable=1
+$X_RDKCENTRAL-COM_NotifyComp_LoggerEnable=1
+$X_RDKCENTRAL-COM_EthAgent_LoggerEnable=1
+$X_RDKCENTRAL-COM_FwUpgradeManager_LoggerEnable=1
 
-#default channel
-$wireless.wifi0.channel=1
-$wireless.wifi1.channel=65
-$wireless.wifi2.channel=36
+#UniqueTelemetryId default values
 
-$wireless.wifi0.enable=1
-$wireless.wifi1.enable=1
-$wireless.wifi2.enable=1
+$unique_telemetry_enable=false
+$unique_telemetry_tag=
+$unique_telemetry_interval=0
 
-#11BE MLO related
-$wifi0-11BEenabled=0
-$wifi1-11BEenabled=0
-$wifi2-11BEenabled=0
-$mlo-mld-last-idx=0
+#TR181 Telemetry Support via MessageBusSource
 
-#Default txpower percent
-$wireless.wifi0.txpercent=100
-$wireless.wifi1.txpercent=100
-$wireless.wifi2.txpercent=100
+$MessageBusSource=true
+
+#Defaults for Telemetry T2 Enable
+
+$T2Enable=true
+$T2Version=2.0.1
+$T2ConfigURL=https://xconf.rdkcentral.com/loguploader/getT2Settings
+
+#Defaults for WanManager
+$tr_dhcpv6c_enabled=1
+$tr_dhcpv6c_iana_enabled=1
+$tr_dhcpv6c_iapd_enabled=1
+
+$DeferFWDownloadReboot=290
+
+$Atm_NumOfIfcs=1
+
+#Maximum authentication attempts
+$maxauthreq=5
+
+#AutoReboot is disabled by default
+$AutoReboot=false
+
+#ocsp staple support
+$EnableOCSPStapling=false
+$EnableOCSPCA=false
+
+#Enable PresenceDetect
+$PresenceDetectEnabled=false
+
+# Device Fingerprint Enable
+
+$Advsecurity_DeviceFingerPrint=1
+$Advsecurity_SafeBrowsing=0
+$Advsecurity_Softflowd=0
+$Adv_PCActivate=0
+$Adv_PPActivate=0
+$Advsecurity_LoggingPeriod=1440
+$Advsecurity_LogLevel=2
+$Advsecurity_LookupTimeout=350
+$Adv_PrivProtRFCEnable=1
+$Adv_PCRFCEnable=1
+$Adv_DFICMPv6RFCEnable=1
+$Adv_WSDisAnaRFCEnable=1
+$Adv_AdvSecOTMRFCEnable=1
+
+
+#Router MTU
+$router_mtu=1500
+
+#Custom Data Model
+$custom_data_model_enabled=0
+$custom_data_model_file_name=/usr/ccsp/tr069pa/custom_mapper.xml
+
+#DLCaStoreEnabled
+$DLCaStoreEnabled=false
+
+#Setting LastRebootReason
+$X_RDKCENTRAL-COM_LastRebootReason=unknown
+$X_RDKCENTRAL-COM_LastRebootCounter=0
+
+#Setting Cloud Enable & Capable flags for Toggling
+$cloud_enable_flag=0
+$cloud_capable_flag=1
+
+#TR069support
+$EnableTR69Binary=true
+
+#Default Value for CPU Memory Fragmentation Interval
+#$CpuMemFrag_Interval=4
+
+$ap-dk01.1-c1-wanports=0t 5
+$ap-dk01.1-c1-lanports=0t 1 2 3 4
+$ap-dk04.1-c1-wanports=0t 5
+$ap-dk04.1-c1-lanports=0t 1 2 3 4
+$ap-dk04.1-c2-wanports=0t 5
+$ap-dk04.1-c2-lanports=0t 1 2 3 4
+$ap-dk04.1-c3-wanports=0t 5
+$ap-dk04.1-c3-lanports=0t 1 2 3 4
+$ap-dk04.1-c4-wanports=0t 4 5
+$ap-dk04.1-c4-lanports=0t 1 2 3
+$ap-dk07.1-c1-wanports=0t 5
+$ap-dk07.1-c1-lanports=0t 1 2 3 4
+$ap-dk07.1-c2-wanports=0t 5
+$ap-dk07.1-c2-lanports=0t 1 2 3 4
+
+# mcs settings
+$mcsd_Enable=1
+$mcsd_SwitchLanVid=1
+$mcsd_SwitchInterface=auto
+$mcsd_SwitchDeviceId=0
+
+#mcproxy settings
+$mcproxy.disabled=0
+$mcproxy.name=mcproxy
+$mcproxy.upstream=erouter0
+$mcproxy.downstream=brlan0
+$mcproxy.protocol=IGMPv3

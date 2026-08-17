@@ -19,4 +19,4 @@ RDEPENDS_packagegroup-rdk-ccsp-broadband_append = "\
 "
 
 # Set the gwprov app for IPQ
-GWPROVAPP = "${@bb.utils.contains('DISTRO_FEATURES','rdkb_wan_manager', 'ccsp-gwprovapp-ethwan', '', d)}"
+GWPROVAPP = "${@bb.utils.contains('DISTRO_FEATURES','rdkb_wan_manager', 'ccsp-gwprovapp', '', d)}"

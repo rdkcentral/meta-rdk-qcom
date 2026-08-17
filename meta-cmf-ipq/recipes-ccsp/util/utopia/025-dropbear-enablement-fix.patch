@@ -1,14 +1,8 @@
-From: sanknata <sanknata@qti.qualcomm.com>
-Date: Thu Jan 2 12:24:11 2025 +0530
-Subject: Reason for change : To remove sed commands used in utopia.bbappend
-Signed-off-by: sanknata <sanknata@qti.qualcomm.com>
------------------------------------
-
-diff --git a/source/scripts/init/service.d/service_sshd.sh b/source/scripts/init/service.d/service_sshd.sh
-index abecf78..59b3df3 100755
---- a/source/scripts/init/service.d/service_sshd.sh
-+++ b/source/scripts/init/service.d/service_sshd.sh
-@@ -192,7 +192,7 @@ do_start() {
+Index: git/source/scripts/init/service.d/service_sshd.sh
+===================================================================
+--- git.orig/source/scripts/init/service.d/service_sshd.sh
++++ git/source/scripts/init/service.d/service_sshd.sh
+@@ -223,7 +223,7 @@ do_start() {
     # dropbear -d /etc/dropbear_dss_host_key  -r /etc/dropbear_rsa_host_key
     # /etc/init.d/dropbear start
     #dropbear -r /etc/rsa_key.priv
@@ -17,28 +11,30 @@ index abecf78..59b3df3 100755
     if  ([ "$MANUFACTURE" != "Technicolor" ] || [ "$MODEL_NUM" = "SG417DBCT" ]) ; then
         if [ -z "$CM_IP" ]
         then
-@@ -206,7 +206,7 @@ do_start() {
+@@ -237,7 +237,7 @@ do_start() {
     getConfigFile $DROPBEAR_PARAMS_2
  
-    if ([ "$BOX_TYPE" = "XB6" -a "$MANUFACTURE" = "Arris" ] || [ "$MODEL_NUM" = "INTEL_PUMA" ] || [ "$BOX_TYPE" = "VNTXER5" ] || [ "$BOX_TYPE" = "SCER11BEL" ]) ;then
--   	dropbear -E -s -b /etc/sshbanner.txt -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 $LISTEN_PARAMS -P $PID_FILE 2>>$CONSOLEFILE
-+   	dropbear -R -E  -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 $LISTEN_PARAMS -P $PID_FILE 2>>$CONSOLEFILE -B
+    if ([ "$BOX_TYPE" = "XB6" -a "$MANUFACTURE" = "Arris" ] || [ "$MODEL_NUM" = "INTEL_PUMA" ] || [ "$BOX_TYPE" = "VNTXER5" ] || [ "$BOX_TYPE" = "SCER11BEL" -a "$LANIPV6Support" != "true" ] || [ "$BOX_TYPE" = "SCXF11BFL" ]) ;then
+-       dropbear -E -s -b /etc/sshbanner.txt -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 $LISTEN_PARAMS -P $PID_FILE $USE_DEVKEYS 2>>$CONSOLEFILE
++       dropbear -R -E  -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 $LISTEN_PARAMS -P $PID_FILE 2>>$CONSOLEFILE -B
      if [ -z "$LISTEN_PARAMS" ] ; then
          echo_t "[utopia]: dropbear was not started for erouter0 interface with valid params."
      fi
-@@ -225,9 +225,9 @@ do_start() {
+@@ -256,11 +256,11 @@ do_start() {
     else
         if  ([ "$MANUFACTURE" = "Technicolor" ] || [ "$MODEL_NUM" = "SG417DBCT" ]) ; then
  	  echo dropbear -E -s -K 60 -b /etc/sshbanner.txt ${commandString} -r ${DROPBEAR_PARAMS_1} -r ${DROPBEAR_PARAMS_2} -a -P ${PID_FILE}
--          dropbear -E -s -b /etc/sshbanner.txt $commandString -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -a -P $PID_FILE -K 60 2>>$CONSOLEFILE
-+          dropbear -R -E  $commandString -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -a -P $PID_FILE -K 60 2>>$CONSOLEFILE
+-          dropbear -E -s -b /etc/sshbanner.txt $commandString -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -a -P $PID_FILE -K 60 $USE_DEVKEYS 2>>$CONSOLEFILE
++      dropbear -R -E  $commandString -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -a -P $PID_FILE -K 60 2>>$CONSOLEFILE
+        elif [ "$BOX_TYPE" = "SCER11BEL" -a "$LANIPV6Support" = "true" ]; then
+               dropbear -E -s -b /etc/sshbanner.txt $commandString -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -a -P $PID_FILE -K 60 $USE_DEVKEYS 2>>$CONSOLEFILE
         else
--   	  dropbear -E -s -b /etc/sshbanner.txt -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -p [$CM_IP]:22 -P $PID_FILE 2>>$CONSOLEFILE
-+   	  dropbear -R -E  -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -p [$CM_IP]:22 -P $PID_FILE 2>>$CONSOLEFILE -B
+-	      dropbear -E -s -b /etc/sshbanner.txt -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -p [$CM_IP]:22 -P $PID_FILE $USE_DEVKEYS 2>>$CONSOLEFILE
++           dropbear -R -E  -a -r $DROPBEAR_PARAMS_1 -r $DROPBEAR_PARAMS_2 -p [$CM_IP]:22 -P $PID_FILE 2>>$CONSOLEFILE -B
         fi
     fi
  
-@@ -236,7 +236,7 @@ do_start() {
+@@ -269,7 +269,7 @@ do_start() {
     if [ ! -f "$PID_FILE" ] ; then
        echo_t "[utopia] $PID_FILE file is not created"
        #Create the pid file in case if it not created by dropbear
@@ -47,7 +43,7 @@ index abecf78..59b3df3 100755
        echo_t "[utopia] $PID_FILE file is created explicitly"
     else
        echo_t "[utopia] $PID_FILE file is created. PID : `cat $PID_FILE`"
-@@ -251,7 +251,7 @@ do_stop() {
+@@ -284,7 +284,7 @@ do_stop() {
     if [ ! -f "$PID_FILE" ] ; then
       tmp_filename="/tmp/dropbear.pid"
       #Get the dropbear IPV6 process IDs. There could be more than 1 dropbear IPV6 process running based on number of open ssh connections

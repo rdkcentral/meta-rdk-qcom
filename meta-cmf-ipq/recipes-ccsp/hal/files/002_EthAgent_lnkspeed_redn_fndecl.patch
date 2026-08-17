@@ -1,0 +1,45 @@
+Index: git/include/ccsp_hal_ethsw.h
+===================================================================
+--- git.orig/include/ccsp_hal_ethsw.h
++++ git/include/ccsp_hal_ethsw.h
+@@ -327,6 +327,40 @@ INT CcspHalEthSwGetPortStatus (
+     PCCSP_HAL_ETHSW_DUPLEX_MODE pDuplexMode, 
+     PCCSP_HAL_ETHSW_LINK_STATUS pStatus
+ );
++/**!
++ * @brief Retrieves the advertised link modes for a specified Ethernet interface.
++ *
++ * @param[in]  instance  - TR-181 instance number of the Ethernet interface (1-7).
++ * @param[in]  ifName    - Name of the Ethernet interface (e.g., "eth1").
++ * @param[out] pValue    - Pointer to output buffer to store advertised modes string.
++ * @param[out] pULSize   - Pointer to size of the output buffer.
++ *
++ * @returns Status of the operation:
++ * @retval ANSC_STATUS_SUCCESS - On success.
++ * @retval ANSC_STATUS_FAILURE - On failure (invalid instance or unsupported interface).
++ */
++
++int EthHal_GetAdvertisedModes(int instance,
++                                      char *ifName,
++                                      char *pValue,
++                                      ULONG *pULSize);
++
++
++/**!
++ * @brief Sets the advertised link modes for a specified Ethernet interface.
++ *
++ * @param[in] instance - TR-181 instance number of the Ethernet interface (1-7).
++ * @param[in] ifName   - Name of the Ethernet interface (e.g., "eth1").
++ * @param[in] pValue   - Comma-separated string of TR-181 advertised modes to set
++ *                       (e.g., "100BaseT-Full,1000BaseT-Full").
++ *
++ * @returns Status of the operation:
++ * @retval RETURN_OK  - On success.
++ * @retval RETURN_ERR - On failure (invalid instance, unsupported interface,
++ *                      or ethtool command failure).
++ */
++int EthHal_SetAdvertisedModes(int instance, char *ifName, char *pValue);
++
+ 
+ /**!
+  * @brief Retrieves the configuration of a specified Ethernet switch port.

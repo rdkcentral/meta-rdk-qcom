@@ -1,11 +1,3 @@
-Commit ID: 3c5c0ef301f931fd68f21b0e530d827377541d1e
-From: krisa <krisa@qti.qualcomm.com>
-Date: Thu Aug 24 18:50:33 2023 +0530
-Subject: Fix for HK Power save issue
-Signed-off-by: krisa <krisa@qti.qualcomm.com>
-
----
-
 diff --git a/source/scripts/init/system/utopia_init.sh b/source/scripts/init/system/utopia_init.sh
 index f3eeea9..e65f5a0 100755
 --- a/source/scripts/init/system/utopia_init.sh

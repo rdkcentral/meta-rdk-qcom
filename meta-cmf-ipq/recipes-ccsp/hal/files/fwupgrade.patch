@@ -1,11 +1,3 @@
-Commit ID: 6780022f0083a7b75b7f294c03adbb51d8c1e41e
-From: Venkatesh Perumal <venkperu@qti.qualcomm.com>
-Date: Tue Apr 4 02:07:36 2023 +0530
-Subject: Fix for fwupgrade tftp failure and root perm daemon restart issue
-Signed-off-by: Venkatesh Perumal <venkperu@qti.qualcomm.com>
-
----
-
 diff --git a/fwupgrade_hal.c b/fwupgrade_hal.c
 index 160325a..0347854 100644
 --- a/fwupgrade_hal.c

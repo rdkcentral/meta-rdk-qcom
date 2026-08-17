@@ -1,132 +1,115 @@
-Commit ID: b2a05f7b3bb80b3f3c08142fd88aabc4eff5a147
-From: rajka <rajka@qti.qualcomm.com>
-Date: Thu Nov 16 21:35:39 2023 +0530
-Subject: 32 bit captive portal fix
-Signed-off-by: rajka <rajka@qti.qualcomm.com>
-
----
-
-diff --git a/source/scripts/init/src/apply_system_defaults/apply_system_defaults.c b/source/scripts/init/src/apply_system_defaults/apply_system_defaults.c
-index 11923a5..f7ce994 100644
---- a/source/scripts/init/src/apply_system_defaults/apply_system_defaults.c
-+++ b/source/scripts/init/src/apply_system_defaults/apply_system_defaults.c
-@@ -69,6 +69,8 @@
- #define PARTNER_DEFAULT_MIGRATE_PSM  					"/tmp/.apply_partner_defaults_psm"
- #define PARTNER_DEFAULT_MIGRATE_FOR_NEW_PSM_MEMBER  	"/tmp/.apply_partner_defaults_new_psm_member"
- 
-+#define _PLATFORM_IPQ_
-+
- #define PARTNER_ID_LEN 64
- static char default_file[1024];
- 
-@@ -756,7 +758,7 @@ static int validatePartnerId (char *PartnerID)
-       else
-       {
-       	printf("Partner ID NOT Found\n");
--      	sprintf(PartnerID,"%s","unknown");
-+      	snprintf(PartnerID,sizeof(PartnerID),"%s","unknown");
-         return 0;
+Index: git/source/scripts/init/src/apply_system_defaults/apply_system_defaults.c
+===================================================================
+--- git.orig/source/scripts/init/src/apply_system_defaults/apply_system_defaults.c
++++ git/source/scripts/init/src/apply_system_defaults/apply_system_defaults.c
+@@ -739,7 +739,7 @@ static int validatePartnerId (char *Part
+          else
+          {
+             printf("Partner ID NOT Found\n");
+-            sprintf(PartnerID,"%s","unknown");
++            snprintf(PartnerID,sizeof(PartnerID),"%s","unknown");
+          }
+          cJSON_Delete(root_etc_json);
        }
-    }
-@@ -799,15 +801,15 @@ static int get_PartnerID (char *PartnerID)
+@@ -890,15 +890,15 @@ static int get_PartnerID (char *PartnerI
                                  APPLY_PRINT("%s:ERROR.....partnerId from factory also NULL setting it to unknown\n",__FUNCTION__);
  				
  #if defined (_XB6_PRODUCT_REQ_)
 -				sprintf( PartnerID, "%s", "unknown" );
 -#elif defined (_RDK_REF_PLATFORM_)
 -                                sprintf( PartnerID, "%s", "RDKM");
-+				snprintf( PartnerID,sizeof(PartnerID),"%s", "unknown" );
++               snprintf( PartnerID,sizeof(PartnerID),"%s", "unknown" );
 +#elif defined (_RDK_REF_PLATFORM_) || defined ( _PLATFORM_IPQ_)
-+                                snprintf( PartnerID,sizeof(PartnerID)+1,"%s", "RDKM");
++                snprintf( PartnerID,sizeof(PartnerID)+1,"%s", "RDKM");
  #elif defined (_SR300_PRODUCT_REQ_) /* Default fall back option for ADA devices SKYH4-4946 */
 -				sprintf( PartnerID, "%s", "sky-uk");
-+				snprintf( PartnerID,sizeof(PartnerID),"%s", "sky-uk");
++                snprintf( PartnerID,sizeof(PartnerID),"%s", "sky-uk");
  #elif defined (_HUB4_PRODUCT_REQ_) /* Default fall back option for HUB4 devices SKYH4-4946 */
 -			        sprintf( PartnerID, "%s", "sky-italia");
-+			        snprintf( PartnerID,sizeof(PartnerID), "%s", "sky-italia");
++                snprintf( PartnerID,sizeof(PartnerID), "%s", "sky-italia");
  #else
 -				sprintf( PartnerID, "%s", "comcast" );
-+				snprintf( PartnerID,sizeof(PartnerID),"%s", "comcast" );
++                snprintf( PartnerID,sizeof(PartnerID),"%s", "comcast" );
  #endif
  				APPLY_PRINT("%s - Failed Get factoryPartnerId so set it PartnerID as: %s\n", __FUNCTION__, PartnerID );
                                  t2_event_d("SYS_ERROR_Factorypartner_fetch_failed", 1);
-@@ -839,7 +841,7 @@ static int get_PartnerID (char *PartnerID)
+@@ -930,7 +930,7 @@ static int get_PartnerID (char *PartnerI
  			if ( ( pos = strchr( fileContent, '\n' ) ) != NULL )
  			 *pos = '\0';
  
 -			sprintf( PartnerID, "%s", fileContent );
-+			snprintf( PartnerID,sizeof(PartnerID),"%s", fileContent );
++            snprintf( PartnerID,sizeof(PartnerID),"%s", fileContent );
  
  			APPLY_PRINT("%s - PartnerID from File: %s\n",__FUNCTION__,PartnerID );
  			validatePartnerId ( PartnerID );
-@@ -1700,7 +1702,7 @@ static int apply_partnerId_default_values (char *data, char *PartnerID)
+@@ -2318,6 +2318,7 @@ static int apply_partnerId_default_value
      cJSON   *alwaysParamObjVal = NULL;
      char    *error_ptr         = NULL;
      int     iterator           = 0;
--
 +    char    buf[50]            = {0};
+ 
  	/*
  	  * Case 1:
- 	  * Check whether PartnerID is comcast of not. 
-@@ -1826,9 +1828,10 @@ static int apply_partnerId_default_values (char *data, char *PartnerID)
+@@ -2447,9 +2448,10 @@ static int apply_partnerId_default_value
  					paramObjVal = cJSON_GetObjectItem(cJSON_GetObjectItem( partnerObj, "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.DefaultAdminIP"), "ActiveValue");
                                          if ( paramObjVal != NULL )
                                          {
 -						defaultAdminIP = paramObjVal->valuestring; 
-+						defaultAdminIP = paramObjVal->valuestring;
-+						syscfg_get( NULL, "lan_ipaddr", buf, sizeof( buf ));
- 					
+-					
 -						if (defaultAdminIP != NULL) 
-+						if ((defaultAdminIP != NULL) && (strcmp(buf, defaultAdminIP) == 0))
++                        defaultAdminIP = paramObjVal->valuestring;
++                        syscfg_get( NULL, "lan_ipaddr", buf, sizeof( buf ));
++
++                        if ((defaultAdminIP != NULL) && (strcmp(buf, defaultAdminIP) == 0))
  						{
  							set_syscfg_partner_values(defaultAdminIP,"lan_ipaddr");
  							defaultAdminIP = NULL;
-@@ -1842,9 +1845,10 @@ static int apply_partnerId_default_values (char *data, char *PartnerID)
+@@ -2463,9 +2465,10 @@ static int apply_partnerId_default_value
  					paramObjVal = cJSON_GetObjectItem(cJSON_GetObjectItem( partnerObj, "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.DefaultLocalIPv4SubnetRange"), "ActiveValue");
                                          if ( paramObjVal != NULL )
                                          {
 -						subnetRange = paramObjVal->valuestring; 
-+						subnetRange = paramObjVal->valuestring;
-+						syscfg_get( NULL, "lan_netmask", buf, sizeof( buf ));
- 					
+-					
 -						if (subnetRange != NULL) 
-+						if ((subnetRange != NULL) && (strcmp(buf, subnetRange) == 0))
++                        subnetRange = paramObjVal->valuestring;
++                        syscfg_get( NULL, "lan_netmask", buf, sizeof( buf ));
++
++                        if ((subnetRange != NULL) && (strcmp(buf, subnetRange) == 0))
  						{
  							set_syscfg_partner_values(subnetRange,"lan_netmask");
  							subnetRange = NULL;
-@@ -1858,8 +1862,9 @@ static int apply_partnerId_default_values (char *data, char *PartnerID)
+@@ -2479,8 +2482,9 @@ static int apply_partnerId_default_value
                                          if ( paramObjVal != NULL )
                                          {
  						minAddress = paramObjVal->valuestring;
-+						syscfg_get( NULL, "dhcp_start", buf, sizeof( buf ));
++                        syscfg_get( NULL, "dhcp_start", buf, sizeof( buf ));
  
 -						if (minAddress != NULL)
-+						if ((minAddress != NULL) && (strcmp(buf, minAddress) ==0))
++                        if ((minAddress != NULL) && (strcmp(buf, minAddress) ==0))
  						{
  							set_syscfg_partner_values(minAddress,"dhcp_start");
  							minAddress = NULL;
-@@ -1873,8 +1878,9 @@ static int apply_partnerId_default_values (char *data, char *PartnerID)
-                                         if ( paramObjVal != NULL )
+@@ -2495,7 +2499,8 @@ static int apply_partnerId_default_value
                                          {
                                                  maxAddress = paramObjVal->valuestring;
-+						syscfg_get( NULL, "dhcp_end", buf, sizeof( buf ));
  
 -                                                if (maxAddress != NULL)
++                                                syscfg_get( NULL, "dhcp_end", buf, sizeof( buf ));
 +                                                if ((maxAddress != NULL) && (strcmp(buf, maxAddress) == 0))
                                                  {
                                                          set_syscfg_partner_values(maxAddress,"dhcp_end");
                                                          maxAddress = NULL;
-@@ -2515,10 +2521,10 @@ int main( int argc, char **argv )
- #if !defined (_XB6_PRODUCT_REQ_) && !defined(_HUB4_PRODUCT_REQ_) && !defined(_SR300_PRODUCT_REQ_)
+@@ -3383,10 +3388,10 @@ static void getPartnerIdWithRetry(char*
+ #if !defined (_XB6_PRODUCT_REQ_) && !defined(_HUB4_PRODUCT_REQ_) && !defined(_SR300_PRODUCT_REQ_) && !defined(_SCXF11BFL_PRODUCT_REQ_)
  		//Partner ID is null so need to set default partner ID as "comcast"
  		memset( PartnerID, 0, sizeof( PartnerID ) );
 -#if defined (_RDK_REF_PLATFORM_)
 -                sprintf( PartnerID, "%s", "RDKM");
 +#if defined (_RDK_REF_PLATFORM_) || defined (_PLATFORM_IPQ_)
-+                snprintf( PartnerID,sizeof(PartnerID)+1,"%s", "RDKM");
++        snprintf( PartnerID,sizeof(PartnerID)+1,"%s", "RDKM");
  #else
 -		sprintf( PartnerID, "%s", "comcast" );
-+		snprintf( PartnerID,sizeof(PartnerID),"%s", "comcast" );
++        snprintf( PartnerID,sizeof(PartnerID),"%s", "comcast" );
  #endif
  		set_syscfg_partner_values( PartnerID, "PartnerID" );
  		APPLY_PRINT("%s - PartnerID is NULL so set default partner :%s\n", __FUNCTION__, PartnerID );		

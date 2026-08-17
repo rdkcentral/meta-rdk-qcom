@@ -6,9 +6,9 @@ CFLAGS_append = " \
     -I=${includedir}/utctx \
     -I=${includedir}/utapi \
 "
-CFLAGS_append = "${@bb.utils.contains('SOC_T', "ipq807x", " -D_PLATFORM_IPQ807x", " ", d)}"
+CFLAGS_append = "${@bb.utils.contains('SOC_T', 'ipq807x', ' -D_PLATFORM_IPQ807x', ' ', d)}"
 CFLAGS_append = " -D_RDK_REF_PLATFORM_ -DDSLITE_FEATURE_SUPPORT_ -DDDNS_BROADBANDFORUM_ -DDEVICE_GATEWAY_ASSOCIATION_FEATURE_ \
-                  -DFEATURE_FWUPGRADE_MANAGER_  -DINTEL_GRE_HOTSPOT " 
+                  -DFEATURE_FWUPGRADE_MANAGER_  -DINTEL_GRE_HOTSPOT "
 
 LDFLAGS_remove = " \
     -lmoca_mgnt \
@@ -20,27 +20,20 @@ CFLAGS_remove = " ${@bb.utils.contains('DISTRO_FEATURES', 'rdkb_xdsl_ppp_manager
 
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
 SRC_URI += " file://001-CcsPandM-middle-layer-src.patch \
-             file://002-CcsPandM-cosa_dhcpv6_apis.patch \
-             file://003-reset-pwd.patch \
              file://004-CcsPandM-cosa_ip_dml.patch \
-             file://005-gui-pwd.patch \
-	     file://007-CcspPandM-Bridging-VLAN.patch \
-	     file://008_CcspPandM_McProxy.patch \
-	     file://009-DHCP-configuration.patch \
-             file://PAM-cmvariant.patch \
-	     file://010-ACS-reboot-fix.patch \
-	     file://011-remove-ppp-manager.patch \
-	     file://012_CcspPandM_IPQ_WiFiReload_dml.patch \
-	     file://013_TR181-USGv2_WifiReload.patch \
-	     file://014-VLANTermination.patch \
-	     file://015-t2_pam_enable.patch \
-             file://015-GRE-Files-for-23q1.patch \
-	     file://016-Remote-http-pandm.patch \
+             file://008_CcspPandM_McProxy.patch \
+             file://010-ACS-reboot-fix.patch \
+             file://012_CcspPandM_IPQ_WiFiReload_dml.patch \
+             file://013_TR181-USGv2_WifiReload.patch \
+             file://015-t2_pam_enable.patch \
+             file://016-Remote-http-pandm.patch \
              file://017-Captive_Portal_network_response.patch \
-	     file://019_PandM_UPnP_remove.patch \
-	     file://020_RFC_PAM_FIX.patch \
-	     file://021-Firewall_defaults_PAM_fix.patch \
-		"
+             file://021-Firewall_defaults_PAM_fix.patch \
+             file://022-reset-pwd-flag.patch \
+             file://023-Revert-RDKB-55780-LAN-bridge-ip-change.patch \
+             file://024-QCA-partners-defaults.patch \
+             file://025-Dml-implementation-for-NSP-and-Prime.patch \
+            "
 
 do_compile_prepend () {
 	#for GRETAP support
@@ -67,9 +60,9 @@ if [ ! -f ${WORKDIR}/WanManager_XML_UPDATED ]; then
         sed -i '10839s/<object>/<!-- <object>/g' ${S}/config-arm/TR181-USGv2.XML
         sed -i '11138s/<\/object>/<\/object>-->/g' ${S}/config-arm/TR181-USGv2.XML
    fi
-   if ${@bb.utils.contains('DISTRO_FEATURES', 'rdkb_xdsl_ppp_manager', 'true', 'false', d)}; then
-  	 sed -i "s/<?ifndef FEATURE_RDKB_XDSL_PPP_MANAGER?>/<?ifdef FEATURE_RDKB_XDSL_PPP_MANAGER?>/g" ${S}/config-arm/TR181-USGv2.XML
-   fi
+   #if ${@bb.utils.contains('DISTRO_FEATURES', 'rdkb_xdsl_ppp_manager', 'true', 'false', d)}; then
+  	 #sed -i "s/<?ifndef FEATURE_RDKB_XDSL_PPP_MANAGER?>/<?ifdef FEATURE_RDKB_XDSL_PPP_MANAGER?>/g" ${S}/config-arm/TR181-USGv2.XML
+   #fi
    touch ${WORKDIR}/WanManager_XML_UPDATED
 fi
 fi
@@ -166,142 +159,3 @@ FILES_${PN}-ccsp += " \
     /fss/gw/usr/sbin/ip \
     ${prefix}/ccsp/pam/TR181-USGv2.XML \
 "
-do_mypatch() {
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.001-CcsPandM-middle-layer-src-patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/source/
-        patch -p2 < ${WORKDIR}/001-CcsPandM-middle-layer-src.patch
-        cd -
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/source-arm/
-        patch -p2 < ${WORKDIR}/003-reset-pwd.patch
-        cd -
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/005-gui-pwd.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.001-CcsPandM-middle-layer-src-patched
-    fi
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.002-CcsPandM-cosa_dhcpv6_apis-patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/source-arm
-        patch -p2 < ${WORKDIR}/002-CcsPandM-cosa_dhcpv6_apis.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.002-CcsPandM-cosa_dhcpv6_apis-patched
-    fi
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.004-CcsPandM-cosa_ip_dml-patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/source
-        patch -p2 < ${WORKDIR}/004-CcsPandM-cosa_ip_dml.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.004-CcsPandM-cosa_ip_dml-patched
-    fi
-	
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.007-CcspPandM-Bridging-VLAN.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 -l < ${WORKDIR}/007-CcspPandM-Bridging-VLAN.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.007-CcspPandM-Bridging-VLAN.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.008_CcspPandM_McProxy.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/008_CcspPandM_McProxy.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.008_CcspPandM_McProxy.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.009-DHCP-configuration.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/009-DHCP-configuration.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.009-DHCP-configuration.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.PAM-cmvariant.patched ]; then
-	cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-	patch -p1 < ${WORKDIR}/PAM-cmvariant.patch
-	cd -
-	touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.PAM-cmvariant.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.010-ACS-reboot-fix.patched ]; then
-	cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-	patch -p1 < ${WORKDIR}/010-ACS-reboot-fix.patch
-	cd -
-	touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.010-ACS-reboot-fix.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.011-remove-ppp-manager.patched ]; then
-	cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-	patch -p1 < ${WORKDIR}/011-remove-ppp-manager.patch
-	cd -
-	touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.011-remove-ppp-manager.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.012_CcspPandM_IPQ_WiFiReload_dml.patched ]; then
-	cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-	patch -p1 < ${WORKDIR}/012_CcspPandM_IPQ_WiFiReload_dml.patch
-	cd -
-	touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.012_CcspPandM_IPQ_WiFiReload_dml.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.013_TR181-USGv2_WifiReload.patched ]; then
-	cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-	patch -p1 < ${WORKDIR}/013_TR181-USGv2_WifiReload.patch
-	cd -
-	touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.013_TR181-USGv2_WifiReload.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.014-VLANTermination.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/014-VLANTermination.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.014-VLANTermination.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.015-t2_pam_enable.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/015-t2_pam_enable.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.015-t2_pam_enable.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.015-GRE-Files-for-23q1.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/015-GRE-Files-for-23q1.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.015-GRE-Files-for-23q1.patched
-    fi 
-   
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.016-Remote-http-pandm.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/016-Remote-http-pandm.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.016-Remote-http-pandm.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.017-Captive_Portal_network_response.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/017-Captive_Portal_network_response.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.017-Captive_Portal_network_response.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.019_PandM_UPnP_remove.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/019_PandM_UPnP_remove.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.019_PandM_UPnP_remove.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.020_RFC_PAM_FIX.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/020_RFC_PAM_FIX.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.020_RFC_PAM_FIX.patched
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.021-Firewall_defaults_PAM_fix.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/
-        patch -p1 < ${WORKDIR}/021-Firewall_defaults_PAM_fix.patch
-        cd -
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspPandM/.021-Firewall_defaults_PAM_fix.patched
-    fi
-}
-addtask mypatch after do_unpack before do_compile

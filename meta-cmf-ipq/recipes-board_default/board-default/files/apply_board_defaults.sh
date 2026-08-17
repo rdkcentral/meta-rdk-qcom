@@ -1,9 +1,6 @@
-#!/bin/sh
-#
-# Copyright (c) 2018, 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
-# Licensed under the ISC License
-#
-# This file sets board specific default parameters.
+#Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+#All rights reserved.
+#Licensed under the Apache License, Version 2.0
 
 . /lib/ipq.sh
 
@@ -64,6 +61,50 @@ case "$board" in
       syscfg set board_default_applied "1"
       syscfg set front_end "nss"
       syscfg set enable_rps "1"
+      syscfg commit
+      ;;
+   *ipq5424*|*ipq5332*|*ipq5210*)
+      echo "board type detected is " $board > /dev/console
+      has_qce2204=0
+      lan_ifaces=""
+
+      syscfg set wan_physical_ifname_ethname "eth0"
+      syscfg set board_default_applied "1"
+      syscfg set front_end "auto"
+      syscfg set enable_rps "1"
+
+	  # Check if qce2204 switch is present (mirrors QSDK ipq54xx_setup_interfaces)
+      if grep -q "qce2204" /proc/device-tree/soc@0/*/switch0@*/compatible 2>/dev/null; then
+         has_qce2204=1
+         port_count=$(ls /proc/device-tree/soc@0/*/switch0@*/ports/port@*/name 2>/dev/null | wc -l)
+         i=1
+         while [ "$i" -lt "${port_count:-0}" ]; do
+            if [ -n "$lan_ifaces" ]; then
+               lan_ifaces="$lan_ifaces lan$i"
+            else
+               lan_ifaces="lan$i"
+            fi
+            i=$((i + 1))
+         done
+      fi
+
+      if [ "$has_qce2204" = "1" ]; then
+         syscfg set lan_ethernet_physical_ifnames "$lan_ifaces"
+      fi
+
+      syscfg commit
+      ;;
+   qcom,ipq5332-ap-mi01.2-qce2204)
+      syscfg set lan_ethernet_physical_ifnames "eth2 eth3 eth4"
+      syscfg set wan_physical_ifname_ethname "eth1"
+      syscfg set board_default_applied "1"
+      syscfg set front_end "auto"
+      syscfg commit
+      ;;
+   qcom,ipq5424-rdp464-qce2204)
+      syscfg set lan_ethernet_physical_ifnames "eth2 eth3 eth4 ath5 eth6"
+      syscfg set board_default_applied "1"
+      syscfg set front_end "auto"
       syscfg commit
       ;;
 esac
