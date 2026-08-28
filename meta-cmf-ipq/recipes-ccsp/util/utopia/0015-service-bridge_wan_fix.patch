@@ -1,9 +1,3 @@
-From: kalag <kalag@qti.qualcomm.com>
-Date: Tue Nov 5 15:52:14 2024 +0530
-Subject: Split the llan0 and erouter0 removal from bridge
-Signed-off-by: kalag <kalag@qti.qualcomm.com>
------------------------------------
-
 Author: kalag <kalag@qti.qualcomm.com>
 Date:   Mon Nov 4 15:30:21 2024 +0530
 

@@ -1,11 +1,3 @@
-Commit ID: 999394b6f0bdbe5cad5bf6aaf36b7dbd2284bbd2
-From: Sriraaman C <sriraama@qti.qualcomm.com>
-Date: Thu Aug 10 00:22:05 2023 +0530
-Subject: Remote Management http/https access fixed
-Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
-
----
-
 diff --git a/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c b/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
 index 7f377a6..014beda 100755
 --- a/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c

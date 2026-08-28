@@ -1,11 +1,3 @@
-Commit ID: 93fbfc61c136f92a40044b91df3ade746284860f
-From: krisa <krisa@qti.qualcomm.com>
-Date: Thu Mar 23 13:14:22 2023 +0530
-Subject: DHCP FIX
-Signed-off-by: krisa <krisa@qti.qualcomm.com>
-
----
-
 diff --git dnsmasqLauncher.sh dnsmasqLauncher.sh
 index 20afe8d..fa193c4 100755
 --- dnsmasqLauncher.sh

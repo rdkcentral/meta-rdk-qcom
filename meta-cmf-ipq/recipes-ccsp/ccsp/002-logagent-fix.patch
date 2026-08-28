@@ -1,9 +1,3 @@
-From: Mukesh Maram <mmaram@qti.qualcomm.com>
-Date: Wed Nov 27 19:01:00 2024 +0530
-Subject: [recipes-ccsp]: Fix for logagent in RDK 13.0.
-Signed-off-by: Mukesh Maram <mmaram@qti.qualcomm.com>
------------------------------------
-
 diff --git a/source/LogComponent/cosa_apis_logagentplugin.c b/source/LogComponent/cosa_apis_logagentplugin.c
 index 67fbb82..e23c572 100644
 --- a/source/LogComponent/cosa_apis_logagentplugin.c

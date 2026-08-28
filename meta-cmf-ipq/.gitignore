@@ -1,0 +1,11 @@
+*.o
+.*.swp
+/release
+*.orig
+*.rej
+*~
+.#*
+*#
+.emacs.desktop*
+TAGS*~
+git-src

@@ -16,6 +16,7 @@ IMAGE_INSTALL += " \
 	${NETWORK_PKGS} \
 	${UTILS} \
 	board-default \
+	qc-config \
 	"
 
 IMAGE_INSTALL_append_ipq40xx += "${SSDK_HNAT_PKGS} \
@@ -67,37 +68,52 @@ NSS_ipq54xx = "${QCA_PHY_PKGS} \
                ${SSDK_NOHNAT_PKGS} \
                ${NSS_PKGS} \
 		"
+
+NSS_ipq52xx_64 = "${QCA_PHY_PKGS} \
+                  ${SSDK_NOHNAT_PKGS} \
+                  ${NSS_PKGS} \
+                 "
+NSS_ipq52xx = "${QCA_PHY_PKGS} \
+               ${SSDK_NOHNAT_PKGS} \
+               ${NSS_PKGS} \
+		"
+NSS_ipq96xx_64 = "${QCA_PHY_PKGS} \
+                  ${SSDK_NOHNAT_PKGS} \
+                  ${NSS_PKGS} \
+                 "
+NSS_ipq96xx = "${QCA_PHY_PKGS} \
+               ${SSDK_NOHNAT_PKGS} \
+               ${NSS_PKGS} \
+		"
+
 IMAGE_INSTALL += " \
 		${NSS} \
 		${MCS_PKGS} \
 		"
+
 WIFI_ipq95xx_64 = "${WIFI_PKGS}"
-
 WIFI_ipq95xx = "${WIFI_PKGS}"
-
 WIFI_ipq807x_64 = "${WIFI_PKGS}"
-
 WIFI_ipq807x = "${WIFI_PKGS}"
-
 WIFI_ipq53xx_64 = "${WIFI_PKGS}"
-
 WIFI_ipq53xx = "${WIFI_PKGS}"
-
 WIFI_ipq54xx_64 = "${WIFI_PKGS}"
-
 WIFI_ipq54xx = "${WIFI_PKGS}"
+WIFI_ipq96xx_64 = "${WIFI_PKGS}"
+WIFI_ipq96xx = "${WIFI_PKGS}"
+WIFI_ipq52xx_64 = "${WIFI_PKGS} "
+WIFI_ipq52xx = "${WIFI_PKGS}"
 
 FONTANA_ipq95xx_64 = "${FONTANA_PKG}"
-
 FONTANA_ipq95xx = "${FONTANA_PKG}"
-
 FONTANA_ipq53xx_64 = "${FONTANA_PKG}"
-
 FONTANA_ipq53xx = "${FONTANA_PKG}"
-
 FONTANA_ipq54xx_64 = "${FONTANA_PKG}"
-
 FONTANA_ipq54xx = "${FONTANA_PKG}"
+FONTANA_ipq96xx_64 = "${FONTANA_PKG}"
+FONTANA_ipq96xx = "${FONTANA_PKG}"
+FONTANA_ipq52xx_64 = "${FONTANA_PKG}"
+FONTANA_ipq52xx = "${FONTANA_PKG}"
 
 IMAGE_INSTALL += "${WIFI}"
 IMAGE_INSTALL += "${FONTANA_PKG}"
@@ -117,3 +133,4 @@ IMAGE_INSTALL_remove = " \
 			${EXTRA_IMAGEDEPENDS} \
 			ccsp-logagent \
 			"
+IMAGE_INSTALL += "xz"

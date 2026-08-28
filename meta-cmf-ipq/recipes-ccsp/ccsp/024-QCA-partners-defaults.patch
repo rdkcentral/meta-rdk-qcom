@@ -1,0 +1,18 @@
+Index: git/arch/intel_usg/boards/arm_shared/scripts/partners_defaults.json
+===================================================================
+--- git.orig/arch/intel_usg/boards/arm_shared/scripts/partners_defaults.json
++++ git/arch/intel_usg/boards/arm_shared/scripts/partners_defaults.json
+@@ -161,10 +161,10 @@
+       "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.LocalUI.DefaultLoginPassword" : "password" ,
+       "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.LocalUI.HomeNetworkControl" : "true",
+       "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.LocalUI.MSOLogoTitle" : "RDKM",
+-      "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.DefaultAdminIP" : "10.0.0.1" ,
++      "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.DefaultAdminIP" : "192.168.1.1" ,
+       "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.DefaultLocalIPv4SubnetRange" : "255.255.255.0" ,
+-      "Device.DHCPv4.Server.Pool.1.MinAddress" : "10.0.0.2",
+-      "Device.DHCPv4.Server.Pool.1.MaxAddress" : "10.0.0.253",
++      "Device.DHCPv4.Server.Pool.1.MinAddress" : "192.168.1.2",
++      "Device.DHCPv4.Server.Pool.1.MaxAddress" : "192.168.1.253",
+       "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.DefaultLanguage" : "eng",
+       "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.RDKB_UIBranding.HelpTip.NetworkName" : "RDKM",
+       "Device.DeviceInfo.X_RDKCENTRAL-COM_Syndication.PauseScreenFileLocation" : "/usr/www/cmn/syndication/device_pause_screen/device_pause_screen_comcast.php" ,

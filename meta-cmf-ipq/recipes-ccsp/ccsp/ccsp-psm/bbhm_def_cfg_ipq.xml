@@ -33,23 +33,6 @@
    limitations under the License.
 -->
 
-<!--
-    Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
-    Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
-
 <Provision>
   <Record name="com.cisco.spvtg.ccsp.psm.ReloadConfig" type="astr">TRUE</Record>
 
@@ -69,7 +52,8 @@
   <Record name="Device.DeviceInfo.X_RDK_RFC.Feature.OffChannelScan.Enable" type="astr">0</Record>
   <Record name="Device.WiFi.Radio.2.Radio_X_RDK_OffChannelNchannel" type="astr">0</Record>
   <Record name="dmsb.device.deviceinfo.X_RDKCENTRAL-COM_RFC.Feature.HTTPSConfigDownload.Enabled" type="astr">0</Record>
-  <Record name="Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.WPA3_Personal_Transition.Enable" type="astr" contentType="bool">1</Record>
+  <Record name="Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.WPA3_Personal_Transition.Enable" type="astr">1</Record>
+
 
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.WPSPin" type="astr">12345678</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.VlanCfgVerion" type="astr">2</Record>
@@ -107,8 +91,10 @@
 
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.1.ChanUtilSelfHealEnable" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.2.ChanUtilSelfHealEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.3.ChanUtilSelfHealEnable" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.1.SetChanUtilThreshold" type="astr">90</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.2.SetChanUtilThreshold" type="astr">90</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.3.SetChanUtilThreshold" type="astr">90</Record>
 
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.1.Radio_X_RDK_OffChannelTscan" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.Device.WiFi.Radio.2.Radio_X_RDK_OffChannelTscan" type="astr">0</Record>
@@ -593,9 +579,9 @@
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.16.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.17.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.18.HotSpot" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.19.HotSpot" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.19.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.20.HotSpot" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.21.HotSpot" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.21.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.22.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.23.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.24.HotSpot" type="astr">0</Record>
@@ -603,12 +589,12 @@
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.26.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.27.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.28.HotSpot" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.29.HotSpot" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.30.HotSpot" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.29.HotSpot" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.30.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.31.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.32.HotSpot" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.33.HotSpot" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.34.HotSpot" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.33.HotSpot" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.34.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.35.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.36.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.37.HotSpot" type="astr">0</Record>
@@ -617,10 +603,10 @@
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.40.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.41.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.42.HotSpot" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.43.HotSpot" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.43.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.44.HotSpot" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.45.HotSpot" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.46.HotSpot" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.45.HotSpot" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.46.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.47.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.48.HotSpot" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.49.HotSpot" type="astr">0</Record>
@@ -629,8 +615,8 @@
   
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.1.WpsPushButton" type="astr">1</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.2.WpsPushButton" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.3.WpsPushButton" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.4.WpsPushButton" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.3.WpsPushButton" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.4.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.5.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.6.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.7.WpsPushButton" type="astr">0</Record>
@@ -643,18 +629,18 @@
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.14.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.15.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.16.WpsPushButton" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.17.WpsPushButton" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.18.WpsPushButton" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.17.WpsPushButton" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.18.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.19.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.20.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.21.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.22.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.23.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.24.WpsPushButton" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.25.WpsPushButton" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.26.WpsPushButton" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.27.WpsPushButton" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.28.WpsPushButton" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.25.WpsPushButton" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.26.WpsPushButton" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.27.WpsPushButton" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.28.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.29.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.30.WpsPushButton" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.31.WpsPushButton" type="astr">0</Record>
@@ -731,57 +717,57 @@
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.50.Security.MFPConfig" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.51.Security.MFPConfig" type="astr">0</Record>
 
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.1.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.2.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.3.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.4.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.5.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.6.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.7.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.8.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.9.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.10.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.11.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.12.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.13.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.14.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.15.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.16.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.17.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.18.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.19.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.20.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.21.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.22.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.23.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.24.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.25.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.26.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.27.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.28.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.29.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.30.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.31.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.32.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.33.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.34.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.35.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.36.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.37.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.38.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.39.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.40.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.41.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.42.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.43.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.44.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.45.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.46.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.47.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.48.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.49.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.50.vAPStatsEnable" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.51.vAPStatsEnable" type="astr">FALSE</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.1.vAPStatsEnable" type="astr">true</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.2.vAPStatsEnable" type="astr">true</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.3.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.4.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.5.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.6.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.7.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.8.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.9.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.10.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.11.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.12.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.13.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.14.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.15.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.16.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.17.vAPStatsEnable" type="astr">true</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.18.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.19.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.20.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.21.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.22.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.23.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.24.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.25.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.26.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.27.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.28.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.29.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.30.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.31.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.32.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.33.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.34.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.35.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.36.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.37.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.38.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.39.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.40.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.41.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.42.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.43.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.44.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.45.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.46.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.47.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.48.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.49.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.50.vAPStatsEnable" type="astr">false</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.51.vAPStatsEnable" type="astr">false</Record>
 
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.1.BeaconRateCtl" type="astr">1000</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.2.BeaconRateCtl" type="astr">6000</Record>
@@ -1654,7 +1640,7 @@
   <Record name="dmsb.l2net.1.AllowDelete" type="astr">FALSE</Record>
   <Record name="dmsb.l2net.1.Enable" type="astr">TRUE</Record>
   <Record name="dmsb.l2net.1.InstanceNum" type="astr">1</Record>
-  <Record name="dmsb.l2net.1.Members.Eth" type="astr">eth1 eth2 eth3 eth4 eth5</Record>
+  <Record name="dmsb.l2net.1.Members.Eth" type="astr">eth0 eth1 eth2 eth3 eth4</Record>
   <Record name="dmsb.l2net.1.Members.Gre" type="astr">gretap0 </Record>
   <Record name="dmsb.l2net.1.Members.Link" type="astr">l2sd0-t</Record>
   <Record name="dmsb.l2net.1.Members.Moca" type="astr"> </Record>
@@ -2326,75 +2312,78 @@
    <Record name="dmsb.wanmanager.if.1.Type" type="astr">2</Record>
    <Record name="dmsb.wanmanager.if.1.Priority" type="astr">0</Record>
    <Record name="dmsb.wanmanager.if.1.SelectionTimeout" type="astr">60</Record>
+   <Record name="dmsb.wanmanager.if.1.DynTriggerEnable" type="astr">FALSE</Record>
+   <Record name="dmsb.wanmanager.if.1.DynTriggerDelay" type="astr">0</Record>
    <Record name="dmsb.wanmanager.if.1.Marking.List" type="astr">DATA</Record>
    <Record name="dmsb.wanmanager.if.1.Marking.DATA.Alias" type="astr">DATA</Record>
    <Record name="dmsb.wanmanager.if.1.Marking.DATA.SKBPort" type="astr">1</Record>
-   <Record name="dmsb.wanmanager.if.1.Marking.DATA.SKBMark" type="astr">0</Record>
-   <Record name="dmsb.wanmanager.if.1.Marking.DATA.EthernetPriorityMark" type="astr">0</Record>
+   <Record name="dmsb.wanmanager.if.1.Marking.DATA.SKBMark" type="astr"> </Record>
+   <Record name="dmsb.wanmanager.if.1.Marking.DATA.EthernetPriorityMark" type="astr"></Record>
+   <Record name="dmsb.wanmanager.if.1.EnableDHCP" type="astr">TRUE</Record>
    <Record name="dmsb.wanmanager.if.1.PPPEnable" type="astr">FALSE</Record>
    <Record name="dmsb.wanmanager.if.1.PPPLinkType" type="astr">PPPoE</Record>
    <Record name="dmsb.wanmanager.if.1.PPPIPCPEnable" type="astr">TRUE</Record>
    <Record name="dmsb.wanmanager.if.1.PPPIPV6CPEnable" type="astr">TRUE</Record>
    <Record name="dmsb.wanmanager.if.1.ActiveLink" type="astr">TRUE</Record>
-   <Record name="dmsb.wanmanager.if.1.EnableMAPT" type="astr">TRUE</Record>
-   <Record name="dmsb.wanmanager.if.1.EnableDSLite" type="astr">TRUE</Record>
+   <Record name="dmsb.wanmanager.if.1.EnableMAPT" type="astr">FALSE</Record>
+   <Record name="dmsb.wanmanager.if.1.EnableDSLite" type="astr">FALSE</Record>
    <Record name="dmsb.wanmanager.if.1.EnableIPoE" type="astr">TRUE</Record>
-   <Record name="dmsb.wanmanager.if.1.RebootOnConfiguration" type="astr">TRUE</Record>
+   <Record name="dmsb.wanmanager.if.1.RebootOnConfiguration" type="astr">FALSE</Record>
 
    <Record name="eRT.com.cisco.spvtg.ccsp.webpa.Device.X_RDK_WebConfig.RfcEnable" type="astr">false</Record>
    <Record name="eRT.com.cisco.spvtg.ccsp.webpa.WebConfigRfcEnable" type="astr">false</Record>
 
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.1.RapidReconnCountEnable" type="astr">1</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.2.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.3.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.4.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.5.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.6.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.7.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.8.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.9.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.10.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.11.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.12.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.13.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.14.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.15.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.16.RapidReconnCountEnable" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.3.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.4.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.5.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.6.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.7.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.8.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.9.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.10.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.11.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.12.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.13.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.14.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.15.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.16.RapidReconnCountEnable" type="astr">0</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.17.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.18.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.19.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.20.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.21.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.22.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.23.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.24.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.25.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.26.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.27.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.28.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.29.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.30.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.31.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.32.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.33.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.34.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.35.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.36.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.37.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.38.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.39.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.40.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.41.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.42.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.43.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.44.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.45.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.46.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.47.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.48.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.49.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.50.RapidReconnCountEnable" type="astr">1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.51.RapidReconnCountEnable" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.18.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.19.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.20.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.21.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.22.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.23.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.24.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.25.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.26.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.27.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.28.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.29.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.30.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.31.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.32.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.33.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.34.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.35.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.36.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.37.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.38.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.39.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.40.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.41.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.42.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.43.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.44.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.45.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.46.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.47.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.48.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.49.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.50.RapidReconnCountEnable" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.51.RapidReconnCountEnable" type="astr">0</Record>
 
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.1.RapidReconnThreshold" type="astr">180</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.AccessPoint.2.RapidReconnThreshold" type="astr">180</Record>
@@ -2466,85 +2455,9 @@
 
   <!-- tr069 Etries -->
   <Record name="com.cisco.spvtg.ccsp.tr069pa.PmNotif.Device.ManagementServer.ConnectionRequestURL" type="astr" contentType="ip4Addr">10.1.1.1</Record>
-  <Record name="eMG.com.cisco.spvtg.ccsp.tr069pa.PmNotif.Device.ManagementServer.ConnectionRequestURL" type="astr" contentType="ip4Addr">10.1.1.1</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ACSOverride.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ACSOverride.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.AliasBasedAddressing.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.AliasBasedAddressing.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.CWMPRetryIntervalMultiplier.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.CWMPRetryIntervalMultiplier.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.CWMPRetryMinimumWaitInterval.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.CWMPRetryMinimumWaitInterval.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ConnectionRequestPassword.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ConnectionRequestPassword.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ConnectionRequestUsername.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ConnectionRequestUsername.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.DefaultActiveNotificationThrottle.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.DefaultActiveNotificationThrottle.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.DownloadProgressURL.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.DownloadProgressURL.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.EnableCWMP.Notification" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.EnableCWMP.Value" type="astr">0</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.KickURL.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.KickURL.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.NATDetected.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.NATDetected.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ParameterKey.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.ParameterKey.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.Password.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.Password.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.PeriodicInformEnable.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.PeriodicInformEnable.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.PeriodicInformInterval.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.PeriodicInformInterval.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.PeriodicInformTime.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.PeriodicInformTime.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNEnable.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNEnable.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNMaximumKeepAlivePeriod.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNMaximumKeepAlivePeriod.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNMinimumKeepAlivePeriod.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNMinimumKeepAlivePeriod.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNPassword.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNPassword.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNServerAddress.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNServerAddress.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNServerPort.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNServerPort.Value" type="astr">3478</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNUsername.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNUsername.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.UDPConnectionRequestAddress.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.UDPConnectionRequestAddress.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.UDPConnectionRequestAddressNotificationLimit.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.UDPConnectionRequestAddressNotificationLimit.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.URL.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.UpgradesManaged.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.UpgradesManaged.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.Username.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.Username.Value" type="astr">Test</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqEnable.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqEnable.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqFaultCodeFilter.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqFaultCodeFilter.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqOperationTypeFilter.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqOperationTypeFilter.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqResultTypeFilter.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionReqResultTypeFilter.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPEnable.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPEnable.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPFileTypeFilter.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPFileTypeFilter.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPResultTypeFilter.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPResultTypeFilter.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPTransferTypeFilter.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPTransferTypeFilter.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPath.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPath.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPort.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_ConnectionRequestURLPort.Value" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_DiagComplete.Notification" type="astr">FALSE</Record>
-  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.X_CISCO_COM_DiagComplete.Value" type="astr">FALSE</Record>
   <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.PmNotif.Device.ManagementServer.ConnectionRequestURL" type="astr" contentType="ip4Addr">10.1.1.1</Record>
+  <Record name="eMG.com.cisco.spvtg.ccsp.tr069pa.PmNotif.Device.ManagementServer.ConnectionRequestURL" type="astr" contentType="ip4Addr">10.1.1.1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr069pa.Device.ManagementServer.STUNServerPort.Value" type="astr">3478</Record>
 
   <Record name="Device.X_RDKCENTRAL-COM_Webpa.Server.URL" type="astr">https://fabric.xmidt.comcast.net:8080</Record>
   <Record name="Device.X_RDKCENTRAL-COM_Webpa.TokenServer.URL" type="astr">https://issuer.xmidt.comcast.net:8080/issue</Record>
@@ -2569,9 +2482,13 @@
 
   <Record name="dmsb.EthLink.1.Alias" type="astr">Bridge1</Record>
   <Record name="dmsb.EthLink.1.Enable" type="astr" contentType="bool">true</Record>
+  <Record name="dmsb.EthLink.1.LowerLayerInstanceNumber" type="astr" contentType="uint">1</Record>
   <Record name="dmsb.EthLink.1.LowerLayerType" type="astr">Bridge</Record>
+  <Record name="dmsb.EthLink.2.LowerLayerInstanceNumber" type="astr" contentType="uint">1</Record>
   <Record name="dmsb.EthLink.2.LowerLayerType" type="astr">Bridge</Record>
+  <Record name="dmsb.EthLink.4.LowerLayerInstanceNumber" type="astr" contentType="uint">1</Record>
   <Record name="dmsb.EthLink.4.LowerLayerType" type="astr">Bridge</Record>
+  <Record name="dmsb.EthLink.5.LowerLayerInstanceNumber" type="astr" contentType="uint">1</Record>
   <Record name="dmsb.EthLink.5.LowerLayerType" type="astr">Bridge</Record>
 
   <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.vAPStatsEnable" type="astr" contentType="bool">false</Record>
@@ -2634,7 +2551,7 @@
   <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.Name" type="astr">erouter0</Record>
   <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.EnableMAPT" type="astr">FALSE</Record>
   <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.EnableDSLite" type="astr">FALSE</Record>
-  <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.EnableIPoE" type="astr">FALSE</Record>
+  <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.EnableIPoE" type="astr">TRUE</Record>
   <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.PPPInterface" type="astr"></Record>
   <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.IPInterface" type="astr">Device.IP.Interface.1</Record>
   <Record name="dmsb.wanmanager.if.1.VirtualInterface.1.IP.Mode" type="astr">3</Record>
@@ -2682,4 +2599,31 @@
   <Record name="dmsb.pppmanager.if.1.LowerLayer" type="astr">Device.Ethernet.X_RDK_Interface.1</Record>
   <Record name="dmsb.pppmanager.if.1.ServiceName" type="astr">erouter0</Record>
   <Record name="dmsb.pppmanager.if.1.linktype" type="astr">PPPoE</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.1.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.2.MLDUnit" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.3.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.4.MLDUnit" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.5.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.6.MLDUnit" type="astr">2</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.7.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.8.MLDUnit" type="astr">3</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.9.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.10.MLDUnit" type="astr">4</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.11.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.12.MLDUnit" type="astr">5</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.13.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.14.MLDUnit" type="astr">6</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.15.MLDUnit" type="astr">-1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.16.MLDUnit" type="astr">7</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.17.MLDUnit" type="astr">0</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.18.MLDUnit" type="astr">1</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.19.MLDUnit" type="astr">2</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.20.MLDUnit" type="astr">3</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.21.MLDUnit" type="astr">4</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.22.MLDUnit" type="astr">5</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.23.MLDUnit" type="astr">6</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.SSID.24.MLDUnit" type="astr">7</Record>
+  <!-- IPQ Feature Configurations -->
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.X_IPQ_WDSExtEnable" type="astr">FALSE</Record>
+  <Record name="eRT.com.cisco.spvtg.ccsp.tr181pa.Device.WiFi.X_IPQ_MaxCapAdvertisementEnable" type="astr">TRUE</Record>
   </Provision>

@@ -1,11 +1,3 @@
-Commit ID: 143aeb0fbac6dd617a3ea94e878d061f7e7ca4ec
-From: Sriraaman C <sriraama@qti.qualcomm.com>
-Date: Mon Mar 25 22:08:43 2024 +0530
-Subject: [recipes-ccsp] changes to migrate to 2023q4-dunfell branch
-Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
-
----
-
 diff --git a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c b/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c
 index 843fb49..d4b4053 100644
 --- a/source/TR-181/middle_layer_src/pppmgr_dml_ppp_apis.c

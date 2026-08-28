@@ -1,11 +1,3 @@
-Commit ID: 209e0a8f50c37515411e9384b743f77a44235fa0
-From: sreehari ramanjula <sramanju@qti.qualcomm.com>
-Date: Tue Sep 3 20:44:59 2024 +0530
-Subject: rdkgponmanager: Handle the synchronization between data models
-Signed-off-by: sreehari ramanjula <sramanju@qti.qualcomm.com>
-
----
-
 diff --git a/config/RdkGponManager.xml b/config/RdkGponManager.xml
 index 4f912bf..cffcfd1 100644
 --- a/config/RdkGponManager.xml

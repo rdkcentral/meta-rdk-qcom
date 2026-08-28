@@ -1,11 +1,3 @@
-Commit ID: 88541f031d1a0aa8a33932759a4aea0396509b3b
-From: rajka <rajka@qti.qualcomm.com>
-Date: Fri Oct 27 15:53:01 2023 +0530
-Subject: Captive portal Redirection Handling
-Signed-off-by: rajka <rajka@qti.qualcomm.com>
-
----
-
 #diff --git a/source/scripts/init/c_registration/10_firewall.c b/source/scripts/init/c_registration/10_firewall.c
 #index ddd6937..0d828f9 100644
 #--- a/source/scripts/init/c_registration/10_firewall.c

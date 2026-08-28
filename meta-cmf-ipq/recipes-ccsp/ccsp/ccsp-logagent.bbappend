@@ -1,16 +1,16 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
 SRC_URI_append += " \
-        file://001-logagent_header.patch \
-        file://002-logagent-fix.patch \
-        "
+		file://001-logagent_header.patch \
+		file://002-logagent-fix.patch \
+		"
 
 EXTRA_OECONF_remove_kirkstone = " --with-ccsp-platform=bcm --with-ccsp-arch=arm "
 
-do_mypatch() {
-    if [ ! -f ${TOPDIR}/../rdkb/components/generic/CcspLogAgent/.001-logagent_header.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/generic/CcspLogAgent/source/
+do_mypatch() {	
+    if [ ! -f ${TOPDIR}/../rdkb/components/generic/CcspLogAgent/.001-logagent_header.patched ]; then	
+        cd ${TOPDIR}/../rdkb/components/generic/CcspLogAgent/source/	
         patch -p2 < ${WORKDIR}/001-logagent_header.patch
-        cd -
+        cd -	
         touch ${TOPDIR}/../rdkb/components/generic/CcspLogAgent/.001-logagent_header.patched
     fi
 
@@ -20,5 +20,5 @@ do_mypatch() {
         cd -
         touch ${TOPDIR}/../rdkb/components/generic/CcspLogAgent/.002-logagent-fix.patched
     fi
-}
-addtask mypatch after do_unpack before do_compile
+}	
+addtask mypatch after do_unpack before do_compile 

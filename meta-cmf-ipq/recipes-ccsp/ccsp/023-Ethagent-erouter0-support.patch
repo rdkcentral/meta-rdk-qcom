@@ -1,0 +1,21 @@
+Index: git/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_arm.c
+===================================================================
+--- git.orig/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_arm.c
++++ git/source/TR-181/board_sbapi/source-arm/cosa_ethernet_apis_arm.c
+@@ -213,6 +213,7 @@ static CosaEthInterfaceInfo g_EthEntries
+     {g_EthIntSInfoStatic + 2, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 2, {0}},
+     {g_EthIntSInfoStatic + 3, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 3, {0}},
+     {g_EthIntSInfoStatic + 4, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 4, {0}},
++    {g_EthIntSInfoStatic + 5, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 5, {0}},
+     {g_EthIntSInfoStatic + 8, {'\0'}, 0, 0, &ifFuncs, NULL,          {0}},
+     {g_EthIntSInfoStatic + 9, {'\0'}, 0, 0, &ifFuncs, NULL,          {0}},
+ #elif defined(ETH_6_PORTS)
+@@ -240,7 +241,7 @@ static CosaEthInterfaceInfo g_EthEntries
+     {g_EthIntSInfoStatic + 1, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 1, {0}},
+     {g_EthIntSInfoStatic + 2, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 2, {0}},
+     {g_EthIntSInfoStatic + 3, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 3, {0}},
+-    {g_EthIntSInfoStatic + 4, {'\0'}, 0, 0, &ifFuncs, NULL,          {0}},
++    {g_EthIntSInfoStatic + 4, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 4, {0}},
+     {g_EthIntSInfoStatic + 5, {'\0'}, 0, 0, &ifFuncs, NULL,          {0}},
+ #if defined(INTEL_PUMA7) && !defined(_ARRIS_XB6_PRODUCT_REQ_)
+     {g_EthIntSInfoStatic + 6, {'\0'}, 0, 0, &swFuncs, g_PortIDs + 4, {0}},

@@ -1,0 +1,22 @@
+Index: hostap-2.12/src/drivers/driver_nl80211.c
+===================================================================
+--- hostap-2.12.orig/src/drivers/driver_nl80211.c
++++ hostap-2.12/src/drivers/driver_nl80211.c
+@@ -6081,14 +6081,14 @@ static int wpa_driver_nl80211_set_ap(voi
+ 		goto fail;
+ #endif /* CONFIG_IEEE80211AX */
+ 
+-#ifdef CONFIG_IEEE80211BN
++#if defined (CONFIG_IEEE80211BN) && !defined (RDK_ONEWIFI)
+ 	if (params->uhr_oper &&
+ 	    nla_put(msg, NL80211_ATTR_UHR_OPERATION,
+ 		    /* nl80211 wants it without the extended element header */
+ 		    params->uhr_oper[1] - 1,
+ 		    params->uhr_oper + 3))
+ 		goto fail;
+-#endif /* CONFIG_IEEE80211BN */
++#endif /* defined (CONFIG_IEEE80211BN) && !defined (RDK_ONEWIFI) */
+ 
+ #ifdef CONFIG_SAE
+ 	if (wpa_key_mgmt_sae(params->key_mgmt_suites) &&
+

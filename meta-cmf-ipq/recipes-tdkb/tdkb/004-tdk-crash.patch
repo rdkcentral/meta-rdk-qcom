@@ -1,11 +1,3 @@
-Commit ID: ca8cda60ec9b46d9ab5574a1b3cafff4803eea16
-From: Sriraaman C <sriraama@qti.qualcomm.com>
-Date: Mon Jun 5 16:03:05 2023 +0530
-Subject: TDK Agent crash specific for IPQ platform is fixed
-Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
-
----
-
 diff --git a/WIFIHAL_stub/src/WIFIHAL.cpp b/WIFIHAL_stub/src/WIFIHAL.cpp
 index 0149f41..97a2f90 100644
 --- a/WIFIHAL_stub/src/WIFIHAL.cpp

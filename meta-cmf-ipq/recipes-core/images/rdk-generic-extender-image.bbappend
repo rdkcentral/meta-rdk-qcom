@@ -16,6 +16,7 @@ IMAGE_INSTALL += " \
 	${NETWORK_PKGS} \
 	${UTILS} \
 	board-default \
+        qc-config \
 	"
 
 IMAGE_INSTALL_append_ipq40xx += "${SSDK_HNAT_PKGS} \
@@ -104,6 +105,7 @@ IMAGE_INSTALL += "crashupload"
 IMAGE_INSTALL += "rdk-fwupgrade-manager"
 IMAGE_INSTALL += "ccsp-logagent"
 IMAGE_INSTALL += "telemetry"
+IMAGE_INSTALL += "qca-hyfi-bridge"
 
 EXTRA_IMAGEDEPENDS += " \
                        ${TEST_PKGS} \

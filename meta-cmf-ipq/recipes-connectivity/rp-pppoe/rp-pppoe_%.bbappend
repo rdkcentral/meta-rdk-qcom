@@ -1,7 +1,7 @@
 FILESEXTRAPATHS_prepend :="${THISDIR}/files:"
 
 SRC_URI += " file://pppoe_config.sh \
-             file://pppoe_config.patch;patchdir=${WORKDIR}"
+"
 
 RDEPENDS_${PN} += "bash"
 

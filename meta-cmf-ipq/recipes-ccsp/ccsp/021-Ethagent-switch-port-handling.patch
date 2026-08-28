@@ -1,0 +1,52 @@
+diff --git a/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c b/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
+index 641f144..8202ca5 100644
+--- a/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
++++ b/source/TR-181/middle_layer_src/cosa_ethernet_interface_dml.c
+@@ -396,6 +396,10 @@ Interface_GetParamStringValue
+     PCOSA_DML_ETH_PORT_FULL         pEthernetPortFull = (PCOSA_DML_ETH_PORT_FULL)hInsContext;
+     char assocDeviceMacList[(17 * ETH_INTERFACE_MAX_ASSOC_DEVICES) + 1];
+     errno_t rc = -1;
++#if defined(_PLATFORM_IPQ53xx) || defined(_PLATFORM_IPQ54xx)
++    char sw_port_name[5];
++    int instance;
++#endif
+ 
+     /* check the parameter name and return the corresponding value */
+     if (strcmp(ParamName, "Alias") == 0)
+@@ -407,6 +411,36 @@ Interface_GetParamStringValue
+ 
+     if (strcmp(ParamName, "Name") == 0)
+     {
++#if defined(_PLATFORM_IPQ53xx) || defined(_PLATFORM_IPQ54xx)
++       instance = pEthernetPortFull->Cfg.InstanceNumber;
++#endif
++       /* For IPQ53XX, interface instance 1 (eth1) is a switch device
++        * Interface.1 is eth1-port1
++        * Interface.2 is eth1-port2
++        * Interface.3 is eth1-port3
++        * Interface.4 is eth1-port4
++        * For IPQ54xx, interface instance 2 (eth2) is a switch device
++        * Interface.2 is eth2-port1
++        * Interface.3 is eth2-port2
++        * Interface.4 is eth2-port3
++        * Interface.5 is eth2-port4
++        */
++
++#if defined(_PLATFORM_IPQ53xx)
++       strlcpy(sw_port_name, "eth1", sizeof(sw_port_name));
++       if ((instance == 1) || (instance == 2) || (instance == 3) || (instance == 4))
++       {
++           AnscCopyString(pValue, sw_port_name);
++           return 0;
++       }
++#elif defined(_PLATFORM_IPQ54xx)
++       strlcpy(sw_port_name, "eth2", sizeof(sw_port_name));
++       if ((instance == 2) || (instance == 3) || (instance == 4) || (instance == 5))
++       {
++           AnscCopyString(pValue, sw_port_name);
++           return 0;
++       }
++#endif
+         /* collect value */
+         AnscCopyString(pValue, pEthernetPortFull->StaticInfo.Name);
+         return 0;

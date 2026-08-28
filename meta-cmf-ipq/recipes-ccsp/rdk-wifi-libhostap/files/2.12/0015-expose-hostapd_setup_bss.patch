@@ -1,0 +1,26 @@
+Index: hostap-2.12/src/ap/hostapd.c
+===================================================================
+--- hostap-2.12.orig/src/ap/hostapd.c
++++ hostap-2.12/src/ap/hostapd.c
+@@ -1412,7 +1412,7 @@ static int hostapd_bss_radius_init(struc
+  * initialized. Most of the modules that are initialized here will be
+  * deinitialized in hostapd_cleanup().
+  */
+-static int hostapd_setup_bss(struct hostapd_data *hapd, bool first,
++int hostapd_setup_bss(struct hostapd_data *hapd, bool first,
+ 			     bool start_beacon)
+ {
+ 	struct hostapd_bss_config *conf = hapd->conf;
+Index: hostap-2.12/src/ap/hostapd.h
+===================================================================
+--- hostap-2.12.orig/src/ap/hostapd.h
++++ hostap-2.12/src/ap/hostapd.h
+@@ -792,6 +792,7 @@ int hostapd_enable_iface(struct hostapd_
+ int hostapd_reload_iface(struct hostapd_iface *hapd_iface);
+ int hostapd_reload_bss_only(struct hostapd_data *bss);
+ int hostapd_disable_iface(struct hostapd_iface *hapd_iface);
++int hostapd_setup_bss(struct hostapd_data *hapd, bool first, bool start_beacon);
+ void hostapd_bss_deinit_no_free(struct hostapd_data *hapd);
+ void hostapd_free_hapd_data(struct hostapd_data *hapd);
+ void hostapd_cleanup_iface_partial(struct hostapd_iface *iface);
+

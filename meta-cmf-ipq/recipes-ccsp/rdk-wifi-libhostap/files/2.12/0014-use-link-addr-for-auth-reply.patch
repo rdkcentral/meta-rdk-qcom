@@ -1,0 +1,65 @@
+Index: hostap-2.12/src/ap/ieee802_11.c
+===================================================================
+--- hostap-2.12.orig/src/ap/ieee802_11.c
++++ hostap-2.12/src/ap/ieee802_11.c
+@@ -407,6 +407,21 @@ static int send_auth_reply(struct hostap
+ 	reply = (struct ieee80211_mgmt *) buf;
+ 	reply->frame_control = IEEE80211_FC(WLAN_FC_TYPE_MGMT,
+ 					    WLAN_FC_STYPE_AUTH);
++#ifdef CONFIG_IEEE80211BE
++	/* For MLO STAs, always send auth reply to the per-link address.
++	 * Callers such as auth_sae_send_commit() pass sta->addr (MLD address),
++	 * but the STA firmware listens on its per-link address during
++	 * authentication.  Override dst with the per-link address stored in
++	 * sta->mld_info.links[].peer_addr, mirroring QCA UD hostapd's
++	 * sta->reply_addr mechanism. */
++	if (sta && ap_sta_is_mld(hapd, sta)) {
++		u8 link_id = hapd->mld_link_id;
++		const u8 *link_addr = sta->mld_info.links[link_id].peer_addr;
++
++		if (!is_zero_ether_addr(link_addr))
++			dst = link_addr;
++	}
++#endif /* CONFIG_IEEE80211BE */
+ 	os_memcpy(reply->da, dst, ETH_ALEN);
+ 	os_memcpy(reply->sa, sa, ETH_ALEN);
+ 	os_memcpy(reply->bssid, sa, ETH_ALEN);
+@@ -4737,11 +4752,10 @@ static void handle_auth(struct hostapd_d
+ 
+  fail:
+ 	dst = mgmt->sa;
+-
+-#ifdef CONFIG_IEEE80211BE
+-	if (ap_sta_is_mld(hapd, sta))
+-		dst = sta->addr;
+-#endif /* CONFIG_IEEE80211BE */
++	/* For MLO STAs, send auth reply to the per-link address (mgmt->sa),
++	 * not the MLD address (sta->addr). The STA firmware listens on its
++	 * per-link address during authentication; using the MLD address causes
++	 * the STA to never ACK the auth response. */
+ 
+ 	reply_res = send_auth_reply(hapd, sta, dst, auth_alg,
+ 				    auth_alg == WLAN_AUTH_SAE ?
+@@ -8568,9 +8582,19 @@ static void handle_assoc_cb(struct hosta
+ 
+ 	sta = ap_get_sta(hapd, mgmt->da);
+ 	if (!sta) {
+-		wpa_printf(MSG_INFO, "handle_assoc_cb: STA " MACSTR " not found",
+-			   MAC2STR(mgmt->da));
+-		return;
++		/* For MLO STAs the AssocResp is sent to the per-link address,
++		 * but the STA entry is keyed by the MLD address.
++		 * Use ap_get_link_sta() to find the STA by per-link address,
++		 * mirroring the QCA UD hostapd 2.11 approach, so that the
++		 * WPA_ASSOC event is fired and the 4-way handshake starts. */
++		sta = ap_get_link_sta(hapd, mgmt->da);
++		if (!sta) {
++			wpa_printf(MSG_INFO, "handle_assoc_cb: STA " MACSTR " not found",
++				   MAC2STR(mgmt->da));
++			return;
++		}
++		wpa_printf(MSG_DEBUG, "handle_assoc_cb: STA " MACSTR
++			   " identified as link STA", MAC2STR(mgmt->da));
+ 	}
+ 
+ #ifdef CONFIG_IEEE80211BE

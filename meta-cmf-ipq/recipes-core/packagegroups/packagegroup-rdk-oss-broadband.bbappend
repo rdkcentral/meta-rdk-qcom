@@ -2,7 +2,7 @@ RDEPENDS_packagegroup-rdk-oss-broadband_append = " \
     tcpdump \
     ethtool \
     ebtables \
-    ${@bb.utils.contains('MACHINEOVERRIDES', 'morty', 'wireless-tools', 'wlan-iw', d)} \
+    ${@bb.utils.contains('MACHINEOVERRIDES', 'morty', 'wireless-tools', 'iw', d)} \
 "
 
 RDEPENDS_packagegroup-rdk-oss-broadband_remove = " \

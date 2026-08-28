@@ -1,3 +1,9 @@
+#/*
+# * Copyright (c) 2023 Qualcomm Technologies, Inc. 
+# * All Rights Reserved.
+# * Licensed under the Apache License, Version 2.0
+# */
+
 [Unit]
 Description=Log_agent service
 

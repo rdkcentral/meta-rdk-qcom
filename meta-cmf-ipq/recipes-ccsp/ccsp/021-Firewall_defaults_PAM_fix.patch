@@ -1,12 +1,8 @@
-From: Robin Rajamony <rrajamon@qti.qualcomm.com>
-Date: Mon Jan 6 01:22:02 2025 +0530
-Subject: Reason for the change : Few firewall parameters are not going to default after FR.
-Signed-off-by: Robin Rajamony <rrajamon@qti.qualcomm.com>
------------------------------------
-
---- a/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
-+++ b/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
-@@ -2305,6 +2305,20 @@ CosaDmlDcSetFactoryReset
+Index: git/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
+===================================================================
+--- git.orig/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
++++ git/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_devicecontrol_apis.c
+@@ -2477,6 +2477,20 @@ CosaDmlDcSetFactoryReset
          Utopia_Set(&ctx, UtopiaValue_Firewall_Level, "Low");
          Utopia_Set(&ctx, UtopiaValue_Firewall_LevelV6, "High");
          fw.spi_protection = 1;
@@ -27,8 +23,10 @@ Signed-off-by: Robin Rajamony <rrajamon@qti.qualcomm.com>
          rc = Utopia_SetFirewallSettings(&ctx, fw);
          Utopia_Free(&ctx, !rc);
          if(rc != 0) 
---- a/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_security_apis.c
-+++ b/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_security_apis.c
+Index: git/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_security_apis.c
+===================================================================
+--- git.orig/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_security_apis.c
++++ git/source-arm/TR-181/board_sbapi/cosa_x_cisco_com_security_apis.c
 @@ -2702,6 +2702,12 @@ CosaDmlFirewallGetConfig2
      pCfg->PPTPPassthrough =  (fw.allow_pptp_passthru == true) ? TRUE: FALSE;
      pCfg->SSLPassthrough =  (fw.allow_ssl_passthru == true) ? TRUE: FALSE;

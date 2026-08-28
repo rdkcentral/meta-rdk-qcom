@@ -1,0 +1,681 @@
+Index: git/source/service_multinet/QCA_plat/qca_plat_map.c
+===================================================================
+--- /dev/null
++++ git/source/service_multinet/QCA_plat/qca_plat_map.c
+@@ -0,0 +1,265 @@
++/*
++ * If not stated otherwise in this file or this component's Licenses.txt file the
++ * following copyright and licenses apply:
++ *
++ * Copyright 2015 RDK Management
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++/**********************************************************************
++   Copyright [2014] [Cisco Systems, Inc.]
++ 
++   Licensed under the Apache License, Version 2.0 (the "License");
++   you may not use this file except in compliance with the License.
++   You may obtain a copy of the License at
++ 
++       http://www.apache.org/licenses/LICENSE-2.0
++ 
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++**********************************************************************/
++
++/*
++ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
++ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++#include "service_multinet_handler.h"
++#include "service_multinet_plat.h"
++#include "service_multinet_swfab_plat.h"
++#include "service_multinet_util.h"
++
++#include <stdio.h>
++#include <string.h>
++#include <syscfg/syscfg.h>
++
++#include "qca_plat_map.h"
++#include "qca_plat_sw.h"
++#include <stdlib.h>
++
++#include "service_multinet_swfab_LinIF.h"
++#include "secure_wrapper.h"
++
++int ifhandlerNoop(PSWFabHALArg args, int numArgs, BOOL up) {
++    return 0;
++}
++
++int ifInitAllReady(PSWFabHALArg args, int numArgs, BOOL up) {
++    int i;
++    for (i = 0; i < numArgs; ++i) {
++        args[i].ready = 1;
++    }
++    return 0;
++}
++
++int isEqualStringCompare(void* portIDa, void* portIDb) {
++    return (!strcmp((char*)portIDa, (char*) portIDb));
++}
++
++int stringIDPortIDDirect (void* portID, char* stringbuf, int bufSize) {
++    
++    int retval = snprintf(stringbuf, bufSize, "%s", (char*) portID);
++    
++    return retval ? retval + 1 : 0; 
++}
++
++int eventIDFromStringPortID (void* portID, char* stringbuf, int bufsize) {
++    int retval = snprintf(stringbuf, bufsize, "if_%s-status", (char*)portID);
++    
++    return retval ? retval + 1 : 0;
++}
++
++static SWFabHAL halList[] = {
++    {HAL_NOOP, ifhandlerNoop, ifhandlerNoop, isEqualStringCompare, stringIDPortIDDirect, eventIDFromStringPortID},
++    {HAL_WIFI, ifhandlerNoop, configVlan_WiFi, isEqualStringCompare, stringIDPortIDDirect, eventIDFromStringPortID},
++    {HAL_GRE, ifhandlerNoop, linuxIfConfigVlan, isEqualStringCompare, stringIDPortIDDirect, eventIDFromStringPortID},
++    {HAL_ETH, ifhandlerNoop, configVlan_ETH, isEqualStringCompare, stringIDPortIDDirect, eventIDFromStringPortID},
++    {HAL_LINUX, ifhandlerNoop/*linuxIfInit*/, linuxIfConfigVlan, isEqualStringCompare, stringIDPortIDDirect, eventIDFromStringPortID},
++};
++static PlatformPort wifiPortList[] = {
++    {(void*)"ath0", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath1", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath2", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath3", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath4", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath5", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath6", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath7", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath8", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath9", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath10", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath11", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath12", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath13", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath14", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath15", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath16", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath17", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath18", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath19", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath20", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath21", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath22", ENTITY_AP, halList + HAL_WIFI, 0},
++    {(void*)"ath23", ENTITY_AP, halList + HAL_WIFI, 0}
++};
++
++static PlatformPort grePortList[] = {
++    {(void*)"gretap0", ENTITY_NP, halList + HAL_GRE, 1},
++    {(void*)"gretap1", ENTITY_NP, halList + HAL_GRE, 1},
++    {(void*)"gretap2", ENTITY_NP, halList + HAL_GRE, 1},
++    {(void*)"gretap3", ENTITY_NP, halList + HAL_GRE, 1}
++};
++
++static PlatformPort ethPortList[] = {
++    {(void*)"eth0", ENTITY_AP, halList + HAL_ETH, 0},
++    {(void*)"eth1", ENTITY_AP, halList + HAL_ETH, 0},
++    {(void*)"eth2", ENTITY_AP, halList + HAL_ETH, 0},
++    {(void*)"eth3", ENTITY_AP, halList + HAL_ETH, 0},
++    {(void*)"eth4", ENTITY_AP, halList + HAL_ETH, 0},
++    {(void*)"eth5", ENTITY_AP, halList + HAL_ETH, 0}
++};
++
++/** These structures statically define a phantom port on the NP forcing path lookups to 
++ * connect the router to every other entity in the system
++ */
++static PlatformPort npPlaceholderPort = {(void*)"vNPPort", ENTITY_NP, halList + HAL_NOOP, 0};
++static IFType nulltype = {"virt", NULL};
++static NetInterface armEntityIF = {&nulltype, "np", {0}, 0, (void*)&npPlaceholderPort};
++static Member armEntityMember = { &armEntityIF, 0, 1, 1};    
++
++/**This is the linux interface providing connectivity to all lan ports, listed as a 
++ * dependency everywhere.
++ */
++static PlatformPort npLinkPort = {(void*)"l2sd0", ENTITY_NP, halList + HAL_LINUX, 0};
++static PlatformPort brWanPort = {(void*)"lbr0", ENTITY_NP, halList + HAL_LINUX, 0};
++
++//Public platform specific implementation
++
++
++int plat_addImplicitMembers(PL2Net nv_net, PMember memberBuf) {
++    *memberBuf = armEntityMember;
++    return 1;
++}
++
++static int qca_check_lan_interface(const char* ifname)
++{
++    char lan_ifnames[256] = {0};
++    char buf[256];
++    char *tok;
++    char *saveptr = NULL;
++
++    if (!ifname || ifname[0] == '\0') {
++        return 0;
++    }
++
++    if (0 == syscfg_get(NULL, "lan_ethernet_physical_ifnames", lan_ifnames, sizeof(lan_ifnames)) && lan_ifnames[0] != '\0')
++    {
++        strlcpy(buf, lan_ifnames, sizeof(buf));
++
++        for (tok = strtok_r(buf, " ", &saveptr);
++             tok != NULL;
++             tok = strtok_r(NULL, " ", &saveptr)) 
++        {
++            if (strcmp(tok, ifname) == 0) {
++                return 1; // Found
++            }
++        }
++    }
++    return 0; // Not found
++}
++
++/** This is a platform specific mapping between DM ports and physical ports. 
++ * Integrators may utilize any approach to expedite mapping, such as port naming conventions.
++ */
++int mapToPlat(PNetInterface iface) {
++    int portIndex = 0;
++    
++    iface->map = NULL; // Default to no mapping
++
++    if (!strcmp("WiFi", iface->type->name)) {
++        sscanf(iface->name, "ath%d", &portIndex);
++        iface->map = wifiPortList + portIndex;
++    } else if (!strcmp("Gre", iface->type->name)) {
++        sscanf(iface->name, "gretap%d", &portIndex);
++        iface->map = grePortList + portIndex;
++    } else if (!strcmp("virt", iface->type->name)) {
++        iface->map = &npPlaceholderPort;
++    } else if (!strcmp("Eth", iface->type->name)) {
++        if (qca_check_lan_interface(iface->name)) {
++            if (1 == sscanf(iface->name, "eth%d", &portIndex) && portIndex >= 0 && portIndex <= 5) {
++                iface->map = ethPortList + portIndex; /* eth0 is index 0 */
++            }
++        }
++    }
++    
++    return 0;
++}
++
++PPlatformPort plat_mapFromString(char* portIdString) {
++    int portIndex;
++    if (strstr(portIdString, "ath")) {
++        sscanf(portIdString, "ath%d", &portIndex);
++        return wifiPortList + portIndex;
++    } else if (strstr(portIdString, "l2sd0")) {
++        return &npLinkPort;
++    } else if (strstr(portIdString, "gretap")) {
++        sscanf(portIdString, "gretap%d", &portIndex);
++        return  (grePortList + portIndex);
++    } else if (strstr(portIdString, "vNPPort")) {
++        return &npPlaceholderPort;
++    } else if (sscanf(portIdString, "eth%d", &portIndex) == 1) {
++        if (portIndex >= 0 && portIndex <= 5) {
++            return ethPortList + portIndex;
++        } else {
++            return NULL;
++        }
++    } else if (strstr(portIdString, "lbr0")) {
++        return &brWanPort;
++    }
++    
++    
++    return NULL;
++}
++
++
++PEntityPathDeps* depArray  = 
++(PEntityPathDeps[3]) {
++        (EntityPathDeps[3]){ 
++            {{1,2},1,(PPlatformPort[2]){&npLinkPort}}, 
++            {{1,3},1,(PPlatformPort[4]){&npLinkPort}}, 
++            {{1,4},1,(PPlatformPort[3]){&npLinkPort}} 
++        },
++        (EntityPathDeps[2]){ {{0}, 0, NULL} },
++        (EntityPathDeps[1]){ {{0}, 0 ,NULL} }
++    };
++
++
++PEntityPathDeps getPathDeps(int entityLow, int entityHigh) {
++    return &depArray[entityLow-1][entityHigh-1-entityLow];
++}
+Index: git/source/service_multinet/QCA_plat/qca_plat_map.h
+===================================================================
+--- /dev/null
++++ git/source/service_multinet/QCA_plat/qca_plat_map.h
+@@ -0,0 +1,74 @@
++/*
++ * If not stated otherwise in this file or this component's Licenses.txt file the
++ * following copyright and licenses apply:
++ *
++ * Copyright 2015 RDK Management
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++/**********************************************************************
++   Copyright [2014] [Cisco Systems, Inc.]
++ 
++   Licensed under the Apache License, Version 2.0 (the "License");
++   you may not use this file except in compliance with the License.
++   You may obtain a copy of the License at
++ 
++       http://www.apache.org/licenses/LICENSE-2.0
++ 
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++**********************************************************************/
++
++/*
++ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
++ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++#ifndef QCA_PLAT_MAP_H
++#define QCA_PLAT_MAP_H
++
++typedef enum qca_entities {
++    ENTITY_NP = 1,
++    ENTITY_AP
++} QCAEntityID;
++
++typedef enum qca_hals {
++    HAL_NOOP,
++    HAL_WIFI,
++    HAL_GRE,
++    HAL_ETH,
++    HAL_LINUX
++} QCAHalID;
++
++int eventIDFromStringPortID (void* portID, char* stringbuf, int bufsize);
++
++#define NUM_ENTITIES 2
++#define NUM_HALS 5
++
++#endif
+Index: git/source/service_multinet/QCA_plat/qca_plat_sw.c
+===================================================================
+--- /dev/null
++++ git/source/service_multinet/QCA_plat/qca_plat_sw.c
+@@ -0,0 +1,165 @@
++/*
++ * If not stated otherwise in this file or this component's Licenses.txt file the
++ * following copyright and licenses apply:
++ *
++ * Copyright 2015 RDK Management
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++/**********************************************************************
++   Copyright [2014] [Cisco Systems, Inc.]
++ 
++   Licensed under the Apache License, Version 2.0 (the "License");
++   you may not use this file except in compliance with the License.
++   You may obtain a copy of the License at
++ 
++       http://www.apache.org/licenses/LICENSE-2.0
++ 
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++**********************************************************************/
++
++/*
++ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
++ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++#include "service_multinet_base.h"
++#include "qca_plat_sw.h"
++#include "qca_plat_map.h"
++#include "service_multinet_ep.h"
++#include "sysevent/sysevent.h"
++#include "syscfg/syscfg.h"
++#include "safec_lib_common.h"
++
++#include <stdio.h>
++#include <string.h>
++#include "secure_wrapper.h"
++
++extern int sysevent_fd_interactive;
++extern token_t sysevent_token_interactive;
++
++int configVlan_WiFi(PSWFabHALArg args, int numArgs, BOOL up) 
++{
++    int i;
++    char portID[80];
++    memset(portID, 0, 80);
++    errno_t  rc = -1;
++
++    for (i = 0; i < numArgs; ++i ) 
++    { 
++        rc = strcat_s(portID, sizeof(portID), (char*)args[i].portID);
++        ERR_CHK(rc);
++        if (args[i].vidParams.tagging){
++            rc = strcat_s(portID, sizeof(portID), "-t");
++            ERR_CHK(rc);
++        }
++        if (i < (numArgs - 1)){
++            rc = strcat_s(portID, sizeof(portID), " ");
++            ERR_CHK(rc);
++        }
++    }
++  
++    MNET_DEBUG("configVlan_WiFi, portId is:%s command is %s %s %d %d \"%s\"" COMMA portID COMMA SERVICE_MULTINET_DIR "/handle_wifi.sh" COMMA up ? "addVlan" : "delVlan" COMMA
++                        args[0].hints.network->inst COMMA args[0].vidParams.vid COMMA portID);
++    v_secure_system(SERVICE_MULTINET_DIR "/handle_wifi.sh %s %d %d '%s'",up ? "addVlan" : "delVlan",
++                        args[0].hints.network->inst, args[0].vidParams.vid, portID);
++    return 0;
++}
++
++/* Helper function to add/remove interfaces to/from bridges */
++int portHelper(char *bridge, char *port, int tagging, int vid, BOOL up)
++{
++    int rc;
++    int result = 0;
++
++    MNET_DEBUG("portHelper, bridge=%s, port=%s, tagging=%d, vid=%d, up=%d\n" COMMA
++               bridge COMMA port COMMA tagging COMMA vid COMMA up);
++
++    if (up) {
++        // Verify interface exists
++        rc = v_secure_system("ip link show %s >/dev/null 2>&1", port);
++        if (rc != 0) {
++            MNET_DEBUG("portHelper: Interface %s does not exist (rc=%d)\n" COMMA port COMMA rc);
++            return -1;
++        }
++
++        // Bring up the interface
++        rc = v_secure_system("ifconfig %s up", port);
++        if (rc != 0) {
++            MNET_DEBUG("portHelper: Failed to bring up %s (rc=%d)\n" COMMA port COMMA rc);
++            result = -1;
++        }
++
++        // If already enslaved to some bridge, detach before adding to target
++        rc = v_secure_system(
++            "sh -c 'if [ -e /sys/class/net/%s/brport/bridge ]; then "
++            "br=$(basename $(readlink /sys/class/net/%s/brport/bridge)); "
++            "[ \"$br\" != \"%s\" ] && brctl delif \"$br\" \"%s\"; "
++            "fi'",
++            port, port, bridge, port);
++        if (rc != 0) {
++            // Not fatal; just log. This may return non-zero if not enslaved or if delif fails.
++            MNET_DEBUG("portHelper: Detach check/delif for %s returned rc=%d\n" COMMA port COMMA rc);
++        }
++
++        // Add interface to target bridge
++        rc = v_secure_system("brctl addif %s %s", bridge, port);
++        if (rc == 0) {
++            MNET_DEBUG("portHelper: Added %s to bridge %s\n" COMMA port COMMA bridge);
++        } else {
++            MNET_DEBUG("portHelper: FAILED to add %s to bridge %s (rc=%d)\n" COMMA port COMMA bridge COMMA rc);
++            result = -1;
++        }
++    } else {
++        // Remove interface from bridge
++        rc = v_secure_system("brctl delif %s %s", bridge, port);
++        if (rc == 0) {
++            MNET_DEBUG("portHelper: Removed %s from bridge %s\n" COMMA port COMMA bridge);
++        } else {
++            MNET_DEBUG("portHelper: FAILED to remove %s from bridge %s (rc=%d)\n" COMMA port COMMA bridge COMMA rc);
++            result = -1;
++        }
++    }
++
++    return result;
++}
++
++/* Function to handle Ethernet interfaces */
++int configVlan_ETH(PSWFabHALArg args, int numArgs, BOOL up)
++{
++    int i;
++
++    for (i = 0; i < numArgs; ++i) {
++        const char *port = (const char *)args[i].portID;
++        portHelper(args[i].hints.network->name, (char *)port, args[i].vidParams.tagging, args[i].vidParams.vid, up);
++    }
++
++    return 0;
++}
+Index: git/source/service_multinet/QCA_plat/qca_plat_sw.h
+===================================================================
+--- /dev/null
++++ git/source/service_multinet/QCA_plat/qca_plat_sw.h
+@@ -0,0 +1,67 @@
++/*
++ * If not stated otherwise in this file or this component's Licenses.txt file the
++ * following copyright and licenses apply:
++ *
++ * Copyright 2015 RDK Management
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++/**********************************************************************
++   Copyright [2014] [Cisco Systems, Inc.]
++ 
++   Licensed under the Apache License, Version 2.0 (the "License");
++   you may not use this file except in compliance with the License.
++   You may obtain a copy of the License at
++ 
++       http://www.apache.org/licenses/LICENSE-2.0
++ 
++   Unless required by applicable law or agreed to in writing, software
++   distributed under the License is distributed on an "AS IS" BASIS,
++   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++   See the License for the specific language governing permissions and
++   limitations under the License.
++**********************************************************************/
++
++/*
++ * Changes from Qualcomm Technologies, Inc. are provided under the following license:
++ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++*/
++
++#ifndef QCA_PLAT_H
++#define QCA_PLAT_H
++
++#include "service_multinet_swfab.h"
++
++int configVlan_WiFi(PSWFabHALArg args, int numArgs, BOOL up);
++int configVlan_ETH(PSWFabHALArg args, int numArgs, BOOL up);
++int portHelper(char *bridge, char *port, int tagging, int vid, BOOL up);
++
++int stringIDIntSw (void* portID, char* stringbuf, int bufSize) ;
++int stringIDExtSw (void* portID, char* stringbuf, int bufSize) ;
++
++int eventIDSw (void* portID, char* stringbuf, int bufSize);
++
++#endif
+Index: git/source/service_multinet/service_multinet_main.c
+===================================================================
+--- git.orig/source/service_multinet/service_multinet_main.c
++++ git/source/service_multinet/service_multinet_main.c
+@@ -66,6 +66,12 @@
+ #define MESHBHAUL_IPV4_CIDR "192.168.245.254/24"
+ #endif
+ #endif
++
++#if defined (_COSA_QCA_ARM_)
++#define LNF_IPV4_CIDR "192.168.106.254/24"
++#define MESHBHAUL_IPV4_CIDR "192.168.245.254/24"
++#endif
++
+ #define TRUE 1
+ #define FALSE 0
+ 
+Index: git/configure.ac
+===================================================================
+--- git.orig/configure.ac
++++ git/configure.ac
+@@ -66,7 +66,7 @@ AM_CONDITIONAL([PARTNER_DEFAULT_EXT], [t
+ 
+ # Specify ccsp platform (device)
+ AC_ARG_WITH([ccsp-platform],
+-[AC_HELP_STRING([--with-ccsp-platform={intel_usg,pc,bcm,intel_puma7}],
++[AC_HELP_STRING([--with-ccsp-platform={intel_usg,pc,bcm,intel_puma7,qca}],
+                 [specify the ccsp platform])],
+ [case x"$withval" in
+    xintel_usg)
+@@ -81,6 +81,9 @@ AC_ARG_WITH([ccsp-platform],
+    xbcm)
+      CCSP_PLATFORM=bcm
+      ;;
++   xqca)
++     CCSP_PLATFORM=qca
++     ;;
+    *)
+      AC_MSG_ERROR([$withval is an invalid option to --with-ccsp-platform])
+      ;;
+@@ -93,6 +96,7 @@ fi
+ 
+ AM_CONDITIONAL(CCSP_PLATFORM_BCM, test "x$CCSP_PLATFORM" = xbcm)
+ AM_CONDITIONAL(CCSP_PLATFORM_INTEL_PUMA7, test "x$CCSP_PLATFORM" = xintel_puma7)
++AM_CONDITIONAL(CCSP_PLATFORM_QCA, test "x$CCSP_PLATFORM" = xqca)
+ AM_CONDITIONAL([MULTILAN_FEATURE], [test "$MULTILAN_FEATURE" = "yes"])
+ AM_CONDITIONAL([CPC_FIREWALL_ENABLE], [test "x$CPC_FIREWALL_ENABLE" = "xtrue"])
+ # Checks for header files.
+Index: git/source/service_multinet/Makefile.am
+===================================================================
+--- git.orig/source/service_multinet/Makefile.am
++++ git/source/service_multinet/Makefile.am
+@@ -27,23 +27,37 @@ if CCSP_PLATFORM_INTEL_PUMA7
+ service_multinet_exec_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/source/include -I$(top_srcdir)/source/util/utils -I$(top_srcdir)/source/service_multinet/Puma7_plat -I$(top_srcdir)/source/include/service_multinet $(DBUS_CFLAGS) -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include
+ service_multinet_exec_SOURCES = ep_access.c ev_access.c nv_access.c service_multinet_handler.c service_multinet_lib.c service_multinet_main.c service_multinet_swfab.c service_multinet_swfab_deps.c service_multinet_swfab_ep.c service_multinet_swfab_LinIF.c util/service_multinet_util.c Puma7_plat/puma7_plat_map.c Puma7_plat/puma7_plat_sw.c
+ else
++if CCSP_PLATFORM_QCA
++service_multinet_exec_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/source/include -I$(top_srcdir)/source/util/utils -I$(top_srcdir)/source/service_multinet/QCA_plat -I$(top_srcdir)/source/include/service_multinet $(DBUS_CFLAGS) -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include
++service_multinet_exec_SOURCES = ep_access.c ev_access.c nv_access.c service_multinet_handler.c service_multinet_lib.c service_multinet_main.c service_multinet_swfab.c service_multinet_swfab_deps.c service_multinet_swfab_ep.c service_multinet_swfab_LinIF.c util/service_multinet_util.c QCA_plat/qca_plat_map.c QCA_plat/qca_plat_sw.c
++else
+ service_multinet_exec_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/source/include -I$(top_srcdir)/source/util/utils -I$(top_srcdir)/source/service_multinet/Puma6_plat -I$(top_srcdir)/source/include/service_multinet $(DBUS_CFLAGS) -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include
+ service_multinet_exec_SOURCES = ep_access.c ev_access.c nv_access.c service_multinet_handler.c service_multinet_lib.c service_multinet_main.c service_multinet_swfab.c service_multinet_swfab_deps.c service_multinet_swfab_ep.c service_multinet_swfab_LinIF.c util/service_multinet_util.c Puma6_plat/puma6_plat_map.c Puma6_plat/puma6_plat_sw.c
+ endif
++endif
++else
++if CCSP_PLATFORM_QCA
++service_multinet_exec_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/source/include -I$(top_srcdir)/source/util/utils -I$(top_srcdir)/source/service_multinet/QCA_plat -I$(top_srcdir)/source/include/service_multinet $(DBUS_CFLAGS) -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include
++service_multinet_exec_SOURCES = ep_access.c ev_access.c nv_access.c service_multinet_handler.c service_multinet_lib.c service_multinet_main.c service_multinet_swfab.c service_multinet_swfab_deps.c service_multinet_swfab_ep.c service_multinet_swfab_LinIF.c util/service_multinet_util.c QCA_plat/qca_plat_map.c QCA_plat/qca_plat_sw.c
+ else
+ service_multinet_exec_CPPFLAGS = -I$(top_srcdir)/include -I$(top_srcdir)/source/include -I$(top_srcdir)/source/util/utils -I$(top_srcdir)/source/service_multinet/Puma6_plat -I$(top_srcdir)/source/include/service_multinet $(DBUS_CFLAGS) -I${PKG_CONFIG_SYSROOT_DIR}$(includedir)/dbus-1.0 -I${PKG_CONFIG_SYSROOT_DIR}$(libdir)/dbus-1.0/include
+ service_multinet_exec_SOURCES = ep_access.c ev_access.c nv_access.c service_multinet_handler.c service_multinet_lib.c service_multinet_main.c service_multinet_swfab.c service_multinet_swfab_deps.c service_multinet_swfab_ep.c service_multinet_swfab_LinIF.c util/service_multinet_util.c Puma6_plat/puma6_plat_map.c Puma6_plat/puma6_plat_sw.c
+ endif
++endif
+ 
+ if !CCSP_PLATFORM_BCM
+ if MULTILAN_FEATURE
+ if !CCSP_PLATFORM_INTEL_PUMA7
++if !CCSP_PLATFORM_QCA
+ service_multinet_exec_SOURCES += Puma6_plat/handle_sw.c Puma6_plat/configure_l2switch.c
+ endif
++endif
+ else
++if !CCSP_PLATFORM_QCA
+ service_multinet_exec_SOURCES += Puma6_plat/handle_sw.c Puma6_plat/configure_l2switch.c
+ endif
+ endif
++endif
+ 
+ service_multinet_exec_LDADD = $(top_builddir)/source/util/utils/libutopiautil.la \
+                               $(top_builddir)/source/services/lib/libsrvmgr.la \

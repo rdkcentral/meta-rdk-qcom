@@ -1,11 +1,3 @@
-Commit ID: a2b1366cae5d6482bb6466eaac1e7116aa802d17
-From: prasathr <prasathr@qti.qualcomm.com>
-Date: Wed Jul 19 12:32:04 2023 +0530
-Subject: [recipes-ccsp] Added HK Eth Port Changes
-Signed-off-by: prasathr <prasathr@qti.qualcomm.com>
-
----
-
 diff --git a/source/gw_prov_ethwan_sm.c b/source/gw_prov_ethwan_sm.c
 index fa43062..79ccf02 100644
 --- a/source/gw_prov_ethwan_sm.c

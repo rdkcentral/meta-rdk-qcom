@@ -7,9 +7,6 @@ EXTRA_OECONF_remove = " ${@bb.utils.contains('DISTRO_FEATURES', 'rdkb_wan_manage
 
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
 
-do_mypatch() {
-}
-
 do_install_append() {
     # Config files and scripts
     install -m 644 ${S}/config-arm/CcspCMDM.cfg ${D}${prefix}/ccsp/cm/CcspCMDM.cfg
@@ -23,5 +20,3 @@ do_install_append() {
 }
 
 FILES_${PN} += "/usr/ccsp/cm/TR181-CM.XML"
-
-addtask mypatch after do_unpack before do_compile

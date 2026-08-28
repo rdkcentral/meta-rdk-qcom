@@ -12,3 +12,7 @@ Licensed under the Apache License, Version 2.0
 
 Some material:
 Some material is derived from openembedded.org and is licensed in the same manner here (MIT for metadata; source code to match the associated recipe license).
+
+rdk-logger/rdkb_log4crc:
+Copyright 2016 RDK Management
+Licensed under the Apache License, Version 2.0

@@ -1,21 +1,11 @@
-Commit ID: 8d4223aba73c60a9bb5f28c7021cdff7566974cf
-From: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
-Date: Tue May 23 11:46:21 2023 +0530
-Subject: ACS support added for WiFi data model
-Signed-off-by: Gousiga Dharmalingam <gdharmal@qti.qualcomm.com>
-
----
-
-diff --git a/config/ccsp_tr069_pa_mapper_arm.xml b/config/ccsp_tr069_pa_mapper_arm.xml
-index d7abeca..1eb4137 100644
---- a/config/ccsp_tr069_pa_mapper_arm.xml
-+++ b/config/ccsp_tr069_pa_mapper_arm.xml
-@@ -77,7 +77,15 @@
-             <Tr069InstNum>10105</Tr069InstNum> <CcspInstNum>10</CcspInstNum>
+Index: git/config/ccsp_tr069_pa_mapper_arm.xml
+===================================================================
+--- git.orig/config/ccsp_tr069_pa_mapper_arm.xml
++++ git/config/ccsp_tr069_pa_mapper_arm.xml
+@@ -77,6 +77,14 @@
              <Tr069InstNum>10106</Tr069InstNum> <CcspInstNum>12</CcspInstNum>
              <Tr069InstNum>10107</Tr069InstNum> <CcspInstNum>14</CcspInstNum>
--            <Tr069InstNum>10108</Tr069InstNum> <CcspInstNum>16</CcspInstNum>
-+	    <Tr069InstNum>10108</Tr069InstNum> <CcspInstNum>16</CcspInstNum>
+             <Tr069InstNum>10108</Tr069InstNum> <CcspInstNum>16</CcspInstNum>
 +            <Tr069InstNum>10201</Tr069InstNum> <CcspInstNum>17</CcspInstNum>
 +            <Tr069InstNum>10202</Tr069InstNum> <CcspInstNum>18</CcspInstNum>
 +            <Tr069InstNum>10203</Tr069InstNum> <CcspInstNum>19</CcspInstNum>
@@ -27,12 +17,10 @@ index d7abeca..1eb4137 100644
          </InstanceMap1>
          <InstanceMap2>
              <DmlTable>Device.WiFi.AccessPoint</DmlTable>
-@@ -96,12 +104,21 @@
-             <Tr069InstNum>10105</Tr069InstNum> <CcspInstNum>10</CcspInstNum>
+@@ -96,11 +104,20 @@
              <Tr069InstNum>10106</Tr069InstNum> <CcspInstNum>12</CcspInstNum>
              <Tr069InstNum>10107</Tr069InstNum> <CcspInstNum>14</CcspInstNum>
--            <Tr069InstNum>10108</Tr069InstNum> <CcspInstNum>16</CcspInstNum>
-+	    <Tr069InstNum>10108</Tr069InstNum> <CcspInstNum>16</CcspInstNum>
+             <Tr069InstNum>10108</Tr069InstNum> <CcspInstNum>16</CcspInstNum>
 +            <Tr069InstNum>10201</Tr069InstNum> <CcspInstNum>17</CcspInstNum>
 +            <Tr069InstNum>10202</Tr069InstNum> <CcspInstNum>18</CcspInstNum>
 +            <Tr069InstNum>10203</Tr069InstNum> <CcspInstNum>19</CcspInstNum>
@@ -45,233 +33,139 @@ index d7abeca..1eb4137 100644
          <InstanceMap3>
              <DmlTable>Device.WiFi.Radio</DmlTable>
              <Tr069InstNum>10000</Tr069InstNum> <CcspInstNum>1</CcspInstNum> 
--            <Tr069InstNum>10100</Tr069InstNum> <CcspInstNum>2</CcspInstNum> 
-+	    <Tr069InstNum>10100</Tr069InstNum> <CcspInstNum>2</CcspInstNum> 
-+	    <Tr069InstNum>10200</Tr069InstNum> <CcspInstNum>3</CcspInstNum>
+             <Tr069InstNum>10100</Tr069InstNum> <CcspInstNum>2</CcspInstNum> 
++            <Tr069InstNum>10200</Tr069InstNum> <CcspInstNum>3</CcspInstNum>
          </InstanceMap3>
      </InstanceMapper>
      <ParamList>
-@@ -1258,8 +1287,17 @@
-             <Name>Device.WiFi.Radio.{i}.PossibleChannels</Name>
+@@ -3916,6 +3933,27 @@
+             <Name>Device.X_CISCO_COM_DeviceControl.UserChangedParams</Name>
          </Param>
          <Param>
--            <Name>Device.WiFi.Radio.{i}.ChannelsInUse</Name>
-+               <Name>Device.WiFi.Radio.{i}.ChannelsInUse</Name>
-+       </Param>
-+       <Param>
-+               <Name>Device.WiFi.Radio.{i}.TxChainmask</Name>
-         </Param>
-+        <Param>
-+            <Name>Device.WiFi.Radio.{i}.RxChainmask</Name>
++            <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Enable</Name>
 +        </Param>
 +        <Param>
-+            <Name>Device.WiFi.Radio.{i}.BeaconRate</Name>
-+       </Param>
-         <Param>
-             <Name>Device.WiFi.Radio.{i}.Channel</Name>
-         </Param>
-@@ -1531,7 +1569,10 @@
-             <Name>Device.WiFi.AccessPoint.{i}.Alias</Name>
-         </Param>
-         <Param>
--            <Name>Device.WiFi.AccessPoint.{i}.SSIDReference</Name>
-+               <Name>Device.WiFi.AccessPoint.{i}.SSIDReference</Name>
-+       </Param>
-+       <Param>
-+               <Name>Device.WiFi.AccessPoint.{i}.Kickmac</Name>
-         </Param>
-         <Param>
-             <Name>Device.WiFi.AccessPoint.{i}.SSIDAdvertisementEnabled</Name>
-@@ -1813,12 +1842,18 @@
- 	    <Name>Device.WiFi.NeighboringWiFiDiagnostic.Result.{i}.DTIMPeriod</Name>
- 	</Param>
- 	<Param>
--	    <Name>Device.WiFi.NeighboringWiFiDiagnostic.Result.{i}.X_COMCAST-COM_ChannelUtilization</Name>
-+		<Name>Device.WiFi.NeighboringWiFiDiagnostic.Result.{i}.X_COMCAST-COM_ChannelUtilization</Name>
- 	</Param>
--        <Param>
--            <Name>Device.PPP.InterfaceNumberOfEntries</Name>
--        </Param>
--        <Param>
-+	<Param>
-+		<Name>Device.WiFi.CreateVAP.1.VAP_Id</Name>
-+	</Param>
-+	<Param>
-+		<Name>Device.WiFi.DeleteVAP.1.VAP_Id</Name>
-+	</Param>
-+	<Param>
-+		<Name>Device.PPP.InterfaceNumberOfEntries</Name>
-+	</Param>
-+	<Param>
-             <Name>Device.PPP.Interface.{i}.Enable</Name>
-         </Param>
-         <Param>
-@@ -3898,9 +3933,30 @@
-         <Param>
-             <Name>Device.X_CISCO_COM_DeviceControl.UserOpComponents</Name>
-         </Param>
--        <Param>
--            <Name>Device.X_CISCO_COM_DeviceControl.UserChangedParams</Name>
--        </Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.UserChangedParams</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Enable</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Protocol</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Upstream</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Downstream</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Name</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.McProxy_IPv6_brlan_IP</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.ApplySettings</Name>
-+	</Param>
-         <Param>
++            <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Protocol</Name>
++        </Param>
++        <Param>
++            <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Upstream</Name>
++        </Param>
++        <Param>
++            <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Downstream</Name>
++        </Param>
++        <Param>
++            <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.Name</Name>
++        </Param>
++        <Param>
++            <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.McProxy_IPv6_brlan_IP</Name>
++        </Param>
++        <Param>
++            <Name>Device.X_CISCO_COM_DeviceControl.IPQ_McProxy.{i}.ApplySettings</Name>
++        </Param>
++        <Param>
              <Name>Device.X_CISCO_COM_DeviceControl.LanManagementEntryNumberOs</Name>
          </Param>
-@@ -4369,14 +4425,17 @@
          <Param>
-             <Name>Device.Bridging.Bridge.{i}.Port.{i}.Enable</Name>
-         </Param>
--        <Param>
--            <Name>Device.Bridging.Bridge.{i}.Port.{i}.Status</Name>
--        </Param>
--        <Param>
--            <Name>Device.Bridging.Bridge.{i}.Port.{i}.Alias</Name>
--        </Param>
--        <Param>
--            <Name>Device.Bridging.Bridge.{i}.Port.{i}.Name</Name>
-+	<Param>
-+	    <Name>Device.Bridging.Bridge.{i}.Port.{i}.Status</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.Bridging.Bridge.{i}.Port.{i}.Alias</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.Bridging.Bridge.{i}.Port.{i}.Get_InterfaceName</Name>
-+	</Param>
-+	<Param>
-+	    <Name>Device.Bridging.Bridge.{i}.Port.{i}.Name</Name>
-         </Param>
-         <Param>
-             <Name>Device.Bridging.Bridge.{i}.Port.{i}.LastChange</Name>
-             diff --git a/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c b/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
-index 1af9423..cfb695b 100755
---- a/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
-+++ b/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
-@@ -1616,14 +1616,16 @@ CcspCwmppoMpaSetParameterValuesWithWriteID
+Index: git/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
+===================================================================
+--- git.orig/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
++++ git/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
+@@ -1732,16 +1732,14 @@ CcspCwmppoMpaSetParameterValuesWithWrite
+             pInvalidParam = NULL;
+ 
              char*   faultParam = NULL;
-             BOOL bRestartRadio1 = FALSE;
-             BOOL bRestartRadio2 = FALSE;
-+            BOOL bRestartRadio3 = FALSE;
-             int nreq = 0,x,index;
-             int apply_rf;
-
+-            BOOL bRestartRadio1 = FALSE;
+-            BOOL bRestartRadio2 = FALSE;
+-            int nreq = 0,x,index;
+-            int apply_rf;
++            BOOL bApplyRadio = FALSE;
++            BOOL bApplyVap = FALSE;
++            int nreq = 0,x;
+ 
              parameterValStruct_t *val = NULL;
--            parameterValStruct_t val_set[4] = { { "Device.WiFi.Radio.1.X_CISCO_COM_ApplySettingSSID","1", ccsp_int},
-+            parameterValStruct_t val_set[5] = { { "Device.WiFi.Radio.1.X_CISCO_COM_ApplySettingSSID","1", ccsp_int},
-                 { "Device.WiFi.Radio.1.X_CISCO_COM_ApplySetting", "true", ccsp_boolean},
-                 { "Device.WiFi.Radio.2.X_CISCO_COM_ApplySettingSSID","2", ccsp_int},
+-            parameterValStruct_t val_set[4] = { { "Device.WiFi.Radio.1.X_CISCO_COM_ApplySettingSSID","1", ccsp_int}, 
+-                { "Device.WiFi.Radio.1.X_CISCO_COM_ApplySetting", "true", ccsp_boolean},
+-                { "Device.WiFi.Radio.2.X_CISCO_COM_ApplySettingSSID","2", ccsp_int},
 -                { "Device.WiFi.Radio.2.X_CISCO_COM_ApplySetting", "true", ccsp_boolean}};
-+                { "Device.WiFi.Radio.2.X_CISCO_COM_ApplySetting", "true", ccsp_boolean},
-+                { "Device.WiFi.Radio.3.X_CISCO_COM_ApplySetting", "true", ccsp_boolean}};
++            parameterValStruct_t val_set[2] = {
++                { "Device.WiFi.ApplyRadioSettings", "true", ccsp_boolean},
++                { "Device.WiFi.ApplyAccessPointSettings", "true", ccsp_boolean}};
              for(x =0; x<= noOfParam; x++)
              {
                  if (ParamName[x] == NULL)
-@@ -1639,6 +1641,10 @@ CcspCwmppoMpaSetParameterValuesWithWriteID
-                 {
-                     bRestartRadio2 = TRUE;
+@@ -1749,69 +1747,16 @@ CcspCwmppoMpaSetParameterValuesWithWrite
+                    // skip empty string.
+                    continue;
                  }
-+                else if(!strncmp(ParamName[x],"Device.WiFi.Radio.3.",20))
-+                {
-+                    bRestartRadio3 = TRUE;
-+                }
-                 else{
-
-                     if((!strncmp(ParamName[x],"Device.WiFi.SSID.",17)))
-@@ -1647,32 +1653,44 @@ CcspCwmppoMpaSetParameterValuesWithWriteID
-                         sscanf(ParamName[x],"Device.WiFi.SSID.%d",&index);
-                         printf("index = %d\n",index);
-                         //SSID = (1 << ((index)-1));
+-                if(!strncmp(ParamName[x],"Device.WiFi.Radio.1.",20))
++                if(!strncmp(ParamName[x],"Device.WiFi.Radio.",18))
+                 {
+-                    bRestartRadio1 = TRUE; 
++                    bApplyRadio = TRUE;
+                 }
+-                else if(!strncmp(ParamName[x],"Device.WiFi.Radio.2.",20))
+-                {
+-                    bRestartRadio2 = TRUE;
+-                }
+-                else{
+-
+-                    if((!strncmp(ParamName[x],"Device.WiFi.SSID.",17)))
+-                    {
+-
+-                        sscanf(ParamName[x],"Device.WiFi.SSID.%d",&index);
+-                        printf("index = %d\n",index);
+-                        //SSID = (1 << ((index)-1));
 -                        apply_rf = (2  - ((index)%2));
 -                        printf("apply_rf = %d\n",apply_rf);
 -                        if(apply_rf == 1)
 -                        {
 -                            bRestartRadio1 = TRUE;
-+                        //
-+                        if ((index > 16 && index < 25) || (index > 40 && index < 49) || index == 51) {
-+                            bRestartRadio3 = TRUE;
-+                        } else {
-+
-+                            apply_rf = (2  - ((index)%2));
-+                            printf("apply_rf = %d\n",apply_rf);
-+                            if(apply_rf == 1)
-+                            {
-+                                bRestartRadio1 = TRUE;
-+                            }
-+                            else if(apply_rf == 2)
-+                            {
-+                                bRestartRadio2 = TRUE;
-+                            }
-                         }
+-                        }
 -                        else if(apply_rf == 2)
 -                        {
 -                            bRestartRadio2 = TRUE;
--                        }
-
-+
-                     }
-                     else if(!strncmp(ParamName[x],"Device.WiFi.AccessPoint.",24))
-                     {
-                         sscanf(ParamName[x],"Device.WiFi.AccessPoint.%d",&index);
-                         //SSID = (1 << ((index)-1));
+-                        }				
+-
+-                    }
+-                    else if(!strncmp(ParamName[x],"Device.WiFi.AccessPoint.",24))
+-                    {
+-                        sscanf(ParamName[x],"Device.WiFi.AccessPoint.%d",&index);
+-                        //SSID = (1 << ((index)-1));
 -                        apply_rf = (2  - ((index)%2));
 -                        if(apply_rf == 1)
 -                        {
--                            bRestartRadio1 = TRUE;
-+
-+                        if ((index > 16 && index < 25) || (index > 40 && index < 49) || index == 51) {
-+                            bRestartRadio3 = TRUE;
-+                        } else {
-+                            apply_rf = (2  - ((index)%2));
-+                            if(apply_rf == 1)
-+                            {
-+                                bRestartRadio1 = TRUE;
-
+-                            bRestartRadio1 = TRUE; 
+-
 -                        }
 -                        else if(apply_rf == 2)
 -                        {
--                            bRestartRadio2 = TRUE;
-+                            }
-+                            else if(apply_rf == 2)
-+                            {
-+                                bRestartRadio2 = TRUE;
-
-+                            }
-                         }
-                     }
-
-@@ -1696,6 +1714,12 @@ CcspCwmppoMpaSetParameterValuesWithWriteID
-                 val = &val_set[2];
+-                            bRestartRadio2 = TRUE; 
+-
+-                        }
+-                    }
+-
++                else if( !(strncmp(ParamName[x],"Device.WiFi.SSID.",17)) || !(strncmp(ParamName[x],"Device.WiFi.AccessPoint.", 24))) {
++                    bApplyVap = TRUE;
+                 }
+             }
+-            if((bRestartRadio1 == TRUE) && (bRestartRadio2 == TRUE))
+-            {
+-                printf("Need to restart both the Radios\n");
+-                val = val_set;
+-                nreq = 4;
+-            }
+-            else if(bRestartRadio1)
+-            {
+-                printf("Need to restart Radio 1\n");
+-                val = val_set;
+-                nreq = 2;
+-            }
+-            else if(bRestartRadio2)
+-            {
+-                printf("Need to restart Radio 2\n");
+-                val = &val_set[2];
++            if (bApplyRadio || bApplyVap) {
++                val = &val_set[0];
                  nreq = 2;
              }
-+            else if(bRestartRadio3)
-+            {
-+                printf("Need to restart Radio 3\n");
-+                val = &val_set[3];
-+                nreq = 2;
-+            }
-
-             nResult = CcspBaseIf_setParameterValues
-                 (
+ 

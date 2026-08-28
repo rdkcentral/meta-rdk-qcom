@@ -1,13 +1,11 @@
 require ccsp_common_ipq.inc
 LDFLAGS += "-Wl,--no-as-needed -lulog"
-CFLAGS_append = " -D_RDK_REF_PLATFORM_ -DDSLITE_FEATURE_SUPPORT_ -DDDNS_BROADBANDFORUM_ -DDEVICE_GATEWAY_ASSOCIATION_FEATURE_ \
-                  -DFEATURE_FWUPGRADE_MANAGER_ -DFEATURE_RDKB_GPON_MANAGER_ -DFEATURE_RDKB_XDSL_PPP_MANAGER_ "
+#CFLAGS:append = " -Wno-error=unused-function "
 
 FILESEXTRAPATHS_prepend := "${THISDIR}:"
-SRC_URI += " file://0001-ccsp-management-server-genieacs.patch "
 SRC_URI += " file://0002-6g-support-genieacs.patch "
-SRC_URI += " file://0003-adv-support-genieacs.patch "
 SRC_URI += " file://0004-ccsp_tr069_rdkgponmanager.patch "
+SRC_URI += " file://0005-wifi-params-set.patch "
 
 do_install_append () {
     # Config files and scripts
@@ -27,36 +25,6 @@ do_install_append () {
     ln -sf /usr/ccsp/tr069pa/url ${D}${sysconfdir}/url
     echo "5555" > ${D}/usr/ccsp/tr069pa/sharedkey
 }
-
-do_mypatch() {
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/source-embedded/.0001-ccsp-management-server-genieacs-patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/source-embedded/
-        patch -p2 < ${WORKDIR}/0001-ccsp-management-server-genieacs.patch
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/source-embedded/.0001-ccsp-management-server-genieacs-patched
-        cd -
-    fi
-
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/.0002-6g-support-genieacs-patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/
-        patch -p1 -l < ${WORKDIR}/0002-6g-support-genieacs.patch
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/.0002-6g-support-genieacs-patched
-        cd -
-    fi
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/.0003-adv-support-genieacs-patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/
-        patch -p1 -l < ${WORKDIR}/0003-adv-support-genieacs.patch
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/.0003-adv-support-genieacs-patched
-        cd -
-    fi
-    if [ ! -f ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/.0004-ccsp_tr069_rdkgponmanager.patched ]; then
-        cd ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/
-        patch -p1 -l < ${WORKDIR}/0004-ccsp_tr069_rdkgponmanager.patch
-        touch ${TOPDIR}/../rdkb/components/opensource/ccsp/CcspTr069Pa/.0004-ccsp_tr069_rdkgponmanager.patched
-        cd -
-    fi
-}
-
-addtask mypatch after do_unpack before do_compile
 
 FILES_${PN}-ccsp += " \
     ${prefix}/ccsp/tr069pa/CcspTr069PaSsp \

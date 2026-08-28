@@ -7,4 +7,4 @@ LDFLAGS_append = " \
     -lbreakpadwrapper \
 "
 LDFLAGS_append_aarch64 = " -lnanomsg "
-CFLAGS_append = " -D_COSA_BCM_ARM_  "
+CFLAGS_append = " -D_COSA_QCA_ARM_  "

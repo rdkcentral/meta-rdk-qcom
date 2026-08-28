@@ -1,11 +1,3 @@
-Commit ID: 724967c3ebd29eaafb50a21de4eb3150c20e5320
-From: rajka <rajka@qti.qualcomm.com>
-Date: Sun Aug 6 23:32:51 2023 +0530
-Subject: IPQ_MACRO handling for GWprovethwan
-Signed-off-by: rajka <rajka@qti.qualcomm.com>
-
----
-
 diff --git a/source/autowan.c b/source/autowan.c
 index 5768b40..8df85fe 100644
 --- a/source/autowan.c

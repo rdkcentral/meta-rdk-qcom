@@ -1,7 +1,12 @@
-#!/bin/sh
+#
+# Copyright (c) 2018 Qualcomm Technologies, Inc.
+# All Rights Reserved.
+# Licensed under the Apache License, Version 2.0
+#
+#
 
-# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
-# Licensed under the ISC License
+
+#!/bin/sh
 
 #----------------------------------------------------------------------
 # This work is a script which will perform pdt related initializations

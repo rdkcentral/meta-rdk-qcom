@@ -1,11 +1,3 @@
-Commit ID: 7e9086f7b710555c205368f37dab7bcb539ba0a4
-From: kapale <kapale@qti.qualcomm.com>
-Date: Tue Nov 8 16:17:06 2022 +0530
-Subject: [recipes-ccsp] Updating the default MaxMTUSize once the wan interface is up.   1. After reboot if we get MaxMTUSize for erouter0, without setting MaxMTUSize, the value initilised with 0.   need to get default MaxMTUSize from CosaUtilIoctlXXX once the interface is up.
-Signed-off-by: kapale <kapale@qti.qualcomm.com>
-
----
-
 diff --git a/source/TR-181/middle_layer_src/cosa_ip_dml.c b/source/TR-181/middle_layer_src/cosa_ip_dml.c
 index 7b16456..a31caca 100755
 --- a/source/TR-181/middle_layer_src/cosa_ip_dml.c

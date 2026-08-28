@@ -1,9 +1,3 @@
-From: Sriraaman C <sriraama@qti.qualcomm.com>
-Date: Wed Jan 22 12:27:34 2025 +0530
-Subject: [recipes-ccsp] Added support needed to add/modify firewall rules on runtime via omci scripts handled via firewall_log_handle.sh.
-Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
------------------------------------
-
 diff --git a/source/scripts/init/service.d/service_potd.sh b/source/scripts/init/service.d/service_potd.sh
 index e174813..b36b642 100755
 --- a/source/scripts/init/service.d/service_potd.sh

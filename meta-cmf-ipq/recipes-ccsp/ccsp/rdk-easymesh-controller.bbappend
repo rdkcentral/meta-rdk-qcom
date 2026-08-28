@@ -1,6 +1,6 @@
 require ccsp_common_ipq.inc
 
-FILESPATH =+ "${TOPDIR}/../meta-rdk-qcom/meta-cmf-ipq/recipes-ccsp/ccsp/rdk-easymesh-controller:"
+FILESPATH =+ "${TOPDIR}/../meta-cmf-ipq/recipes-ccsp/ccsp/rdk-easymesh-controller:"
 SRC_URI += "file://0001-Airties-controller-changes.patch \
 	    "
 do_patch[noexec] = "1"

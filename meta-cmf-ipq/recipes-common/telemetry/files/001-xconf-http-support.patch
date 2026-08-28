@@ -1,0 +1,13 @@
+diff --git a/source/xconf-client/xconfclient.c b/source/xconf-client/xconfclient.c
+index 36577ad..d5b561e 100644
+--- a/source/xconf-client/xconfclient.c
++++ b/source/xconf-client/xconfclient.c
+@@ -1240,7 +1240,7 @@ T2ERROR getRemoteConfigURL(char **configURL)
+         {
+             if (NULL != paramVal)
+             {
+-                if ((strlen(paramVal) > 8) && (0 == strncmp(paramVal, "https://", 8)))   // Enforcing https for new endpoints
++                if (((strlen(paramVal) > 8) && (strncmp(paramVal, "https://", 8) == 0)) || ((strlen(paramVal) > 7) && (strncmp(paramVal, "http://", 7) == 0))) // Enforcing https for new endpoints
+                 {
+                     T2Info("Setting config URL base location to : %s\n", paramVal);
+                     *configURL = paramVal;

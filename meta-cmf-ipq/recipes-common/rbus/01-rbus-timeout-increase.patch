@@ -1,22 +1,16 @@
-From: Sriraaman C <sriraama@qti.qualcomm.com>
-Date: Tue Dec 10 20:49:57 2024 +0530
-Subject: [meta-cmf-ipq] Increasing RBUS timeout by default
-Signed-off-by: Sriraaman C <sriraama@qti.qualcomm.com>
------------------------------------
-
-diff --git a/src/rbus/rbus_config.c b/src/rbus/rbus_config.c
-index 65d37a0..a9afcca 100644
---- a/src/rbus/rbus_config.c
-+++ b/src/rbus/rbus_config.c
-@@ -30,9 +30,9 @@
- #define RBUS_SUBSCRIBE_TIMEOUT   600000     /*subscribe retry timeout in miliseconds*/
- #define RBUS_SUBSCRIBE_MAXWAIT   60000      /*subscribe retry max wait between retries in miliseconds*/
- #define RBUS_VALUECHANGE_PERIOD  2000       /*polling period for valuechange detector*/
--#define RBUS_GET_DEFAULT_TIMEOUT 15000      /* default timeout in miliseconds for GET API */
-+#define RBUS_GET_DEFAULT_TIMEOUT 60000      /* default timeout in miliseconds for GET API */
- #define RBUS_GET_WILDCARD_DEFAULT_TIMEOUT 120000 /* default timeout in miliseconds for Wildcard GET API */
--#define RBUS_SET_DEFAULT_TIMEOUT 15000      /* default timeout in miliseconds for SET API */
-+#define RBUS_SET_DEFAULT_TIMEOUT 60000      /* default timeout in miliseconds for SET API */
- #define RBUS_GET_TIMEOUT_OVERRIDE "/tmp/rbus_timeout_get"
- #define RBUS_GET_WILDCARD_TIMEOUT_OVERRIDE "/tmp/rbus_timeout_get_wildcard_query"
- #define RBUS_SET_TIMEOUT_OVERRIDE "/tmp/rbus_timeout_set"
+Index: git/src/rbus/rbus_handle.c
+===================================================================
+--- git.orig/src/rbus/rbus_handle.c
++++ git/src/rbus/rbus_handle.c
+@@ -26,9 +26,9 @@ static rtVector gHandleList = NULL;
+ 
+ #define VERIFY_NULL(T,R) if(NULL == T){ RBUSLOG_ERROR(#T" is NULL"); R; }
+ #define BUF_LEN 128
+-#define RBUS_GET_DEFAULT_TIMEOUT          15000   /* default timeout in miliseconds for GET API */
++#define RBUS_GET_DEFAULT_TIMEOUT          60000   /* default timeout in miliseconds for GET API */
+ #define RBUS_GET_WILDCARD_DEFAULT_TIMEOUT 120000  /* default timeout in miliseconds for Wildcard GET API */
+-#define RBUS_SET_DEFAULT_TIMEOUT          15000   /* default timeout in miliseconds for SET API */
++#define RBUS_SET_DEFAULT_TIMEOUT          60000   /* default timeout in miliseconds for SET API */
+ #define RBUS_SET_MULTI_DEFAULT_TIMEOUT    60000   /* default timeout in miliseconds for SET Multi API */
+ 
+ #define initStr(P,N) \

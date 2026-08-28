@@ -1,0 +1,48 @@
+Index: git/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
+===================================================================
+--- git.orig/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
++++ git/source-embedded/CcspCwmpProcessor/ccsp_cwmp_proco_mpaif.c
+@@ -1052,6 +1052,8 @@ CcspCwmppoMpaSetParameterValuesWithWrite
+     AnscQueueInitializeHeader(&FcNsListQueue);
+     errno_t rc = -1;
+     int ind = -1;
++    char* pInternalParamName = NULL;
++    char* pParamNameToCheck = NULL;
+ 
+     /*
+      * A fault response MUST make use of the SOAP Fault element using the following conventions:
+@@ -1154,7 +1156,19 @@ CcspCwmppoMpaSetParameterValuesWithWrite
+ 
+             _ansc_sprintf(pCrNameWithPrefix, "%s%s", pCcspCwmpCpeController->SubsysName ? pCcspCwmpCpeController->SubsysName:"", pCrName);
+ 
+-            if(CheckIfParamWritable(pCcspCwmpCpeController->hMsgBusHandle, pCrNameWithPrefix,pParameterValueArray[i].Name) != CCSP_SUCCESS){
++            // check if the parameter name needs to be mapped
++            pInternalParamName = CcspTr069PA_MapInstNumCwmpToDmInt(pParameterValueArray[i].Name);
++            if (pInternalParamName)
++            {
++                pParamNameToCheck = pInternalParamName;
++                CcspTr069PaTraceWarning(("Param is being translated to %s\n",pInternalParamName));
++            }
++            else
++            {
++                pParamNameToCheck = pParameterValueArray[i].Name;
++            }
++            if (CheckIfParamWritable(pCcspCwmpCpeController->hMsgBusHandle, pCrNameWithPrefix,pParamNameToCheck) != CCSP_SUCCESS)
++            {
+                 bFaultEncountered = TRUE;
+                 CCSP_CWMP_SET_SOAP_FAULT(pCwmpSoapFault, CCSP_CWMP_CPE_CWMP_FaultCode_notWritable);
+                 pCwmpSoapFault->SetParamValuesFaultArray[pCwmpSoapFault->SetParamValuesFaultCount].ParameterName = AnscCloneString(pParameterValueArray[i].Name);
+@@ -1162,9 +1176,13 @@ CcspCwmppoMpaSetParameterValuesWithWrite
+                 pCwmpSoapFault->SetParamValuesFaultArray[pCwmpSoapFault->SetParamValuesFaultCount].FaultString   = AnscCloneString(CCSP_CWMP_CPE_CWMP_FaultText_notWritable);
+                 pCwmpSoapFault->SetParamValuesFaultCount++;
+                 AnscFreeMemory(pCrNameWithPrefix);
++                if (pInternalParamName)
++                   AnscFreeMemory(pInternalParamName);
+                 continue;
+             }
+             AnscFreeMemory(pCrNameWithPrefix);
++            if (pInternalParamName)
++               AnscFreeMemory(pInternalParamName);
+         }
+ 
+         bIncludeInvQuery |= bIncludeInvParam;

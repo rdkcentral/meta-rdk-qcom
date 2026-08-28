@@ -1,41 +1,25 @@
-EXTRA_OECONF_append = " --enable-ert --enable-platform"
+EXTRA_OECONF:append = " --enable-ert --enable-platform"
 
-FILESPATH =+ "${TOPDIR}/../rdkb/devices/ipq/tdkb:"
-FILESEXTRAPATHS_prepend := "${THISDIR}:"
+SRC_URI:append= " ${CMF_GITHUB_ROOT}/tdk-broadband-raspberrypi;protocol=${CMF_GIT_PROTOCOL};branch=${CMF_GITHUB_MAIN_BRANCH};name=tdkbraspberrypi;destsuffix=git/platform/raspberrypi "
+SRCREV_tdkbraspberrypi = "${AUTOREV}"
+do_fetch[vardeps] += "SRCREV_tdkbraspberrypi"
+SRCREV_FORMAT = "tdk_tdkbraspberrypi"
 
-SRC_URI += "file://agent "
-SRC_URI += " file://001-tdk-lib.patch "
-SRC_URI += " file://002-ssp-pam-bridge-c.patch "
-SRC_URI += " file://003-tdk-bootdelay.patch "
+FILESEXTRAPATHS:prepend := "${THISDIR}:"
+
 SRC_URI += " file://004-tdk-crash.patch "
-SRC_URI += " file://005-makefile-macro.patch "
 SRC_URI += " file://006-hal-3-apply.patch "
+SRC_URI += " file://007-ipq-tdk-agent.patch "
 
-tdkdir = "/usr/ccsp/tdk/"
-
-do_install_append () {
+do_install:append () {
     install -d ${D}${tdkdir}
     install -d ${D}/etc
-    install -p -m 755 ${WORKDIR}/agent/scripts/*.sh ${D}/${tdkdir}
-    install -p -m 755 ${WORKDIR}/agent/scripts/tdk_platform.properties ${D}/etc/
+    install -p -m 755 ${S}/platform/raspberrypi/agent/scripts/*.sh ${D}${tdkdir}
+    install -p -m 755 ${S}/platform/raspberrypi/agent/scripts/tdk_platform.properties ${D}/etc/
 }
 
-do_mypatch(){
-            if [ ! -f ${TOPDIR}/../rdkb/tools/tdkb/.001-tdk-lib-patched ]; then
-                  cd ${TOPDIR}/../rdkb/tools/tdkb/
-                  patch -p1 < ${WORKDIR}/001-tdk-lib.patch
-                  patch -p1 < ${WORKDIR}/002-ssp-pam-bridge-c.patch
-                  patch -p1 < ${WORKDIR}/003-tdk-bootdelay.patch
-		  patch -p1 < ${WORKDIR}/004-tdk-crash.patch
-		  patch -p1 < ${WORKDIR}/005-makefile-macro.patch
-		  patch -p1 < ${WORKDIR}/006-hal-3-apply.patch
-                  cd -
-                  touch ${TOPDIR}/../rdkb/tools/tdkb/.001-tdk-lib-patched
-            fi
+FILES:${PN} += "${prefix}/ccsp/"
+FILES:${PN} += "/etc/*"
+FILES:${PN} += "${tdkdir}/*"
 
-}
-
-addtask mypatch after do_unpack before do_compile
-
-FILES_${PN} += "/etc/*"
-FILES_${PN} += "${tdkdir}/*"
+CXXFLAGS:append = " -DWIFI_HAL_VERSION_3 "

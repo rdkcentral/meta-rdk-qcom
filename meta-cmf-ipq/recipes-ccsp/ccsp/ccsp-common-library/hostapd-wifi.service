@@ -1,0 +1,23 @@
+[Unit]
+Description=hostapd WiFi Access Point (hostapd mode)
+After=network.target
+
+[Service]
+Type=simple
+# Only start when syscfg wifi_mode=hostapd; skipped (not failed) otherwise.
+# ExecCondition requires systemd >= 243.
+ExecCondition=/bin/sh -c '[ "$(syscfg get wifi_mode 2>/dev/null)" = "hostapd" ]'
+# Wait for the WiFi driver (wlan0) to be ready before starting
+ExecStartPre=/bin/sh -c 'while [ ! -e /sys/class/net/wlan0 ]; do sleep 1; done'
+ExecStartPre=/usr/sbin/iw phy phy00 interface add phy00-mld3 type __ap
+ExecStartPre=/bin/mkdir -p /var/run/hostapd
+ExecStart=/usr/sbin/hostapd -dddtK -g /var/run/hostapd/global \
+    /nvram/hostapd-phy00.0.conf \
+    /nvram/hostapd-phy00.1.conf \
+    /nvram/hostapd-phy00.2.conf
+StandardOutput=file:/tmp/host.txt
+StandardError=append:/tmp/host.txt
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
