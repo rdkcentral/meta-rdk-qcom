@@ -740,7 +740,7 @@ else
 fi
 ########################################################
 
-PEER_COMM_ID="/tmp/elxrretyt-logm.swr"
+PEER_COMM_ID="/tmp/interchip"
 
 RebootReason=`syscfg get X_RDKCENTRAL-COM_LastRebootReason`
 
