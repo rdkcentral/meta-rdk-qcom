@@ -1,25 +1,34 @@
-Commit ID: 5645cbbe1bbdbb60e4fe3c80079b06d6f489f048
+From 3804cc4f3c45ad5baedfac6c8dce452df1509d3e Mon Sep 17 00:00:00 2001
+From: ldonth501 <LasyaPrakarsha_DonthiVenkata@comcast.com>
+Date: Mon, 16 Nov 2026 12:14:51 +0000
+Subject: [PATCH] Commit ID: 5645cbbe1bbdbb60e4fe3c80079b06d6f489f048
+
 From: sriraama <sriraama@qti.qualcomm.com>
 Date: Mon May 20 20:52:38 2024 +0530
 Subject: [recipe-ccsp] Rebasing patches for 2024q1-dunfell migration.
 Signed-off-by: sriraama <sriraama@qti.qualcomm.com>
-
 ---
+ source/Styles/xb3/config/webgui.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/source/Styles/xb3/config/webgui.sh b/source/Styles/xb3/config/webgui.sh
-index 9962d81..bfde120 100755
+index 47fb817..4bbd5b1 100755
 --- a/source/Styles/xb3/config/webgui.sh
 +++ b/source/Styles/xb3/config/webgui.sh
-@@ -62,7 +62,7 @@ if [ -z $1 ] && [ ! -f /tmp/webuifwbundle ]; then
+@@ -65,10 +65,10 @@ if [ -z $1 ] && [ ! -f /tmp/webuifwbundle ]; then
      fi
  fi
  
--if [ "x$BOX_TYPE" != "xrpi" ] && [ "x$BOX_TYPE" != "xturris" ] && [ "x$BOX_TYPE" != "xemulator" ]; then
-+if [ "x$BOX_TYPE" != "xrpi" ] && [ "x$BOX_TYPE" != "xturris" ] && [ "x$BOX_TYPE" != "xemulator" ] && [ "x$BOX_TYPE" != "xipq" ]; then
+-if [ "x$BOX_TYPE" != "xrpi" ] && [ "x$BOX_TYPE" != "xbpi" ] && [ "x$BOX_TYPE" != "xturris" ] && [ "x$BOX_TYPE" != "xemulator" ]; then
++if [ "x$BOX_TYPE" != "xrpi" ] && [ "x$BOX_TYPE" != "xbpi" ] && [ "x$BOX_TYPE" != "xturris" ] && [ "x$BOX_TYPE" != "xemulator" ] && [ "x$BOX_TYPE" != "xipq" ]; then
  #upstreamed webgui_script_https_support.patch to Secure webui redirection as part of RDKB-42686.
  mkdir -p /tmp/.webui/
- ID="/tmp/trpfizyanrln"
-@@ -286,7 +286,7 @@ fi
+-ID="/tmp/trpfizyanrln"
++ID="/tmp/myrouter-webui"
+ itr=0
+ 
+ while [ $itr -le 10 ]
+@@ -303,7 +303,7 @@ fi
  
  if [ "$WIFIUNCONFIGURED" = "true" ]
  then
